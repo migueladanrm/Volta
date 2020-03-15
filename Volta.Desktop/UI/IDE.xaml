@@ -5,10 +5,74 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Volta.UI"
         mc:Ignorable="d"
-        Title="Volta IDE" Height="700" Width="1200" WindowStartupLocation="CenterScreen" UseLayoutRounding="True">
+        Title="Volta IDE" Height="700" Width="1200" MinHeight="550" MinWidth="800"
+        WindowStartupLocation="CenterScreen" UseLayoutRounding="True" Icon="\Resources/volta.ico" >
 
     <Grid x:Name="LayoutRoot">
-        
+        <Grid x:Name="LayoutPrimary">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="42"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="CodeEditorContainer" Grid.Row="2">
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
+                    <StackPanel Orientation="Vertical">
+                        <Path Data="{StaticResource Vector.CodeBracesBox}" Fill="Gray" Stretch="Uniform" Height="72" Width="72">
+                            <Path.Effect>
+                                <DropShadowEffect BlurRadius="1" Opacity="0.25" ShadowDepth="3" Direction="330"/>
+                            </Path.Effect>
+                        </Path>
+                        <TextBlock 
+                            Padding="10"
+                            FontFamily="Segoe UI Semilight"
+                            FontSize="18"
+                            Foreground="Gray"
+                            Text="Abra o cree un archivo para empezar."
+                            />
+                    </StackPanel>
+                </Label>
+            </Grid>
+
+            <Border Grid.Row="1">
+                <Grid>
+
+
+                    <Button Content="Compilar" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Padding="10,3"/>
+                </Grid>
+            </Border>
+
+            <Menu Grid.Row="0">
+                <MenuItem Header="Archivo">
+                    <MenuItem Header="Nuevo"/>
+                    <MenuItem Header="Abrir..."/>
+                    <Separator/>
+                    <MenuItem Header="Cerrar"/>
+                    <MenuItem Header="Cerrar todo"/>
+                    <Separator/>
+                    <MenuItem Header="Guardar"/>
+                    <MenuItem Header="Guardar todo"/>
+                    <Separator/>
+                    <MenuItem Header="Salir"/>
+                </MenuItem>
+                <MenuItem Header="Editar">
+                    
+                </MenuItem>
+                <MenuItem Header="Ventana">
+                    
+                </MenuItem>
+                <MenuItem Header="Ayuda">
+                    <MenuItem Header="Acerca de"/>
+                </MenuItem>
+            </Menu>
+        </Grid>
+
+        <Grid x:Name="LayoutSecondary" Visibility="Collapsed">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </Grid.Background>
+        </Grid>
     </Grid>
 
 </Window>

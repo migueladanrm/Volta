@@ -6,10 +6,19 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>Volta</RootNamespace>
     <AssemblyName>VoltaDesktop</AssemblyName>
+    <ApplicationIcon>Resources\volta.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\volta.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Volta.Core\Volta.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\volta.ico" />
   </ItemGroup>
 
 </Project>
