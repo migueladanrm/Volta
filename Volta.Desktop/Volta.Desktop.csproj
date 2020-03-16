@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\volta%40256px.png" />
     <None Remove="Resources\volta.ico" />
   </ItemGroup>
 
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <Resource Include="Resources\volta.ico" />
+    <Resource Include="Resources\volta@256px.png" />
   </ItemGroup>
 
 </Project>
