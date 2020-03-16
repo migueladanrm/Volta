@@ -4,20 +4,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Volta.UI"
+        xmlns:controls="clr-namespace:Volta.UI.Controls"
         mc:Ignorable="d"
         Title="Volta IDE" Height="700" Width="1200" MinHeight="550" MinWidth="800"
         WindowStartupLocation="CenterScreen" UseLayoutRounding="True" Icon="\Resources/volta.ico" >
 
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewFileCommand}"/>
+    </Window.InputBindings>
+    
     <Grid x:Name="LayoutRoot">
         <Grid x:Name="LayoutPrimary">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="42"/>
+                <RowDefinition Height="32"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
 
             <Grid x:Name="CodeEditorContainer" Grid.Row="2">
-                <Label HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
+                <controls:EditorTabsControl x:Name="EditorTabs" Margin="0,5,0,0"/>
+
+                <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
                     <StackPanel Orientation="Vertical">
                         <Path Data="{StaticResource Vector.CodeBracesBox}" Fill="Gray" Stretch="Uniform" Height="72" Width="72">
                             <Path.Effect>
@@ -35,10 +42,11 @@
                 </Label>
             </Grid>
 
-            <Border Grid.Row="1">
+            <Border x:Name="Toolbar" Grid.Row="1" Background="#FFF0F0F0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="2" Direction="270" Opacity="0.25" ShadowDepth="2"/>
+                </Border.Effect>
                 <Grid>
-
-
                     <Button Content="Compilar" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Padding="10,3"/>
                 </Grid>
             </Border>
@@ -57,10 +65,10 @@
                     <MenuItem Header="Salir"/>
                 </MenuItem>
                 <MenuItem Header="Editar">
-                    
+
                 </MenuItem>
                 <MenuItem Header="Ventana">
-                    
+                    <MenuItem Header="Pantalla completa"/>
                 </MenuItem>
                 <MenuItem Header="Ayuda">
                     <MenuItem Header="Acerca de"/>
@@ -76,3 +84,4 @@
     </Grid>
 
 </Window>
+    

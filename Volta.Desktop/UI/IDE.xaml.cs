@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Volta.Common;
 
 namespace Volta.UI
 {
@@ -19,6 +20,22 @@ namespace Volta.UI
     {
         public IDE() {
             InitializeComponent();
+
+            DataContext = this;
+
+            Defaults();
+        }
+
+        #region Comandos
+
+        public ICommand NewFileCommand => new DelegateCommand((_) => {
+            EditorTabs.NewTab();
+        });
+
+        #endregion
+
+        private void Defaults() {
+            LblEditorHint.Visibility = Visibility.Collapsed;
         }
     }
 }
