@@ -11,6 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Volta.Common;
+using Microsoft.Win32;
 
 namespace Volta.UI
 {
@@ -29,13 +30,35 @@ namespace Volta.UI
 
         #region Comandos
 
+        public ICommand CloseTabCommand => new DelegateCommand((x) => {
+
+        });
+
         public ICommand HideSecondaryLayoutCommand => new DelegateCommand((x) => {
             if (LayoutSecondary.Visibility.Equals(Visibility.Visible))
                 SLHide();
         });
 
         public ICommand NewFileCommand => new DelegateCommand((_) => {
+            if (LblEditorHint.Visibility.Equals(Visibility.Visible))
+                LblEditorHint.Visibility = Visibility.Collapsed;
+
+            if (!EditorTabs.Visibility.Equals(Visibility.Visible))
+                EditorTabs.Visibility = Visibility.Visible;
+
             EditorTabs.NewTab();
+        });
+
+        public ICommand OpenFileCommand => new DelegateCommand((x) => {
+            var dlg = new OpenFileDialog {
+                Filter = "Archivos de código C# (*.cs) | *.cs;",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Multiselect = false
+            };
+            if (dlg.ShowDialog().Value) {
+                string containerPath = dlg.FileName;
+
+            }
         });
 
         public ICommand TestCommand => new DelegateCommand((x) => {
@@ -106,8 +129,10 @@ namespace Volta.UI
         #endregion
 
         private void Defaults() {
-            LblEditorHint.Visibility = Visibility.Collapsed;
             LayoutSecondary.Visibility = Visibility.Collapsed;
+
+            LblEditorHint.Visibility = Visibility.Visible;
+            EditorTabs.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.AvalonEdit.Highlighting;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,10 +22,19 @@ namespace Volta.UI.Controls
     public partial class EditorTabsControl : UserControl
     {
         private int _newDocumentCounter = 1;
+
         public EditorTabsControl() {
             InitializeComponent();
 
             DataContext = this;
+
+            Defaults();
+        }
+
+        public int OpenedDocuments => TC.Items.Count;
+
+        private void Defaults() {
+            TC.Items.Remove(TC.Items[0]);
         }
 
         private TextEditor GenerateTextEditor() {
@@ -33,6 +43,7 @@ namespace Volta.UI.Controls
                 FontSize = 16,
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
                 ShowLineNumbers = true,
+                SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("C#")
             };
             te.TextArea.Caret.PositionChanged += TextEditorCaret_PositionChanged;
 
