@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Win32;
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Volta.Common;
-using Microsoft.Win32;
 
 namespace Volta.UI
 {
@@ -56,14 +49,22 @@ namespace Volta.UI
                 Multiselect = false
             };
             if (dlg.ShowDialog().Value) {
-                string containerPath = dlg.FileName;
+                if (LblEditorHint.Visibility.Equals(Visibility.Visible))
+                    LblEditorHint.Visibility = Visibility.Collapsed;
 
+                if (!EditorTabs.Visibility.Equals(Visibility.Visible))
+                    EditorTabs.Visibility = Visibility.Visible;
+
+                string containerPath = dlg.FileName;
+                EditorTabs.NewTab(containerPath);
             }
         });
 
         public ICommand TestCommand => new DelegateCommand((x) => {
             SLDlgShow(nameof(DlgAbout));
         });
+
+        public ICommand AboutCommand => new DelegateCommand((_) => SLDlgShow(nameof(DlgAbout)));
 
         #endregion
 
@@ -123,8 +124,6 @@ namespace Volta.UI
             }
             return null;
         }
-
-        private void SLDlgRequestHide() => SLHide();
 
         #endregion
 

@@ -147,7 +147,7 @@
             <Menu Grid.Row="0">
                 <MenuItem Header="Archivo">
                     <MenuItem Header="Nuevo" Command="{Binding NewFileCommand}"/>
-                    <MenuItem Header="Abrir..."/>
+                    <MenuItem Header="Abrir..." Command="{Binding OpenFileCommand}"/>
                     <Separator/>
                     <MenuItem Header="Cerrar"/>
                     <MenuItem Header="Cerrar todo"/>
@@ -166,17 +166,17 @@
                     <MenuItem Header="Pantalla completa"/>
                 </MenuItem>
                 <MenuItem Header="Ayuda">
-                    <MenuItem Header="Acerca de"/>
+                    <MenuItem Header="Acerca de" Command="{Binding AboutCommand}"/>
                 </MenuItem>
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" >
+        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
 
-            <Border x:Name="DlgAbout" Style="{StaticResource Dialog.Container}" Width="400" d:IsHidden="True">
+            <Border x:Name="DlgAbout" Style="{StaticResource Dialog.Container}" Width="400">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -205,7 +205,7 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="DlgSavePendingChanges" Style="{StaticResource Dialog.Container}" MaxWidth="500">
+            <Border x:Name="DlgSavePendingChanges" Style="{StaticResource Dialog.Container}" MaxWidth="500" d:IsHidden="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>

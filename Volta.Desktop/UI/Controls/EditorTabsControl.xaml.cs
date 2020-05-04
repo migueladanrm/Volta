@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Volta.Editor;
 
 namespace Volta.UI.Controls
 {
@@ -64,6 +65,21 @@ namespace Volta.UI.Controls
             }
 
             _newDocumentCounter++;
+        }
+
+        public void NewTab(string path) {
+            var codeFile = new CodeFile(path);
+
+            var te = GenerateTextEditor();
+            te.Load(codeFile.FilePath);
+
+            TC.Items.Add(new TabItem {
+                Header = codeFile.FileName,
+                Content = te
+            });
+
+            TC.SelectedIndex = TC.Items.Count - 1;
+            te.TextArea.Focus();
         }
 
         private void TC_SelectionChanged(object sender, SelectionChangedEventArgs e) {
