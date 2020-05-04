@@ -351,3 +351,6 @@ MigrationBackup/
 
 #ANTLR files
 .antlr/
+
+.idea/
+*.iml

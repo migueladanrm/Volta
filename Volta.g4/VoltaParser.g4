@@ -1,64 +1,64 @@
 parser grammar VoltaParser;
 
 options {
-    tokenVocab = Scanner;
+    tokenVocab = VoltaScanner;
 }
 
-program : CLASS IDENT (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF;
+program                         :   CLASS IDENT (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF;
 
-constDecl : CONST type IDENT EQUAL ( NUM | CHARCONST) SEMICOLON;
+constDecl                       :   CONST type IDENT EQUAL ( NUM | CHARCONST) SEMICOLON;
 
-varDecl: type IDENT (COMMA IDENT)* SEMICOLON;
+varDecl                         :   type IDENT (COMMA IDENT)* SEMICOLON;
 
-classDecl: CLASS IDENT CURLYBL varDecl CURLYBR;
+classDecl                       :   CLASS IDENT CURLYBL varDecl CURLYBR;
 
-methodDecl: (type | VOID) IDENT BL formPars? BR (varDecl)* block;
+methodDecl                      :   (type | VOID) IDENT BL formPars? BR (varDecl)* block;
 
-formPars: type IDENT ((COMMA) type IDENT)*;
+formPars                        :   type IDENT ((COMMA) type IDENT)*;
 
-type: IDENT (SQUAREBL SQUAREBR)?;
+type                            :   IDENT (SQUAREBL SQUAREBR)?;
 
-statement: designator (EQUAL expr | BL actPars? BR | ADDADD | SUBSUB) SEMICOLON
-         | IF BL condition BR statement (ELSE statement)?
-         | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement
-         | WHILE BL condition BR statement
-         | BREAK SEMICOLON
-         | RETURN expr?
-         | READ BL designator BR SEMICOLON
-         | WRITE BL expr (COMMA NUM)? BR SEMICOLON
-         | block
-         | SEMICOLON;
+statement                       :   designator (EQUAL expr | BL actPars? BR | ADDADD | SUBSUB) SEMICOLON
+                                     | IF BL condition BR statement (ELSE statement)?
+                                     | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement
+                                     | WHILE BL condition BR statement
+                                     | BREAK SEMICOLON
+                                     | RETURN expr?
+                                     | READ BL designator BR SEMICOLON
+                                     | WRITE BL expr (COMMA NUM)? BR SEMICOLON
+                                     | block
+                                     | SEMICOLON;
 
-block: CURLYBL statement* CURLYBR;
+block                           :   CURLYBL statement* CURLYBR;
 
-actPars: expr (COMMA expr)*;
+actPars                         :   expr (COMMA expr)*;
 
-condition: condTerm (OR condTerm)*;
+condition                       :   condTerm (OR condTerm)*;
 
-condTerm: condFact (AND condFact)*;
+condTerm                        :   condFact (AND condFact)*;
 
-condFact: expr relop expr;
+condFact                        :   expr relop expr;
 
-expr: SUB? term (addop term)*;
+expr                            :   SUB? term (addop term)*;
 
-term: factor (mulop factor)*;
+term                            :   factor (mulop factor)*;
 
-factor: designator (BL actPars? BR)?
-      | NUM
-      | CHARCONST
-      | (TRUE|FALSE)
-      | NEW IDENT
-      | BL expr BR;
+factor                          :   designator (BL actPars? BR)?
+                                      | NUM
+                                      | CHARCONST
+                                      | (TRUE|FALSE)
+                                      | NEW IDENT
+                                      | BL expr BR;
 
-designator: IDENT (DOT IDENT | SQUAREBL expr SQUAREBR)*;
+designator                      :   IDENT (DOT IDENT | SQUAREBL expr SQUAREBR)*;
 
-mulop : MUL | DIV | MDIV;
+mulop                           :   MUL | DIV | MDIV;
 
-addop: (ADD | SUB);
+addop                           :   (ADD | SUB);
 
-relop: EQUALEQUAL
-        | NOTEQUAL
-        | GREATEREQUAL
-        | LESSEQUAL
-        | GREATER
-        | LESS;
+relop                           :   EQUALEQUAL
+                                    | NOTEQUAL
+                                    | GREATEREQUAL
+                                    | LESSEQUAL
+                                    | GREATER
+                                    | LESS;
