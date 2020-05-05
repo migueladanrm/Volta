@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using Volta.Common;
+using Volta.Editor;
 
 namespace Volta.UI
 {
@@ -13,8 +14,12 @@ namespace Volta.UI
     /// </summary>
     public partial class IDE : Window
     {
+        private EditorWorkspace __workspace;
+
         public IDE() {
             InitializeComponent();
+
+            __workspace = EditorWorkspace.NewInstance();
 
             DataContext = this;
 
