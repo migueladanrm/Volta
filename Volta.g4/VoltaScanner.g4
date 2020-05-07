@@ -38,7 +38,6 @@ QUESTIONMARK                            :   '?';
 
 
 //// Keywords
-BREAK                                   :   'break';
 CLASS                                   :   'class';
 CONST                                   :   'const';
 ELSE                                    :   'else';
@@ -51,12 +50,18 @@ WHILE                                   :   'while';
 WRITE                                   :   'write';
 TRUE                                    :   'true';
 FALSE                                   :   'false';
+FOR                                     :   'for';
+SWITCH                                  :   'switch';
+CASE                                    :   'case';
+BREAK                                   :   'break';
+DEFAULT                                 :   'default';
 
 // Numbers & identifiers
 
 IDENT                                   :   (LETTER|[_])(LETTER|NUM|[_])*;
 NUM                                     :   [1-9][0-9]* | '0';
 CHARCONST                               :   (SQMARK(PRINTABLE_CHAR | '\\n' | '\\r')(SQMARK));
+STRING                                  :   QMARK(~["]|'\\"')*QMARK;
 COMMENT                                 :   (('//'~[\r\n]*[\n\r]) | ('/*'[.]*'*/'))+ -> skip;
 
 // Fragments & others

@@ -6,7 +6,7 @@ options {
 
 program                         :   CLASS IDENT (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF;
 
-constDecl                       :   CONST type IDENT EQUAL ( NUM | CHARCONST) SEMICOLON;
+constDecl                       :   CONST type IDENT EQUAL ( NUM | CHARCONST | STRING) SEMICOLON;
 
 varDecl                         :   type IDENT (COMMA IDENT)* SEMICOLON;
 
@@ -23,13 +23,14 @@ statement                       :   designator (EQUAL expr | BL actPars? BR | AD
                                      | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement
                                      | WHILE BL condition BR statement
                                      | BREAK SEMICOLON
+                                     | switch
                                      | RETURN expr?
                                      | READ BL designator BR SEMICOLON
                                      | WRITE BL expr (COMMA NUM)? BR SEMICOLON
                                      | block
                                      | SEMICOLON;
 
-block                           :   CURLYBL statement* CURLYBR;
+block                           :   CURLYBL (statement | constDecl | varDecl)* CURLYBR;
 
 actPars                         :   expr (COMMA expr)*;
 
@@ -62,3 +63,14 @@ relop                           :   EQUALEQUAL
                                     | LESSEQUAL
                                     | GREATER
                                     | LESS;
+
+switch                          :   SWITCH BL(IDENT | NUM | CHARCONST | STRING)BR 
+                                    CURLYBL 
+                                        (CASE (NUM | CHARCONST | STRING) COLON 
+                                            (statement (BREAK SEMICOLON)?)?
+                                        )*
+                                        (DEFAULT COLON
+                                            (statement (BREAK SEMICOLON)?)?
+                                        )?
+                                    CURLYBR;
+                                
