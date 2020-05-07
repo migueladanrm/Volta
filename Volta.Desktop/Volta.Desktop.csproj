@@ -27,4 +27,8 @@
     <Resource Include="Resources\volta@256px.png" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="../Volta.g4/generator/generator.bat" />
+  </Target>
+
 </Project>
