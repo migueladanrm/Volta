@@ -1,9 +1,20 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Dfa;
+using Antlr4.Runtime.Sharpen;
+using Antlr4.Runtime.Tree;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.AddIn;
+using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.SharpDevelop.Editor;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,7 +24,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Volta.Compiler;
 using Volta.Editor;
+
 
 namespace Volta.UI.Controls
 {
@@ -23,6 +36,8 @@ namespace Volta.UI.Controls
     public partial class EditorTabsControl : UserControl
     {
         private int _newDocumentCounter = 1;
+
+        private ITextMarkerService textMarkerService;
 
         public EditorTabsControl() {
             InitializeComponent();
@@ -46,9 +61,47 @@ namespace Volta.UI.Controls
                 ShowLineNumbers = true,
                 SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("C#")
             };
+
+            InitializeTextMarkerService(te);
+            
+
             te.TextArea.Caret.PositionChanged += TextEditorCaret_PositionChanged;
 
+            te.TextChanged += Te_TextChanged;
+
             return te;
+        }
+
+        void InitializeTextMarkerService(TextEditor textEditor)
+        {
+            var textMarkerService = new TextMarkerService(textEditor.Document);
+            textEditor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
+            textEditor.TextArea.TextView.LineTransformers.Add(textMarkerService);
+            IServiceContainer services = (IServiceContainer)textEditor.Document.ServiceProvider.GetService(typeof(IServiceContainer));
+            if (services != null)
+                services.AddService(typeof(ITextMarkerService), textMarkerService);
+            this.textMarkerService = textMarkerService;
+        }
+
+        private void Te_TextChanged(object sender, EventArgs e)
+        {
+            textMarkerService.RemoveAll(delegate(ITextMarker marker) { return true; });
+
+            string text = (sender as TextEditor).Text;
+            List<VoltaParserError> errors = Controller.check(text);
+            Debug.WriteLine("\n");
+            errors.ForEach(delegate (VoltaParserError error)
+            {
+                Debug.WriteLine("El error es: ");
+                Debug.WriteLine(error.msg);
+                Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
+
+                int offset = (sender as TextEditor).Document.GetOffset(error.line, error.charPositionInLine);
+                ITextMarker marker = textMarkerService.Create(offset, 0);
+                marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
+                marker.MarkerColor = Colors.Red;
+
+            });
         }
 
         public void NewTab(bool focus = true) {
@@ -87,6 +140,7 @@ namespace Volta.UI.Controls
                 var tab = TC.Items[TC.SelectedIndex] as TabItem;
                 var te = tab.Content as TextEditor;
                 UpdateTextEditorCaretPositions(te.TextArea.Caret);
+                InitializeTextMarkerService(te);
             } catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
@@ -104,5 +158,7 @@ namespace Volta.UI.Controls
         private void UpdateTextEditorCaretPositions(Caret caret) {
             TxtEditorCaret.Text = $"Ln {caret.Line} Col {caret.Column}";
         }
+
     }
 }
+
