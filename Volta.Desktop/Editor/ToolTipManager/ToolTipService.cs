@@ -46,7 +46,6 @@ namespace Volta.Editor.ToolTipManager
         {
             get
             {
-                // draw behind selection
                 return KnownLayer.Selection;
             }
         }
@@ -63,25 +62,18 @@ namespace Volta.Editor.ToolTipManager
             {
                 VisualLine line = textView.GetVisualLine(error.Error.line);
 
-                //Debug.WriteLine("X: {0}    Y: {1}", line.GetTextLineVisualXPosition(line.GetTextLine(error.Error.charPositionInLine), error.Error.charPositionInLine), line.VisualTop);
-
                 List<Rect> rects = BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, line, error.Error.charPositionInLine, error.Error.charPositionInLine).ToList();
                 error.Content = error.Error.msg;
 
                 rects.ForEach(delegate (Rect r)
                 {
-                    Debug.WriteLine("X:{0} , Y:{1}, W:{2}, H:{3}", r.X, r.Y, r.Width, r.Height);
-
                     r.Width = 18.00;
                     r.X -= 5.0;
-
 
                     error.PlacementTarget = textEditor.TextArea.TextView;
                     error.Placement = PlacementMode.Bottom;
                     error.PlacementRectangle = r;
                     textEditor.TextArea.TextView.ToolTip = error;
-
-                    
                 });
             }
             );

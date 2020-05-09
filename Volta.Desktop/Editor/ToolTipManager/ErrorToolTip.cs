@@ -22,7 +22,6 @@ namespace Volta.Editor.ToolTipManager
         public void Delete()
         {
             this.IsOpen = false;
-            this.Content = "";
         }
     }
 }

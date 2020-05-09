@@ -85,8 +85,6 @@ namespace Volta.UI.Controls
             if (services != null)
                 services.AddService(typeof(ITextMarkerService), textMarkerService);
             this.textMarkerService = textMarkerService;
-
-            
         }
 
         void InitializeToolTipService(TextEditor textEditor)
@@ -117,12 +115,6 @@ namespace Volta.UI.Controls
                 marker.MarkerColor = Colors.Red;
 
                 toolTipService.CreateErrorToolTip(error);
-                
-
-                
-
-
-
             });
         }
 
