@@ -1,6 +1,8 @@
 ﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.AddIn;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.SharpDevelop.Editor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,9 +52,9 @@ namespace Volta.Editor.ToolTipManager
             }
         }
 
-        public void CreateErrorToolTip(VoltaParserError error)
+        public void CreateErrorToolTip(VoltaParserError error, TextMarker marker)
         {
-            ErrorToolTip errorToolTip = new ErrorToolTip(error);
+            ErrorToolTip errorToolTip = new ErrorToolTip(error, marker);
             this.errorsToolTips.Add(errorToolTip);
         }
 
@@ -60,9 +62,9 @@ namespace Volta.Editor.ToolTipManager
         {
             errorsToolTips.ForEach(delegate (ErrorToolTip error)
             {
-                VisualLine line = textView.GetVisualLine(error.Error.line);
+                //VisualLine line = textView.GetVisualLine(error.Error.line);
 
-                List<Rect> rects = BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, line, error.Error.charPositionInLine, error.Error.charPositionInLine).ToList();
+                List<Rect> rects = BackgroundGeometryBuilder.GetRectsForSegment(textView, error.Marker).ToList();
                 error.Content = error.Error.msg;
 
                 rects.ForEach(delegate (Rect r)

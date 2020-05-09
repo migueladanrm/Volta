@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ICSharpCode.AvalonEdit.AddIn;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,12 +12,15 @@ namespace Volta.Editor.ToolTipManager
     public class ErrorToolTip : ToolTip
     {
         
-        public ErrorToolTip(VoltaParserError error)
+        public ErrorToolTip(VoltaParserError error, TextMarker marker)
         {
             this.Error = error;
+            this.Marker = marker;
         }
 
         public VoltaParserError Error { get; set; }
+
+        public TextMarker Marker { get; set; }
 
 
         public void Delete()

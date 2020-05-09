@@ -114,7 +114,7 @@ namespace Volta.UI.Controls
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                 marker.MarkerColor = Colors.Red;
 
-                toolTipService.CreateErrorToolTip(error);
+                toolTipService.CreateErrorToolTip(error, marker as TextMarker);
             });
         }
 
