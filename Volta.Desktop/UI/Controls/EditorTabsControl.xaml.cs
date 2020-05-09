@@ -17,6 +17,7 @@ using System.IO;
 using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -26,7 +27,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Volta.Compiler;
 using Volta.Editor;
-
+using Volta.Editor.ToolTipManager;
 
 namespace Volta.UI.Controls
 {
@@ -38,6 +39,8 @@ namespace Volta.UI.Controls
         private int _newDocumentCounter = 1;
 
         private ITextMarkerService textMarkerService;
+
+        private Editor.ToolTipManager.ToolTipService toolTipService;
 
         public EditorTabsControl() {
             InitializeComponent();
@@ -63,7 +66,8 @@ namespace Volta.UI.Controls
             };
 
             InitializeTextMarkerService(te);
-            
+
+            InitializeToolTipService(te);
 
             te.TextArea.Caret.PositionChanged += TextEditorCaret_PositionChanged;
 
@@ -81,13 +85,24 @@ namespace Volta.UI.Controls
             if (services != null)
                 services.AddService(typeof(ITextMarkerService), textMarkerService);
             this.textMarkerService = textMarkerService;
+
+            
+        }
+
+        void InitializeToolTipService(TextEditor textEditor)
+        {
+            toolTipService = new Editor.ToolTipManager.ToolTipService(textEditor);
+            textEditor.TextArea.TextView.BackgroundRenderers.Add(toolTipService);
         }
 
         private void Te_TextChanged(object sender, EventArgs e)
         {
+            toolTipService.RemoveAll();
             textMarkerService.RemoveAll(delegate(ITextMarker marker) { return true; });
 
-            string text = (sender as TextEditor).Text;
+            TextEditor textEditor = (sender as TextEditor);
+
+            string text = textEditor.Text;
             List<VoltaParserError> errors = Controller.check(text);
             Debug.WriteLine("\n");
             errors.ForEach(delegate (VoltaParserError error)
@@ -96,10 +111,17 @@ namespace Volta.UI.Controls
                 Debug.WriteLine(error.msg);
                 Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
 
-                int offset = (sender as TextEditor).Document.GetOffset(error.line, error.charPositionInLine);
+                int offset = textEditor.Document.GetOffset(error.line, error.charPositionInLine);
                 ITextMarker marker = textMarkerService.Create(offset, 0);
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                 marker.MarkerColor = Colors.Red;
+
+                toolTipService.CreateErrorToolTip(error);
+                
+
+                
+
+
 
             });
         }
