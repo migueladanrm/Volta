@@ -359,7 +359,7 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
+        <Grid x:Name="LayoutSecondary" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
@@ -423,7 +423,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Ajustes" />
+                    <TextBlock Text="Ajustes" FontSize="20" Foreground="Gray" FontFamily="Segoe UI Semilight" />
 
                 </Grid>
             </Border>

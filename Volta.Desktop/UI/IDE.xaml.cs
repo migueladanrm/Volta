@@ -19,8 +19,6 @@ namespace Volta.UI
         public IDE() {
             InitializeComponent();
 
-            __workspace = EditorWorkspace.NewInstance();
-
             DataContext = this;
 
             Defaults();
@@ -50,7 +48,7 @@ namespace Volta.UI
         public ICommand OpenFileCommand => new DelegateCommand((x) => {
             var dlg = new OpenFileDialog {
                 Filter = "Archivos de código C# (*.cs) | *.cs;",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                InitialDirectory = VoltaSettings.LastDirectory?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Multiselect = false
             };
             if (dlg.ShowDialog().Value) {
@@ -62,6 +60,8 @@ namespace Volta.UI
 
                 string containerPath = dlg.FileName;
                 EditorTabs.NewTab(containerPath);
+
+                VoltaSettings.LastDirectory = dlg.FileName.Substring(0, dlg.FileName.LastIndexOf('\\'));
             }
         });
 
@@ -137,6 +137,12 @@ namespace Volta.UI
 
             LblEditorHint.Visibility = Visibility.Visible;
             EditorTabs.Visibility = Visibility.Collapsed;
+
+            __workspace = EditorWorkspace.NewInstance();
+        }
+
+        private void BtnNewFile_Click(object sender,RoutedEventArgs e) {
+
         }
     }
 }
