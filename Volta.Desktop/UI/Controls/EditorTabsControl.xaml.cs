@@ -7,10 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Volta.Compiler;
 using Volta.Editor;
+using System.Text;
 
 namespace Volta.UI.Controls
 {
@@ -25,7 +27,9 @@ namespace Volta.UI.Controls
 
         private Editor.ToolTipManager.ToolTipService toolTipService;
 
+        public event Action<int, Stream> OnDocumentChanged;
         public event Action<Caret> OnEditorCaretChanged;
+        public event Action<int> OnRequestSaveDocument;
 
         public EditorTabsControl() {
             InitializeComponent();
@@ -61,8 +65,7 @@ namespace Volta.UI.Controls
             return te;
         }
 
-        void InitializeTextMarkerService(TextEditor textEditor)
-        {
+        void InitializeTextMarkerService(TextEditor textEditor) {
             var textMarkerService = new TextMarkerService(textEditor.Document);
             textEditor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
             textEditor.TextArea.TextView.LineTransformers.Add(textMarkerService);
@@ -72,24 +75,21 @@ namespace Volta.UI.Controls
             this.textMarkerService = textMarkerService;
         }
 
-        void InitializeToolTipService(TextEditor textEditor)
-        {
+        void InitializeToolTipService(TextEditor textEditor) {
             toolTipService = new Editor.ToolTipManager.ToolTipService(textEditor);
             textEditor.TextArea.TextView.BackgroundRenderers.Add(toolTipService);
         }
 
-        private void Te_TextChanged(object sender, EventArgs e)
-        {
+        private void Te_TextChanged(object sender, EventArgs e) {
             toolTipService.RemoveAll();
-            textMarkerService.RemoveAll(delegate(ITextMarker marker) { return true; });
+            textMarkerService.RemoveAll(delegate (ITextMarker marker) { return true; });
 
             TextEditor textEditor = (sender as TextEditor);
 
             string text = textEditor.Text;
             List<VoltaParserError> errors = Controller.check(text);
             Debug.WriteLine("\n");
-            errors.ForEach(delegate (VoltaParserError error)
-            {
+            errors.ForEach(delegate (VoltaParserError error) {
                 Debug.WriteLine("El error es: ");
                 Debug.WriteLine(error.msg);
                 Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
@@ -134,16 +134,29 @@ namespace Volta.UI.Controls
             te.TextArea.Focus();
         }
 
+        public void NewTab(ref CodeFile codeFile) {
+            var te = GenerateTextEditor();
+            te.Load(codeFile.Content);
+            te.DocumentChanged += TE_DocumentChanged;
+        }
+
+        private void TE_DocumentChanged(object sender, EventArgs e) {
+            var currentTE = sender as TextEditor;
+            var payload = new MemoryStream(Encoding.UTF8.GetBytes(currentTE.Text));
+
+            OnDocumentChanged?.Invoke(TC.SelectedIndex, payload);
+        }
+
         private void TC_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             try {
                 var tab = TC.Items[TC.SelectedIndex] as TabItem;
                 var te = tab.Content as TextEditor;
-                
+
                 OnEditorCaretChanged?.Invoke(te.TextArea.Caret);
-                
+
                 InitializeTextMarkerService(te);
             } catch (Exception ex) {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -155,6 +168,8 @@ namespace Volta.UI.Controls
             }
         }
 
+        public void Save() {
+
+        }
     }
 }
-
