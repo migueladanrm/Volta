@@ -1,11 +1,5 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Dfa;
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-using ICSharpCode.AvalonEdit;
+﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.AddIn;
-using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.SharpDevelop.Editor;
@@ -13,21 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection.Metadata;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Volta.Compiler;
 using Volta.Editor;
-using Volta.Editor.ToolTipManager;
 
 namespace Volta.UI.Controls
 {
@@ -41,6 +24,8 @@ namespace Volta.UI.Controls
         private ITextMarkerService textMarkerService;
 
         private Editor.ToolTipManager.ToolTipService toolTipService;
+
+        public event Action<Caret> OnEditorCaretChanged;
 
         public EditorTabsControl() {
             InitializeComponent();
@@ -153,7 +138,9 @@ namespace Volta.UI.Controls
             try {
                 var tab = TC.Items[TC.SelectedIndex] as TabItem;
                 var te = tab.Content as TextEditor;
-                UpdateTextEditorCaretPositions(te.TextArea.Caret);
+                
+                OnEditorCaretChanged?.Invoke(te.TextArea.Caret);
+                
                 InitializeTextMarkerService(te);
             } catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
@@ -162,15 +149,10 @@ namespace Volta.UI.Controls
 
         private void TextEditorCaret_PositionChanged(object sender, EventArgs e) {
             try {
-                var caret = sender as Caret;
-                UpdateTextEditorCaretPositions(caret);
+                OnEditorCaretChanged?.Invoke(sender as Caret);
             } catch (Exception ex) {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
-        }
-
-        private void UpdateTextEditorCaretPositions(Caret caret) {
-            TxtEditorCaret.Text = $"Ln {caret.Line} Col {caret.Column}";
         }
 
     }

@@ -89,45 +89,15 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    
+
     <Border x:Name="LayoutRoot">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="24"/>
-            </Grid.RowDefinitions>
-            <TabControl x:Name="TC" SelectionChanged="TC_SelectionChanged" BorderThickness="0,1,0,0" Padding="0" ItemTemplate="{StaticResource CustomHeaderTemplate}">
-                <TabItem Header="Nuevo.cs">
-                    <Grid>
-                        <ae:TextEditor FontFamily="Consolas" FontSize="16" ShowLineNumbers="True" HorizontalScrollBarVisibility="Hidden"/>
-                    </Grid>
-                </TabItem>
-
-            </TabControl>
-
-            <Border x:Name="StatusBar" Background="WhiteSmoke" Grid.Row="1" Padding="10,0">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="1" Direction="90" Opacity="0.25" ShadowDepth="1"/>
-                </Border.Effect>
+        <TabControl x:Name="TC" SelectionChanged="TC_SelectionChanged" BorderThickness="0,1,0,0" Padding="0" ItemTemplate="{StaticResource CustomHeaderTemplate}">
+            <TabItem Header="Nuevo.cs">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.Resources>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                        </Style>
-                    </Grid.Resources>
-                    <TextBlock Grid.Column="0" Text="Listo"/>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <TextBlock x:Name="TxtEditorCaret" Text="Ln 15 Col 3"/>
-                    </StackPanel>
+                    <ae:TextEditor FontFamily="Consolas" FontSize="16" ShowLineNumbers="True" HorizontalScrollBarVisibility="Hidden"/>
                 </Grid>
-            </Border>
-        </Grid>
+            </TabItem>
+        </TabControl>
     </Border>
 
 </UserControl>

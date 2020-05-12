@@ -251,8 +251,14 @@
             </Grid.RowDefinitions>
 
             <Grid x:Name="CodeEditorContainer" Grid.Row="2">
-                <controls:EditorTabsControl x:Name="EditorTabs" Margin="0,2,0,0"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="24"/>
+                </Grid.RowDefinitions>
 
+                <controls:EditorTabsControl x:Name="EditorTabs" Margin="0,2,0,0"/>
+                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="1"/>
+                
                 <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
                     <StackPanel Orientation="Vertical">
                         <Path Data="{StaticResource Vector.FileCode}" Stretch="Uniform" Height="80">

@@ -36,11 +36,7 @@ namespace Volta.UI
         });
 
         public ICommand NewFileCommand => new DelegateCommand((_) => {
-            if (LblEditorHint.Visibility.Equals(Visibility.Visible))
-                LblEditorHint.Visibility = Visibility.Collapsed;
-
-            if (!EditorTabs.Visibility.Equals(Visibility.Visible))
-                EditorTabs.Visibility = Visibility.Visible;
+            ChangeViewMode(showEnvironment: true);
 
             EditorTabs.NewTab();
         });
@@ -48,15 +44,11 @@ namespace Volta.UI
         public ICommand OpenFileCommand => new DelegateCommand((x) => {
             var dlg = new OpenFileDialog {
                 Filter = "Archivos de código C# (*.cs) | *.cs;",
-                InitialDirectory = VoltaSettings.LastDirectory?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                InitialDirectory = VoltaSettings.LastDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Multiselect = false
             };
             if (dlg.ShowDialog().Value) {
-                if (LblEditorHint.Visibility.Equals(Visibility.Visible))
-                    LblEditorHint.Visibility = Visibility.Collapsed;
-
-                if (!EditorTabs.Visibility.Equals(Visibility.Visible))
-                    EditorTabs.Visibility = Visibility.Visible;
+                ChangeViewMode(showEnvironment: true);
 
                 string containerPath = dlg.FileName;
                 EditorTabs.NewTab(containerPath);
@@ -137,12 +129,23 @@ namespace Volta.UI
 
             LblEditorHint.Visibility = Visibility.Visible;
             EditorTabs.Visibility = Visibility.Collapsed;
+            EditorStatusBar.Visibility = Visibility.Collapsed;
+            Toolbar.Visibility = Visibility.Collapsed;
+
+            EditorTabs.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
 
             __workspace = EditorWorkspace.NewInstance();
         }
 
-        private void BtnNewFile_Click(object sender,RoutedEventArgs e) {
+        private void BtnNewFile_Click(object sender, RoutedEventArgs e) {
 
+        }
+
+        private void ChangeViewMode(bool showEnvironment) {
+            LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
+            EditorTabs.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+            Toolbar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+            EditorStatusBar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }
