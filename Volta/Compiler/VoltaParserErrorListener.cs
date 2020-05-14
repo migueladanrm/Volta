@@ -33,6 +33,14 @@ namespace Volta.Compiler
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
+            if(recognizer is VoltaParser)
+            {
+                msg = "Parser error: " + msg;
+            }
+            else if (recognizer is VoltaScanner)
+            {
+                msg = "Scanner error: " + msg;
+            }
             this.errors.Add(new VoltaParserError(output, recognizer, offendingSymbol, line, charPositionInLine, msg, e));
         }
 

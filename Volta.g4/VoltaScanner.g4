@@ -3,8 +3,8 @@ lexer grammar VoltaScanner;
 //// Symbols
 
 NOT                                     :   '!';
-QMARK                                   :   '"';
-SQMARK                                  :   '\'';
+fragment QMARK                          :   '"';
+fragment SQMARK                         :   '\'';
 HASH                                    :   '#';
 DOLAR                                   :   '$';
 AND                                     :   '&&';
