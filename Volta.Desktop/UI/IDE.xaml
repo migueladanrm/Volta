@@ -19,6 +19,7 @@
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewFileCommand}"/>
         <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding TestCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseTabCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -256,9 +257,10 @@
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
 
-                <controls:EditorTabsControl x:Name="EditorTabs" Margin="0,2,0,0"/>
+                <!--<controls:EditorTabsControl x:Name="EditorTabs" Margin="0,2,0,0"/>-->
+                <TabControl x:Name="TC" Margin="0,2,0,0"/>
                 <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="1"/>
-                
+
                 <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
                     <StackPanel Orientation="Vertical">
                         <Path Data="{StaticResource Vector.FileCode}" Stretch="Uniform" Height="80">
@@ -333,7 +335,13 @@
                                 <TextBlock Text="Compilar y ejecutar" Margin="3,0,0,0"/>
                             </StackPanel>
                         </Button>
-
+                        <Separator/>
+                        <Button ToolTip="Cerrar el documento actual">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource Vector.Close}" Fill="Red"/>
+                                <TextBlock Text="Cerrar" Margin="3,0,0,0"/>
+                            </StackPanel>
+                        </Button>
                     </ToolBar>
                 </ToolBarTray>
             </Border>
@@ -346,7 +354,7 @@
                     <MenuItem Header="Cerrar"/>
                     <MenuItem Header="Cerrar todo"/>
                     <Separator/>
-                    <MenuItem Header="Guardar"/>
+                    <MenuItem Header="Guardar" Command="{Binding SaveFileCommand}"/>
                     <MenuItem Header="Guardar todo"/>
                     <Separator/>
                     <MenuItem Header="Salir"/>
@@ -365,7 +373,7 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" >
+        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>

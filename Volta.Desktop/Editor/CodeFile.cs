@@ -14,22 +14,30 @@ namespace Volta.Editor
 
         public CodeFile() {
             Content = new MemoryStream();
+            HasUnsavedChanges = false;
         }
 
         public CodeFile(string path) {
             file = new FileInfo(path);
             Content = new MemoryStream(File.ReadAllBytes(path));
+            HasUnsavedChanges = false;
+
+            FileName = file.Name;
         }
 
-        public string FileName {
-            get => file?.Name;
-            set => FileName = value;
-        }
+        public string FileName { get; set; }
 
-        public string FilePath => file.FullName ?? null;
+        public string FilePath => file?.FullName ?? null;
 
         public MemoryStream Content { get; set; }
 
         public bool HasUnsavedChanges { get; set; }
+
+        public void Save() {
+            if (FilePath != null) {
+                File.WriteAllBytes(FilePath, Content.ToArray());
+                HasUnsavedChanges = false;
+            }
+        }
     }
 }

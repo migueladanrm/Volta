@@ -1,11 +1,13 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using Volta.Common;
 using Volta.Editor;
+using Volta.UI.Controls;
 
 namespace Volta.UI
 {
@@ -14,7 +16,7 @@ namespace Volta.UI
     /// </summary>
     public partial class IDE : Window
     {
-        private EditorWorkspace __workspace;
+        private int _counter = 1;
 
         public IDE() {
             InitializeComponent();
@@ -38,7 +40,10 @@ namespace Volta.UI
         public ICommand NewFileCommand => new DelegateCommand((_) => {
             ChangeViewMode(showEnvironment: true);
 
-            EditorTabs.NewTab();
+            OpenCodeFile(new CodeFile {
+                FileName = $"Nuevo{_counter}.mcs"
+            });
+            _counter++;
         });
 
         public ICommand OpenFileCommand => new DelegateCommand((x) => {
@@ -51,17 +56,21 @@ namespace Volta.UI
                 ChangeViewMode(showEnvironment: true);
 
                 string containerPath = dlg.FileName;
-                EditorTabs.NewTab(containerPath);
+                OpenCodeFile(new CodeFile(containerPath));
 
                 VoltaSettings.LastDirectory = dlg.FileName.Substring(0, dlg.FileName.LastIndexOf('\\'));
             }
+        });
+
+        public ICommand SaveFileCommand => new DelegateCommand((x) => {
+            GetCurrentCodeTab()?.Save();
         });
 
         public ICommand TestCommand => new DelegateCommand((x) => {
             SLDlgShow(nameof(DlgAbout));
         });
 
-        public ICommand AboutCommand => new DelegateCommand((_) => SLDlgShow(nameof(DlgAbout)));
+        public ICommand AboutCommand => new DelegateCommand((x) => SLDlgShow(nameof(DlgAbout)));
 
         #endregion
 
@@ -128,24 +137,67 @@ namespace Volta.UI
             LayoutSecondary.Visibility = Visibility.Collapsed;
 
             LblEditorHint.Visibility = Visibility.Visible;
-            EditorTabs.Visibility = Visibility.Collapsed;
+            TC.Visibility = Visibility.Collapsed;
             EditorStatusBar.Visibility = Visibility.Collapsed;
             Toolbar.Visibility = Visibility.Collapsed;
-
-            EditorTabs.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
-
-            __workspace = EditorWorkspace.NewInstance();
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e) {
-
+            NewFileCommand.Execute(null);
         }
 
         private void ChangeViewMode(bool showEnvironment) {
             LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
-            EditorTabs.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+            TC.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
             Toolbar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
             EditorStatusBar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private CodeTab GetCurrentCodeTab() {
+            if (0 < TC.Items.Count)
+                return (TC.Items[TC.SelectedIndex] as TabItem).Content as CodeTab;
+
+            return null;
+        }
+
+        private void OpenCodeFile(CodeFile cf) {
+            if (cf.FilePath != null) {
+                for (int i = 0; i < TC.Items.Count; i++) {
+                    var tmpCF = ((CodeTab)TC.Items[i]).CodeFile;
+
+                    if (tmpCF.FilePath != null && tmpCF.FilePath.Equals(cf.FilePath)) {
+                        TC.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            var ct = new CodeTab(cf);
+            ct.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
+            ct.OnRequestSaveNewFile += SaveNewFile;
+
+            TC.Items.Add(new TabItem {
+                Header = cf.FileName,
+                Content = ct
+            });
+        }
+
+        private CodeFile SaveNewFile(CodeFile cf) {
+            var dlg= new SaveFileDialog {
+                Filter = "Archivos de código C# (*.cs) | *.cs;",
+                InitialDirectory = VoltaSettings.LastDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                AddExtension=true
+            };
+
+            if (dlg.ShowDialog() == true) {
+                var filename = dlg.FileName;
+
+                File.WriteAllBytes(filename, cf.Content.ToArray());
+                (TC.Items[TC.SelectedIndex] as TabItem).Header = filename.Substring(filename.LastIndexOf('\\') + 1, filename.Length - filename.LastIndexOf('\\') - 1);
+                return new CodeFile(dlg.FileName);
+            }
+
+            return null;
         }
     }
 }

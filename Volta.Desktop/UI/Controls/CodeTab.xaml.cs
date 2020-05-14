@@ -1,0 +1,121 @@
+﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.AddIn;
+using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.SharpDevelop.Editor;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Windows.Controls;
+using System.Windows.Media;
+using Volta.Compiler;
+using Volta.Editor;
+
+namespace Volta.UI.Controls
+{
+    /// <summary>
+    /// Interaction logic for CodeTab.xaml
+    /// </summary>
+    public partial class CodeTab : UserControl
+    {
+        public CodeFile CodeFile { get; private set; }
+
+        private ITextMarkerService textMarkerService;
+
+        private Editor.ToolTipManager.ToolTipService toolTipService;
+
+        public event Action<Caret> OnEditorCaretChanged;
+        public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
+
+
+        public CodeTab() {
+            InitializeComponent();
+        }
+
+        public CodeTab(CodeFile codeFile) {
+            InitializeComponent();
+            DataContext = this;
+
+            CodeFile = codeFile;
+
+            Defaults();
+        }
+
+        private void Defaults() {
+            InitializeTextMarkerService(TE);
+            InitializeToolTipService(TE);
+
+            TE.Load(CodeFile.Content);
+
+            TE.TextArea.Caret.PositionChanged += TextEditorCaret_PositionChanged;
+
+            TE.TextChanged += TE_TextChanged;
+        }
+
+        private void InitializeTextMarkerService(TextEditor textEditor) {
+            var textMarkerService = new TextMarkerService(textEditor.Document);
+            textEditor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
+            textEditor.TextArea.TextView.LineTransformers.Add(textMarkerService);
+            IServiceContainer services = (IServiceContainer)textEditor.Document.ServiceProvider.GetService(typeof(IServiceContainer));
+            if (services != null)
+                services.AddService(typeof(ITextMarkerService), textMarkerService);
+            this.textMarkerService = textMarkerService;
+        }
+
+        private void InitializeToolTipService(TextEditor textEditor) {
+            toolTipService = new Editor.ToolTipManager.ToolTipService(textEditor);
+            textEditor.TextArea.TextView.BackgroundRenderers.Add(toolTipService);
+        }
+
+        private void TE_TextChanged(object sender, EventArgs e) {
+            toolTipService.RemoveAll();
+            textMarkerService.RemoveAll(delegate (ITextMarker marker) { return true; });
+
+            TextEditor textEditor = (sender as TextEditor);
+
+            string text = textEditor.Text;
+            List<VoltaParserError> errors = Controller.check(text);
+            Debug.WriteLine("\n");
+            errors.ForEach((VoltaParserError error) => {
+                /*
+                Debug.WriteLine("El error es: ");
+                Debug.WriteLine(error.msg);
+                Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
+                */
+                int offset = textEditor.Document.GetOffset(error.line, error.charPositionInLine);
+                ITextMarker marker = textMarkerService.Create(offset, 0);
+                marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
+                marker.MarkerColor = Colors.Red;
+
+                toolTipService.CreateErrorToolTip(error, marker as TextMarker);
+            });
+        }
+
+        private void TextEditorCaret_PositionChanged(object sender, EventArgs e) {
+            try {
+                OnEditorCaretChanged?.Invoke(sender as Caret);
+            } catch (Exception ex) {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+
+        private void TE_DocumentChanged(object sender, EventArgs e) {
+            CodeFile.HasUnsavedChanges = true;
+        }
+
+        public void Save() {
+            CodeFile.Content = new MemoryStream(Encoding.UTF8.GetBytes(TE.Text));
+
+            if (CodeFile.FilePath != null)
+                CodeFile.Save();
+            else {
+                var savedCF = OnRequestSaveNewFile?.Invoke(CodeFile);
+                if (savedCF != null)
+                    CodeFile = savedCF;
+            }
+        }
+    }
+}
