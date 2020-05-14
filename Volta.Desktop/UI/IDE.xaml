@@ -15,7 +15,7 @@
 
     <Window.InputBindings>
         <KeyBinding Key="Esc" Command="{Binding HideSecondaryLayoutCommand}"/>
-        <KeyBinding Key="A" Modifiers="Ctrl" Command="{Binding OpenFileCommand}"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFileCommand}"/>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewFileCommand}"/>
         <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding TestCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseTabCommand}"/>
@@ -257,7 +257,6 @@
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
 
-                <!--<controls:EditorTabsControl x:Name="EditorTabs" Margin="0,2,0,0"/>-->
                 <TabControl x:Name="TC" Margin="0,2,0,0"/>
                 <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="1"/>
 
@@ -373,7 +372,7 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
+        <Grid x:Name="LayoutSecondary" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
@@ -407,7 +406,7 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="DlgSavePendingChanges" Style="{StaticResource Dialog.Container}" MaxWidth="500" d:IsHidden="True">
+            <Border x:Name="DlgSavePendingChanges" Style="{StaticResource Dialog.Container}" MaxWidth="500">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -423,14 +422,14 @@
                                 <Setter Property="Margin" Value="10,0,0,0"/>
                             </Style>
                         </StackPanel.Resources>
-                        <Button Content="Guardar"/>
-                        <Button Content="No guardar"/>
-                        <Button Content="Cancelar"/>
+                        <Button Content="Guardar" Click="DlgPendingChangesBtnSave_Click"/>
+                        <Button Content="Descartar" Click="DlgPendingChangesBtnDiscard_Click"/>
+                        <Button Content="Cancelar" Click="SLHide"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <Border x:Name="DlgSettings" Style="{StaticResource Dialog.Container}" Width="500">
+            <Border x:Name="DlgSettings" Style="{StaticResource Dialog.Container}" Width="500" d:IsHidden="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>

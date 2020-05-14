@@ -29,7 +29,7 @@ namespace Volta.UI
         #region Comandos
 
         public ICommand CloseTabCommand => new DelegateCommand((x) => {
-
+            GetCurrentCodeTab()?.Close();
         });
 
         public ICommand HideSecondaryLayoutCommand => new DelegateCommand((x) => {
@@ -163,7 +163,7 @@ namespace Volta.UI
         private void OpenCodeFile(CodeFile cf) {
             if (cf.FilePath != null) {
                 for (int i = 0; i < TC.Items.Count; i++) {
-                    var tmpCF = ((CodeTab)TC.Items[i]).CodeFile;
+                    var tmpCF = (((TabItem)TC.Items[i]).Content as CodeTab).CodeFile;
 
                     if (tmpCF.FilePath != null && tmpCF.FilePath.Equals(cf.FilePath)) {
                         TC.SelectedIndex = i;
@@ -175,18 +175,22 @@ namespace Volta.UI
             var ct = new CodeTab(cf);
             ct.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
             ct.OnRequestSaveNewFile += SaveNewFile;
+            ct.OnRequestTabClose += TabCloseRequest;
 
             TC.Items.Add(new TabItem {
                 Header = cf.FileName,
                 Content = ct
             });
+
+            TC.SelectedIndex = TC.Items.Count - 1;
         }
 
         private CodeFile SaveNewFile(CodeFile cf) {
-            var dlg= new SaveFileDialog {
+            var dlg = new SaveFileDialog {
                 Filter = "Archivos de código C# (*.cs) | *.cs;",
                 InitialDirectory = VoltaSettings.LastDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                AddExtension=true
+                AddExtension = true,
+                FileName = cf.FileName
             };
 
             if (dlg.ShowDialog() == true) {
@@ -198,6 +202,18 @@ namespace Volta.UI
             }
 
             return null;
+        }
+
+        private void TabCloseRequest() {
+            TC.Items.Remove(TC.Items[TC.SelectedIndex]);
+        }
+
+        private void DlgPendingChangesBtnDiscard_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void DlgPendingChangesBtnSave_Click(object sender, RoutedEventArgs e) {
+
         }
     }
 }

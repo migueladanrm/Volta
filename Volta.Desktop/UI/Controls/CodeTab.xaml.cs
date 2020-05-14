@@ -8,6 +8,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Volta.Compiler;
@@ -28,7 +29,8 @@ namespace Volta.UI.Controls
 
         public event Action<Caret> OnEditorCaretChanged;
         public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
-
+        public event Action<CodeFile> OnRequestCloseUnsavedFile;
+        public event Action OnRequestTabClose;
 
         public CodeTab() {
             InitializeComponent();
@@ -91,6 +93,9 @@ namespace Volta.UI.Controls
 
                 toolTipService.CreateErrorToolTip(error, marker as TextMarker);
             });
+
+            Debug.WriteLine("Hey!");
+            CodeFile.HasUnsavedChanges = true;
         }
 
         private void TextEditorCaret_PositionChanged(object sender, EventArgs e) {
@@ -99,11 +104,6 @@ namespace Volta.UI.Controls
             } catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
             }
-        }
-
-
-        private void TE_DocumentChanged(object sender, EventArgs e) {
-            CodeFile.HasUnsavedChanges = true;
         }
 
         public void Save() {
@@ -115,6 +115,22 @@ namespace Volta.UI.Controls
                 var savedCF = OnRequestSaveNewFile?.Invoke(CodeFile);
                 if (savedCF != null)
                     CodeFile = savedCF;
+            }
+        }
+
+        public void Close() {
+            if (!CodeFile.HasUnsavedChanges) {
+                OnRequestTabClose?.Invoke();
+                return;
+            } else {
+                var result = MessageBox.Show($"¿Desea guardar los cambios pendientes en '{CodeFile.FileName}'?", "Cambios sin guardar", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                if (result == MessageBoxResult.Yes) {
+                    Save();
+                    Close();
+                } else if (result == MessageBoxResult.No) {
+                    CodeFile.HasUnsavedChanges = false;
+                    Close();
+                }
             }
         }
     }
