@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,6 +31,9 @@ namespace Volta.UI
 
         public ICommand CloseTabCommand => new DelegateCommand((x) => {
             GetCurrentCodeTab()?.Close();
+
+            if (TC.Items.Count < 1)
+                ChangeViewMode(false);
         });
 
         public ICommand HideSecondaryLayoutCommand => new DelegateCommand((x) => {
@@ -71,6 +75,10 @@ namespace Volta.UI
         });
 
         public ICommand AboutCommand => new DelegateCommand((x) => SLDlgShow(nameof(DlgAbout)));
+
+        public ICommand CutCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Cut());
+        public ICommand CopyCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Copy());
+        public ICommand PasteCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Paste());
 
         #endregion
 
@@ -138,6 +146,7 @@ namespace Volta.UI
 
             LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
+            ErrorList.Visibility = Visibility.Collapsed;
             EditorStatusBar.Visibility = Visibility.Collapsed;
             Toolbar.Visibility = Visibility.Collapsed;
         }
@@ -208,12 +217,44 @@ namespace Volta.UI
             TC.Items.Remove(TC.Items[TC.SelectedIndex]);
         }
 
-        private void DlgPendingChangesBtnDiscard_Click(object sender, RoutedEventArgs e) {
+        private void DlgPendingChangesBtnSave_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void DlgPendingChangesBtnSave_Click(object sender, RoutedEventArgs e) {
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e) {
+            e.CanExecute = true;
+        }
 
+        private void ToolbarButton_Click(object sender, RoutedEventArgs e) {
+            try {
+                switch((sender as FrameworkElement).Tag.ToString().Replace("toolbar.", "")) {
+                    case "new":
+                        NewFileCommand.Execute(null);
+                        break;
+                    case "open":
+                        OpenFileCommand.Execute(null);
+                        break;
+                    case "save":
+                        SaveFileCommand.Execute(null);
+                        break;
+                    case "cut":
+                        CutCommand.Execute(null);
+                        break;
+                    case "copy":
+                        CopyCommand.Execute(null);
+                        break;
+                    case "paste":
+                        PasteCommand.Execute(null);
+                        break;
+                    case "buildrun":
+                        break;
+                    case "close":
+                        CloseTabCommand.Execute(null);
+                        break;
+                }
+            }catch(Exception ex) {
+                Debug.Fail(ex.Message);
+            }
         }
     }
 }

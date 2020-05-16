@@ -9,10 +9,6 @@
         Title="Volta IDE" Height="700" Width="1200" MinHeight="550" MinWidth="800"
         WindowStartupLocation="CenterScreen" UseLayoutRounding="True" Icon="\Resources/volta.ico" >
 
-    <Window.CommandBindings>
-        <!--<CommandBinding Command="CmdFileCommand"/>-->
-    </Window.CommandBindings>
-
     <Window.InputBindings>
         <KeyBinding Key="Esc" Command="{Binding HideSecondaryLayoutCommand}"/>
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFileCommand}"/>
@@ -254,11 +250,13 @@
             <Grid x:Name="CodeEditorContainer" Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
 
                 <TabControl x:Name="TC" Margin="0,2,0,0"/>
-                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="1"/>
+                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" Height="150"/>
+                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
 
                 <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
                     <StackPanel Orientation="Vertical">
@@ -291,7 +289,7 @@
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="2" Direction="270" Opacity="0.25" ShadowDepth="2"/>
                 </Border.Effect>
-                <ToolBarTray Background="White">
+                <ToolBarTray Background="White" IsLocked="True">
                     <ToolBarTray.Resources>
                         <Style TargetType="{x:Type Path}">
                             <Setter Property="Height" Value="15"/>
@@ -301,41 +299,42 @@
                         </Style>
                     </ToolBarTray.Resources>
                     <ToolBar Background="White">
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.new" ToolTip="Nuevo">
                             <Path Data="{StaticResource Vector.FilePlus}"/>
                         </Button>
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.open" ToolTip="Abrir">
                             <Path Data="{StaticResource Vector.FolderOpen}"/>
                         </Button>
 
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.save" ToolTip="Guardar">
                             <Path Data="{StaticResource Vector.ContentSave}"/>
                         </Button>
-
-                        <Button >
+                        <!--
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.saveall" ToolTip="Guardar todo">
                             <Path Data="{StaticResource Vector.ContentSaveAll}"/>
                         </Button>
-
+                        -->
                         <Separator/>
-                        <Button >
+
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.cut" ToolTip="Cortar">
                             <Path Data="{StaticResource Vector.ContentCut}"/>
                         </Button>
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.copy" ToolTip="Copiar">
                             <Path Data="{StaticResource Vector.ContentCopy}"/>
                         </Button>
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.paste" ToolTip="Pegar">
                             <Path Data="{StaticResource Vector.ContentPaste}"/>
                         </Button>
 
                         <Separator/>
-                        <Button >
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.buildrun" ToolTip="Compilar y ejecutar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Play}" Fill="Green"/>
                                 <TextBlock Text="Compilar y ejecutar" Margin="3,0,0,0"/>
                             </StackPanel>
                         </Button>
                         <Separator/>
-                        <Button ToolTip="Cerrar el documento actual">
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.close" ToolTip="Cerrar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Close}" Fill="Red"/>
                                 <TextBlock Text="Cerrar" Margin="3,0,0,0"/>
@@ -350,18 +349,18 @@
                     <MenuItem Header="Nuevo" Command="{Binding NewFileCommand}"/>
                     <MenuItem Header="Abrir..." Command="{Binding OpenFileCommand}"/>
                     <Separator/>
-                    <MenuItem Header="Cerrar"/>
-                    <MenuItem Header="Cerrar todo"/>
+                    <MenuItem Header="Cerrar" Command="{Binding CloseTabCommand}"/>
+                    <!--<MenuItem Header="Cerrar todo"/>-->
                     <Separator/>
                     <MenuItem Header="Guardar" Command="{Binding SaveFileCommand}"/>
-                    <MenuItem Header="Guardar todo"/>
+                    <!--<MenuItem Header="Guardar todo"/>-->
                     <Separator/>
                     <MenuItem Header="Salir"/>
                 </MenuItem>
                 <MenuItem Header="Editar">
-                    <MenuItem Header="Cortar"/>
-                    <MenuItem Header="Copiar"/>
-                    <MenuItem Header="Pegar"/>
+                    <MenuItem Header="Cortar" Command="{Binding CutCommand}"/>
+                    <MenuItem Header="Copiar" Command="{Binding CopyCommand}"/>
+                    <MenuItem Header="Pegar" Command="{Binding PasteCommand}"/>
                 </MenuItem>
                 <MenuItem Header="Ventana">
                     <MenuItem Header="Pantalla completa"/>
@@ -372,12 +371,12 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" >
+        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
 
-            <Border x:Name="DlgAbout" Style="{StaticResource Dialog.Container}" Width="400" d:IsHidden="True">
+            <Border x:Name="DlgAbout" Style="{StaticResource Dialog.Container}" Width="400">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -401,11 +400,12 @@
                         <TextBlock Text="W. Benavides"/>
                         <TextBlock Text="M. Rivas"/>
 
-                        <Button Click="SLHide" Content="Aceptar" HorizontalAlignment="Right" Margin="0,5,0,0" Padding="10,3"/>
+                        <Button Click="SLHide" Content="Aceptar" HorizontalAlignment="Right" Margin="0,5,0,0" Padding="10,3" Style="{StaticResource VoltaButton}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
+            <!--
             <Border x:Name="DlgSavePendingChanges" Style="{StaticResource Dialog.Container}" MaxWidth="500">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -440,6 +440,7 @@
 
                 </Grid>
             </Border>
+            -->
         </Grid>
     </Grid>
 

@@ -133,5 +133,19 @@ namespace Volta.UI.Controls
                 }
             }
         }
+
+        public void Cut() {
+            if (0 < TE.SelectionLength)
+                TE.Cut();
+        }
+
+        public void Copy() {
+            TE.Copy();
+        }
+
+        public void Paste() {
+            if (Clipboard.ContainsText())
+                TE.Paste();
+        }
     }
 }
