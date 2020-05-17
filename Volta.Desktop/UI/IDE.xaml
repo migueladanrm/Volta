@@ -254,7 +254,7 @@
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
 
-                <TabControl x:Name="TC" Margin="0,2,0,0"/>
+                <TabControl x:Name="TC" Margin="0,2,0,0" />
                 <controls:ErrorList x:Name="ErrorList" Grid.Row="1" Height="150"/>
                 <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
 

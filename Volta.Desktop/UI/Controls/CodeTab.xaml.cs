@@ -86,7 +86,7 @@ namespace Volta.UI.Controls
                 Debug.WriteLine(error.msg);
                 Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
                 */
-                int offset = textEditor.Document.GetOffset(error.line, error.charPositionInLine);
+                int offset = textEditor.Document.GetOffset(error.Line, error.CharPositionInLine);
                 ITextMarker marker = textMarkerService.Create(offset, 0);
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                 marker.MarkerColor = Colors.Red;

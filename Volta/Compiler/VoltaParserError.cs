@@ -8,23 +8,22 @@ namespace Volta.Compiler
 {
     public class VoltaParserError
     {
-        public readonly TextWriter output;
-        public readonly IRecognizer recognizer;
-        public readonly IToken offendingSymbol;
-        public readonly int line;
-        public readonly int charPositionInLine;
-        public readonly string msg;
-        public readonly RecognitionException e;
-
-        public VoltaParserError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-        {
-            this.output = output;
-            this.recognizer = recognizer;
-            this.offendingSymbol = offendingSymbol;
-            this.line = line;
-            this.charPositionInLine = charPositionInLine;
-            this.msg = msg;
-            this.e = e;
+        public VoltaParserError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e) {
+            Output = output;
+            Recognizer = recognizer;
+            OffendingSymbol = offendingSymbol;
+            Line = line;
+            CharPositionInLine = charPositionInLine;
+            Message = msg;
+            Exception = e;
         }
+
+        public TextWriter Output { get; private set; }
+        public IRecognizer Recognizer { get; private set; }
+        public IToken OffendingSymbol { get; private set; }
+        public int Line { get; private set; }
+        public int CharPositionInLine { get; private set; }
+        public string Message { get; private set; }
+        public RecognitionException Exception { get; private set; }
     }
 }
