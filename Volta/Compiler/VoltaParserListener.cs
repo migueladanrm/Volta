@@ -367,6 +367,18 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context);
 	/// <summary>
+	/// Enter a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>bolleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>

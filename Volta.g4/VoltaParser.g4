@@ -47,6 +47,7 @@ term                            :   factor (mulop factor)*                      
 factor                          :   designator (BL actPars? BR)?                                                        #callFactorAST
                                       | NUM                                                                             #numFactorAST
                                       | CHARCONST                                                                       #charConstFactorAST
+                                      | STRING                                                                          #stringFactorAST
                                       | (TRUE|FALSE)                                                                    #bolleanFactorAST
                                       | NEW IDENT                                                                       #newFactorAST
                                       | BL expr BR                                                                      #bracketFactorAST;

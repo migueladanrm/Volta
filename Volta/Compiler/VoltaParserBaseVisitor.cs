@@ -342,6 +342,17 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <return>The visitor result.</return>
 	public virtual Result VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context) { return VisitChildren(context); }
 	/// <summary>
+	/// Visit a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context) { return VisitChildren(context); }
+	/// <summary>
 	/// Visit a parse tree produced by the <c>bolleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// <para>

@@ -427,6 +427,20 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>bolleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// <para>The default implementation does nothing.</para>

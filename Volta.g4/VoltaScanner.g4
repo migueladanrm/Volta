@@ -62,7 +62,7 @@ IDENT                                   :   (LETTER|[_])(LETTER|NUM|[_])*;
 NUM                                     :   [1-9][0-9]* | '0';
 CHARCONST                               :   (SQMARK(PRINTABLE_CHAR | '\\n' | '\\r')(SQMARK));
 STRING                                  :   QMARK(~["]|'\\"')*QMARK;
-COMMENT                                 :   (('//'~[\r\n]*[\n\r]) | ('/*'[.]*'*/'))+ -> skip;
+COMMENT                                 :   (('//'~[\r\n]*[\n\r]) | ('/*'.*?'*/'))+ -> skip;
 
 // Fragments & others
 WS                                      :   [ \r\t\n]+ -> skip;

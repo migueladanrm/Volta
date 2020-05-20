@@ -228,6 +228,13 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>stringFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>bolleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
