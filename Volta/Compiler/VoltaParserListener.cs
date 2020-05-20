@@ -31,175 +31,389 @@ using IToken = Antlr4.Runtime.IToken;
 [System.CLSCompliant(false)]
 public interface IVoltaParserListener : IParseTreeListener {
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.program"/>.
+	/// Enter a parse tree produced by the <c>programAST</c>
+	/// labeled alternative in <see cref="VoltaParser.program"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterProgram([NotNull] VoltaParser.ProgramContext context);
+	void EnterProgramAST([NotNull] VoltaParser.ProgramASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.program"/>.
+	/// Exit a parse tree produced by the <c>programAST</c>
+	/// labeled alternative in <see cref="VoltaParser.program"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitProgram([NotNull] VoltaParser.ProgramContext context);
+	void ExitProgramAST([NotNull] VoltaParser.ProgramASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.constDecl"/>.
+	/// Enter a parse tree produced by the <c>constDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.constDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterConstDecl([NotNull] VoltaParser.ConstDeclContext context);
+	void EnterConstDeclAST([NotNull] VoltaParser.ConstDeclASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.constDecl"/>.
+	/// Exit a parse tree produced by the <c>constDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.constDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitConstDecl([NotNull] VoltaParser.ConstDeclContext context);
+	void ExitConstDeclAST([NotNull] VoltaParser.ConstDeclASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.varDecl"/>.
+	/// Enter a parse tree produced by the <c>varDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.varDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterVarDecl([NotNull] VoltaParser.VarDeclContext context);
+	void EnterVarDeclAST([NotNull] VoltaParser.VarDeclASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.varDecl"/>.
+	/// Exit a parse tree produced by the <c>varDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.varDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitVarDecl([NotNull] VoltaParser.VarDeclContext context);
+	void ExitVarDeclAST([NotNull] VoltaParser.VarDeclASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.classDecl"/>.
+	/// Enter a parse tree produced by the <c>classDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.classDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterClassDecl([NotNull] VoltaParser.ClassDeclContext context);
+	void EnterClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.classDecl"/>.
+	/// Exit a parse tree produced by the <c>classDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.classDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitClassDecl([NotNull] VoltaParser.ClassDeclContext context);
+	void ExitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.methodDecl"/>.
+	/// Enter a parse tree produced by the <c>methodDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.methodDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterMethodDecl([NotNull] VoltaParser.MethodDeclContext context);
+	void EnterMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.methodDecl"/>.
+	/// Exit a parse tree produced by the <c>methodDeclAST</c>
+	/// labeled alternative in <see cref="VoltaParser.methodDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitMethodDecl([NotNull] VoltaParser.MethodDeclContext context);
+	void ExitMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.formPars"/>.
+	/// Enter a parse tree produced by the <c>formParsAST</c>
+	/// labeled alternative in <see cref="VoltaParser.formPars"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterFormPars([NotNull] VoltaParser.FormParsContext context);
+	void EnterFormParsAST([NotNull] VoltaParser.FormParsASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.formPars"/>.
+	/// Exit a parse tree produced by the <c>formParsAST</c>
+	/// labeled alternative in <see cref="VoltaParser.formPars"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitFormPars([NotNull] VoltaParser.FormParsContext context);
+	void ExitFormParsAST([NotNull] VoltaParser.FormParsASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.type"/>.
+	/// Enter a parse tree produced by the <c>typeAST</c>
+	/// labeled alternative in <see cref="VoltaParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterType([NotNull] VoltaParser.TypeContext context);
+	void EnterTypeAST([NotNull] VoltaParser.TypeASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.type"/>.
+	/// Exit a parse tree produced by the <c>typeAST</c>
+	/// labeled alternative in <see cref="VoltaParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitType([NotNull] VoltaParser.TypeContext context);
+	void ExitTypeAST([NotNull] VoltaParser.TypeASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.statement"/>.
+	/// Enter a parse tree produced by the <c>callORassignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterStatement([NotNull] VoltaParser.StatementContext context);
+	void EnterCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.statement"/>.
+	/// Exit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitStatement([NotNull] VoltaParser.StatementContext context);
+	void ExitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.block"/>.
+	/// Enter a parse tree produced by the <c>ifStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterBlock([NotNull] VoltaParser.BlockContext context);
+	void EnterIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.block"/>.
+	/// Exit a parse tree produced by the <c>ifStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitBlock([NotNull] VoltaParser.BlockContext context);
+	void ExitIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.actPars"/>.
+	/// Enter a parse tree produced by the <c>forStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterActPars([NotNull] VoltaParser.ActParsContext context);
+	void EnterForStatementAST([NotNull] VoltaParser.ForStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.actPars"/>.
+	/// Exit a parse tree produced by the <c>forStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitActPars([NotNull] VoltaParser.ActParsContext context);
+	void ExitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.condition"/>.
+	/// Enter a parse tree produced by the <c>whileStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterCondition([NotNull] VoltaParser.ConditionContext context);
+	void EnterWhileStatementAST([NotNull] VoltaParser.WhileStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.condition"/>.
+	/// Exit a parse tree produced by the <c>whileStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitCondition([NotNull] VoltaParser.ConditionContext context);
+	void ExitWhileStatementAST([NotNull] VoltaParser.WhileStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.condTerm"/>.
+	/// Enter a parse tree produced by the <c>breakStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterCondTerm([NotNull] VoltaParser.CondTermContext context);
+	void EnterBreakStatementAST([NotNull] VoltaParser.BreakStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.condTerm"/>.
+	/// Exit a parse tree produced by the <c>breakStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitCondTerm([NotNull] VoltaParser.CondTermContext context);
+	void ExitBreakStatementAST([NotNull] VoltaParser.BreakStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.condFact"/>.
+	/// Enter a parse tree produced by the <c>switchStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterCondFact([NotNull] VoltaParser.CondFactContext context);
+	void EnterSwitchStatementAST([NotNull] VoltaParser.SwitchStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.condFact"/>.
+	/// Exit a parse tree produced by the <c>switchStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitCondFact([NotNull] VoltaParser.CondFactContext context);
+	void ExitSwitchStatementAST([NotNull] VoltaParser.SwitchStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.expr"/>.
+	/// Enter a parse tree produced by the <c>returnStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterExpr([NotNull] VoltaParser.ExprContext context);
+	void EnterReturnStatementAST([NotNull] VoltaParser.ReturnStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.expr"/>.
+	/// Exit a parse tree produced by the <c>returnStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitExpr([NotNull] VoltaParser.ExprContext context);
+	void ExitReturnStatementAST([NotNull] VoltaParser.ReturnStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.term"/>.
+	/// Enter a parse tree produced by the <c>readStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterTerm([NotNull] VoltaParser.TermContext context);
+	void EnterReadStatementAST([NotNull] VoltaParser.ReadStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.term"/>.
+	/// Exit a parse tree produced by the <c>readStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitTerm([NotNull] VoltaParser.TermContext context);
+	void ExitReadStatementAST([NotNull] VoltaParser.ReadStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.factor"/>.
+	/// Enter a parse tree produced by the <c>writeStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterFactor([NotNull] VoltaParser.FactorContext context);
+	void EnterWriteStatementAST([NotNull] VoltaParser.WriteStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.factor"/>.
+	/// Exit a parse tree produced by the <c>writeStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitFactor([NotNull] VoltaParser.FactorContext context);
+	void ExitWriteStatementAST([NotNull] VoltaParser.WriteStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.designator"/>.
+	/// Enter a parse tree produced by the <c>blockStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterDesignator([NotNull] VoltaParser.DesignatorContext context);
+	void EnterBlockStatementAST([NotNull] VoltaParser.BlockStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.designator"/>.
+	/// Exit a parse tree produced by the <c>blockStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitDesignator([NotNull] VoltaParser.DesignatorContext context);
+	void ExitBlockStatementAST([NotNull] VoltaParser.BlockStatementASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>semicolonStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSemicolonStatementAST([NotNull] VoltaParser.SemicolonStatementASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>semicolonStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSemicolonStatementAST([NotNull] VoltaParser.SemicolonStatementASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>blockAST</c>
+	/// labeled alternative in <see cref="VoltaParser.block"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBlockAST([NotNull] VoltaParser.BlockASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>blockAST</c>
+	/// labeled alternative in <see cref="VoltaParser.block"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBlockAST([NotNull] VoltaParser.BlockASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>actParsAST</c>
+	/// labeled alternative in <see cref="VoltaParser.actPars"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterActParsAST([NotNull] VoltaParser.ActParsASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>actParsAST</c>
+	/// labeled alternative in <see cref="VoltaParser.actPars"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitActParsAST([NotNull] VoltaParser.ActParsASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>conditionAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterConditionAST([NotNull] VoltaParser.ConditionASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>conditionAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitConditionAST([NotNull] VoltaParser.ConditionASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>condTermAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condTerm"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCondTermAST([NotNull] VoltaParser.CondTermASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>condTermAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condTerm"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCondTermAST([NotNull] VoltaParser.CondTermASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>condFactAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condFact"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCondFactAST([NotNull] VoltaParser.CondFactASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>condFactAST</c>
+	/// labeled alternative in <see cref="VoltaParser.condFact"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCondFactAST([NotNull] VoltaParser.CondFactASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>exprAST</c>
+	/// labeled alternative in <see cref="VoltaParser.expr"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExprAST([NotNull] VoltaParser.ExprASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>exprAST</c>
+	/// labeled alternative in <see cref="VoltaParser.expr"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExprAST([NotNull] VoltaParser.ExprASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>termAST</c>
+	/// labeled alternative in <see cref="VoltaParser.term"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTermAST([NotNull] VoltaParser.TermASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>termAST</c>
+	/// labeled alternative in <see cref="VoltaParser.term"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTermAST([NotNull] VoltaParser.TermASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>callFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>callFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>numFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNumFactorAST([NotNull] VoltaParser.NumFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>numFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNumFactorAST([NotNull] VoltaParser.NumFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>charConstFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>charConstFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>bolleanFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>bolleanFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>newFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNewFactorAST([NotNull] VoltaParser.NewFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>newFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNewFactorAST([NotNull] VoltaParser.NewFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>bracketFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>bracketFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>designatorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.designator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDesignatorAST([NotNull] VoltaParser.DesignatorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>designatorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.designator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDesignatorAST([NotNull] VoltaParser.DesignatorASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="VoltaParser.mulop"/>.
 	/// </summary>
@@ -211,33 +425,99 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitMulop([NotNull] VoltaParser.MulopContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.addop"/>.
+	/// Enter a parse tree produced by the <c>addopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.addop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterAddop([NotNull] VoltaParser.AddopContext context);
+	void EnterAddopAST([NotNull] VoltaParser.AddopASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.addop"/>.
+	/// Exit a parse tree produced by the <c>addopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.addop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitAddop([NotNull] VoltaParser.AddopContext context);
+	void ExitAddopAST([NotNull] VoltaParser.AddopASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.relop"/>.
+	/// Enter a parse tree produced by the <c>equalEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterRelop([NotNull] VoltaParser.RelopContext context);
+	void EnterEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.relop"/>.
+	/// Exit a parse tree produced by the <c>equalEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitRelop([NotNull] VoltaParser.RelopContext context);
+	void ExitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="VoltaParser.switch"/>.
+	/// Enter a parse tree produced by the <c>notEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterSwitch([NotNull] VoltaParser.SwitchContext context);
+	void EnterNotEqualRelopAST([NotNull] VoltaParser.NotEqualRelopASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="VoltaParser.switch"/>.
+	/// Exit a parse tree produced by the <c>notEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitSwitch([NotNull] VoltaParser.SwitchContext context);
+	void ExitNotEqualRelopAST([NotNull] VoltaParser.NotEqualRelopASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>greaterEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>greaterEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>lessEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>lessEqualRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>greaterRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGreaterRelopAST([NotNull] VoltaParser.GreaterRelopASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>greaterRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGreaterRelopAST([NotNull] VoltaParser.GreaterRelopASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>lessRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>lessRelopAST</c>
+	/// labeled alternative in <see cref="VoltaParser.relop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>switchAST</c>
+	/// labeled alternative in <see cref="VoltaParser.switch"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>switchAST</c>
+	/// labeled alternative in <see cref="VoltaParser.switch"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
 }

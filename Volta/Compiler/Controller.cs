@@ -3,6 +3,7 @@ using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Volta.Compiler
@@ -19,10 +20,16 @@ namespace Volta.Compiler
 
             VoltaParserErrorListener errorListener = new VoltaParserErrorListener();
 
+            parser.RemoveErrorListeners();
+
             parser.AddErrorListener(errorListener);
 
             IParseTree tree = parser.program();
 
+            Debug.WriteLine(":D");
+            Debug.WriteLine((tree as ParserRuleContext).ToStringTree());
+           
+            
             
 
             return errorListener.GetErrors();

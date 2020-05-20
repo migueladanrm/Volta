@@ -106,6 +106,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ProgramContext : ParserRuleContext {
+		public ProgramContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_program; } }
+	 
+		public ProgramContext() { }
+		public virtual void CopyFrom(ProgramContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ProgramASTContext : ProgramContext {
 		public ITerminalNode CLASS() { return GetToken(VoltaParser.CLASS, 0); }
 		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
 		public ITerminalNode CURLYBL() { return GetToken(VoltaParser.CURLYBL, 0); }
@@ -135,18 +147,19 @@ public partial class VoltaParser : Parser {
 		public MethodDeclContext methodDecl(int i) {
 			return GetRuleContext<MethodDeclContext>(i);
 		}
-		public ProgramContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_program; } }
+		public ProgramASTContext(ProgramContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterProgram(this);
+			if (typedListener != null) typedListener.EnterProgramAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitProgram(this);
+			if (typedListener != null) typedListener.ExitProgramAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitProgramAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -156,6 +169,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 0, RULE_program);
 		int _la;
 		try {
+			_localctx = new ProgramASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 42; Match(CLASS);
@@ -221,6 +235,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ConstDeclContext : ParserRuleContext {
+		public ConstDeclContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_constDecl; } }
+	 
+		public ConstDeclContext() { }
+		public virtual void CopyFrom(ConstDeclContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ConstDeclASTContext : ConstDeclContext {
 		public ITerminalNode CONST() { return GetToken(VoltaParser.CONST, 0); }
 		public TypeContext type() {
 			return GetRuleContext<TypeContext>(0);
@@ -231,18 +257,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
 		public ITerminalNode CHARCONST() { return GetToken(VoltaParser.CHARCONST, 0); }
 		public ITerminalNode STRING() { return GetToken(VoltaParser.STRING, 0); }
-		public ConstDeclContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_constDecl; } }
+		public ConstDeclASTContext(ConstDeclContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterConstDecl(this);
+			if (typedListener != null) typedListener.EnterConstDeclAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitConstDecl(this);
+			if (typedListener != null) typedListener.ExitConstDeclAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitConstDeclAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -252,6 +279,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 2, RULE_constDecl);
 		int _la;
 		try {
+			_localctx = new ConstDeclASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 62; Match(CONST);
@@ -282,6 +310,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class VarDeclContext : ParserRuleContext {
+		public VarDeclContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_varDecl; } }
+	 
+		public VarDeclContext() { }
+		public virtual void CopyFrom(VarDeclContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class VarDeclASTContext : VarDeclContext {
 		public TypeContext type() {
 			return GetRuleContext<TypeContext>(0);
 		}
@@ -294,18 +334,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode COMMA(int i) {
 			return GetToken(VoltaParser.COMMA, i);
 		}
-		public VarDeclContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_varDecl; } }
+		public VarDeclASTContext(VarDeclContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterVarDecl(this);
+			if (typedListener != null) typedListener.EnterVarDeclAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitVarDecl(this);
+			if (typedListener != null) typedListener.ExitVarDeclAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitVarDeclAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -315,6 +356,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 4, RULE_varDecl);
 		int _la;
 		try {
+			_localctx = new VarDeclASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 69; type();
@@ -348,6 +390,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ClassDeclContext : ParserRuleContext {
+		public ClassDeclContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_classDecl; } }
+	 
+		public ClassDeclContext() { }
+		public virtual void CopyFrom(ClassDeclContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ClassDeclASTContext : ClassDeclContext {
 		public ITerminalNode CLASS() { return GetToken(VoltaParser.CLASS, 0); }
 		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
 		public ITerminalNode CURLYBL() { return GetToken(VoltaParser.CURLYBL, 0); }
@@ -355,18 +409,19 @@ public partial class VoltaParser : Parser {
 			return GetRuleContext<VarDeclContext>(0);
 		}
 		public ITerminalNode CURLYBR() { return GetToken(VoltaParser.CURLYBR, 0); }
-		public ClassDeclContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_classDecl; } }
+		public ClassDeclASTContext(ClassDeclContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterClassDecl(this);
+			if (typedListener != null) typedListener.EnterClassDeclAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitClassDecl(this);
+			if (typedListener != null) typedListener.ExitClassDeclAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitClassDeclAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -375,6 +430,7 @@ public partial class VoltaParser : Parser {
 		ClassDeclContext _localctx = new ClassDeclContext(Context, State);
 		EnterRule(_localctx, 6, RULE_classDecl);
 		try {
+			_localctx = new ClassDeclASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 80; Match(CLASS);
@@ -396,6 +452,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class MethodDeclContext : ParserRuleContext {
+		public MethodDeclContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_methodDecl; } }
+	 
+		public MethodDeclContext() { }
+		public virtual void CopyFrom(MethodDeclContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class MethodDeclASTContext : MethodDeclContext {
 		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
 		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
 		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
@@ -415,18 +483,19 @@ public partial class VoltaParser : Parser {
 		public VarDeclContext varDecl(int i) {
 			return GetRuleContext<VarDeclContext>(i);
 		}
-		public MethodDeclContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_methodDecl; } }
+		public MethodDeclASTContext(MethodDeclContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterMethodDecl(this);
+			if (typedListener != null) typedListener.EnterMethodDeclAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitMethodDecl(this);
+			if (typedListener != null) typedListener.ExitMethodDeclAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitMethodDeclAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -436,6 +505,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 8, RULE_methodDecl);
 		int _la;
 		try {
+			_localctx = new MethodDeclASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 88;
@@ -494,6 +564,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class FormParsContext : ParserRuleContext {
+		public FormParsContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_formPars; } }
+	 
+		public FormParsContext() { }
+		public virtual void CopyFrom(FormParsContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class FormParsASTContext : FormParsContext {
 		public TypeContext[] type() {
 			return GetRuleContexts<TypeContext>();
 		}
@@ -508,18 +590,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode COMMA(int i) {
 			return GetToken(VoltaParser.COMMA, i);
 		}
-		public FormParsContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_formPars; } }
+		public FormParsASTContext(FormParsContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterFormPars(this);
+			if (typedListener != null) typedListener.EnterFormParsAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitFormPars(this);
+			if (typedListener != null) typedListener.ExitFormParsAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitFormParsAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -529,6 +612,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 10, RULE_formPars);
 		int _la;
 		try {
+			_localctx = new FormParsASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 104; type();
@@ -564,21 +648,34 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class TypeContext : ParserRuleContext {
-		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
-		public ITerminalNode SQUAREBL() { return GetToken(VoltaParser.SQUAREBL, 0); }
-		public ITerminalNode SQUAREBR() { return GetToken(VoltaParser.SQUAREBR, 0); }
 		public TypeContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
 		public override int RuleIndex { get { return RULE_type; } }
+	 
+		public TypeContext() { }
+		public virtual void CopyFrom(TypeContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class TypeASTContext : TypeContext {
+		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
+		public ITerminalNode SQUAREBL() { return GetToken(VoltaParser.SQUAREBL, 0); }
+		public ITerminalNode SQUAREBR() { return GetToken(VoltaParser.SQUAREBR, 0); }
+		public TypeASTContext(TypeContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterType(this);
+			if (typedListener != null) typedListener.EnterTypeAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitType(this);
+			if (typedListener != null) typedListener.ExitTypeAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTypeAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -588,6 +685,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 12, RULE_type);
 		int _la;
 		try {
+			_localctx = new TypeASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 115; Match(IDENT);
@@ -615,13 +713,233 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class StatementContext : ParserRuleContext {
+		public StatementContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_statement; } }
+	 
+		public StatementContext() { }
+		public virtual void CopyFrom(StatementContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class WhileStatementASTContext : StatementContext {
+		public ITerminalNode WHILE() { return GetToken(VoltaParser.WHILE, 0); }
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
+		public ConditionContext condition() {
+			return GetRuleContext<ConditionContext>(0);
+		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public StatementContext statement() {
+			return GetRuleContext<StatementContext>(0);
+		}
+		public WhileStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterWhileStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitWhileStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitWhileStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class SemicolonStatementASTContext : StatementContext {
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
+		public SemicolonStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterSemicolonStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitSemicolonStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSemicolonStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class ReadStatementASTContext : StatementContext {
+		public ITerminalNode READ() { return GetToken(VoltaParser.READ, 0); }
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
 		public DesignatorContext designator() {
 			return GetRuleContext<DesignatorContext>(0);
+		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
+		public ReadStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterReadStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitReadStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitReadStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class ReturnStatementASTContext : StatementContext {
+		public ITerminalNode RETURN() { return GetToken(VoltaParser.RETURN, 0); }
+		public ExprContext expr() {
+			return GetRuleContext<ExprContext>(0);
+		}
+		public ReturnStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterReturnStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitReturnStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitReturnStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class ForStatementASTContext : StatementContext {
+		public ITerminalNode FOR() { return GetToken(VoltaParser.FOR, 0); }
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
+		public ExprContext expr() {
+			return GetRuleContext<ExprContext>(0);
 		}
 		public ITerminalNode[] SEMICOLON() { return GetTokens(VoltaParser.SEMICOLON); }
 		public ITerminalNode SEMICOLON(int i) {
 			return GetToken(VoltaParser.SEMICOLON, i);
 		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public StatementContext[] statement() {
+			return GetRuleContexts<StatementContext>();
+		}
+		public StatementContext statement(int i) {
+			return GetRuleContext<StatementContext>(i);
+		}
+		public ConditionContext condition() {
+			return GetRuleContext<ConditionContext>(0);
+		}
+		public ForStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterForStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitForStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitForStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class BreakStatementASTContext : StatementContext {
+		public ITerminalNode BREAK() { return GetToken(VoltaParser.BREAK, 0); }
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
+		public BreakStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterBreakStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitBreakStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBreakStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class IfStatementASTContext : StatementContext {
+		public ITerminalNode IF() { return GetToken(VoltaParser.IF, 0); }
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
+		public ConditionContext condition() {
+			return GetRuleContext<ConditionContext>(0);
+		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public StatementContext[] statement() {
+			return GetRuleContexts<StatementContext>();
+		}
+		public StatementContext statement(int i) {
+			return GetRuleContext<StatementContext>(i);
+		}
+		public ITerminalNode ELSE() { return GetToken(VoltaParser.ELSE, 0); }
+		public IfStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterIfStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitIfStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitIfStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class WriteStatementASTContext : StatementContext {
+		public ITerminalNode WRITE() { return GetToken(VoltaParser.WRITE, 0); }
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
+		public ExprContext expr() {
+			return GetRuleContext<ExprContext>(0);
+		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
+		public ITerminalNode COMMA() { return GetToken(VoltaParser.COMMA, 0); }
+		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
+		public WriteStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterWriteStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitWriteStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitWriteStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class BlockStatementASTContext : StatementContext {
+		public BlockContext block() {
+			return GetRuleContext<BlockContext>(0);
+		}
+		public BlockStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterBlockStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitBlockStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBlockStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class CallORassignStatementASTContext : StatementContext {
+		public DesignatorContext designator() {
+			return GetRuleContext<DesignatorContext>(0);
+		}
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
 		public ITerminalNode EQUAL() { return GetToken(VoltaParser.EQUAL, 0); }
 		public ExprContext expr() {
 			return GetRuleContext<ExprContext>(0);
@@ -633,43 +951,38 @@ public partial class VoltaParser : Parser {
 		public ActParsContext actPars() {
 			return GetRuleContext<ActParsContext>(0);
 		}
-		public ITerminalNode IF() { return GetToken(VoltaParser.IF, 0); }
-		public ConditionContext condition() {
-			return GetRuleContext<ConditionContext>(0);
-		}
-		public StatementContext[] statement() {
-			return GetRuleContexts<StatementContext>();
-		}
-		public StatementContext statement(int i) {
-			return GetRuleContext<StatementContext>(i);
-		}
-		public ITerminalNode ELSE() { return GetToken(VoltaParser.ELSE, 0); }
-		public ITerminalNode FOR() { return GetToken(VoltaParser.FOR, 0); }
-		public ITerminalNode WHILE() { return GetToken(VoltaParser.WHILE, 0); }
-		public ITerminalNode BREAK() { return GetToken(VoltaParser.BREAK, 0); }
-		public SwitchContext @switch() {
-			return GetRuleContext<SwitchContext>(0);
-		}
-		public ITerminalNode RETURN() { return GetToken(VoltaParser.RETURN, 0); }
-		public ITerminalNode READ() { return GetToken(VoltaParser.READ, 0); }
-		public ITerminalNode WRITE() { return GetToken(VoltaParser.WRITE, 0); }
-		public ITerminalNode COMMA() { return GetToken(VoltaParser.COMMA, 0); }
-		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
-		public BlockContext block() {
-			return GetRuleContext<BlockContext>(0);
-		}
-		public StatementContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_statement; } }
+		public CallORassignStatementASTContext(StatementContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterStatement(this);
+			if (typedListener != null) typedListener.EnterCallORassignStatementAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitStatement(this);
+			if (typedListener != null) typedListener.ExitCallORassignStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCallORassignStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class SwitchStatementASTContext : StatementContext {
+		public SwitchContext @switch() {
+			return GetRuleContext<SwitchContext>(0);
+		}
+		public SwitchStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterSwitchStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitSwitchStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSwitchStatementAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -683,6 +996,7 @@ public partial class VoltaParser : Parser {
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case IDENT:
+				_localctx = new CallORassignStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 120; designator();
@@ -727,6 +1041,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case IF:
+				_localctx = new IfStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 134; Match(IF);
@@ -747,6 +1062,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case FOR:
+				_localctx = new ForStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 143; Match(FOR);
@@ -777,6 +1093,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case WHILE:
+				_localctx = new WhileStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 4);
 				{
 				State = 157; Match(WHILE);
@@ -787,6 +1104,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case BREAK:
+				_localctx = new BreakStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 5);
 				{
 				State = 163; Match(BREAK);
@@ -794,12 +1112,14 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case SWITCH:
+				_localctx = new SwitchStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 6);
 				{
 				State = 165; @switch();
 				}
 				break;
 			case RETURN:
+				_localctx = new ReturnStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 7);
 				{
 				State = 166; Match(RETURN);
@@ -815,6 +1135,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case READ:
+				_localctx = new ReadStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 8);
 				{
 				State = 170; Match(READ);
@@ -825,6 +1146,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case WRITE:
+				_localctx = new WriteStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 9);
 				{
 				State = 176; Match(WRITE);
@@ -845,12 +1167,14 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case CURLYBL:
+				_localctx = new BlockStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 10);
 				{
 				State = 186; block();
 				}
 				break;
 			case SEMICOLON:
+				_localctx = new SemicolonStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 11);
 				{
 				State = 187; Match(SEMICOLON);
@@ -872,6 +1196,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class BlockContext : ParserRuleContext {
+		public BlockContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_block; } }
+	 
+		public BlockContext() { }
+		public virtual void CopyFrom(BlockContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class BlockASTContext : BlockContext {
 		public ITerminalNode CURLYBL() { return GetToken(VoltaParser.CURLYBL, 0); }
 		public ITerminalNode CURLYBR() { return GetToken(VoltaParser.CURLYBR, 0); }
 		public StatementContext[] statement() {
@@ -892,18 +1228,19 @@ public partial class VoltaParser : Parser {
 		public VarDeclContext varDecl(int i) {
 			return GetRuleContext<VarDeclContext>(i);
 		}
-		public BlockContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_block; } }
+		public BlockASTContext(BlockContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterBlock(this);
+			if (typedListener != null) typedListener.EnterBlockAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitBlock(this);
+			if (typedListener != null) typedListener.ExitBlockAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBlockAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -913,6 +1250,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 16, RULE_block);
 		int _la;
 		try {
+			_localctx = new BlockASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 190; Match(CURLYBL);
@@ -960,6 +1298,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ActParsContext : ParserRuleContext {
+		public ActParsContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_actPars; } }
+	 
+		public ActParsContext() { }
+		public virtual void CopyFrom(ActParsContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ActParsASTContext : ActParsContext {
 		public ExprContext[] expr() {
 			return GetRuleContexts<ExprContext>();
 		}
@@ -970,18 +1320,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode COMMA(int i) {
 			return GetToken(VoltaParser.COMMA, i);
 		}
-		public ActParsContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_actPars; } }
+		public ActParsASTContext(ActParsContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterActPars(this);
+			if (typedListener != null) typedListener.EnterActParsAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitActPars(this);
+			if (typedListener != null) typedListener.ExitActParsAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitActParsAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -991,6 +1342,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 18, RULE_actPars);
 		int _la;
 		try {
+			_localctx = new ActParsASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 201; expr();
@@ -1022,6 +1374,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ConditionContext : ParserRuleContext {
+		public ConditionContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_condition; } }
+	 
+		public ConditionContext() { }
+		public virtual void CopyFrom(ConditionContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ConditionASTContext : ConditionContext {
 		public CondTermContext[] condTerm() {
 			return GetRuleContexts<CondTermContext>();
 		}
@@ -1032,18 +1396,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode OR(int i) {
 			return GetToken(VoltaParser.OR, i);
 		}
-		public ConditionContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_condition; } }
+		public ConditionASTContext(ConditionContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterCondition(this);
+			if (typedListener != null) typedListener.EnterConditionAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitCondition(this);
+			if (typedListener != null) typedListener.ExitConditionAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitConditionAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1053,6 +1418,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 20, RULE_condition);
 		int _la;
 		try {
+			_localctx = new ConditionASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 209; condTerm();
@@ -1084,6 +1450,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class CondTermContext : ParserRuleContext {
+		public CondTermContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_condTerm; } }
+	 
+		public CondTermContext() { }
+		public virtual void CopyFrom(CondTermContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class CondTermASTContext : CondTermContext {
 		public CondFactContext[] condFact() {
 			return GetRuleContexts<CondFactContext>();
 		}
@@ -1094,18 +1472,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode AND(int i) {
 			return GetToken(VoltaParser.AND, i);
 		}
-		public CondTermContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_condTerm; } }
+		public CondTermASTContext(CondTermContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterCondTerm(this);
+			if (typedListener != null) typedListener.EnterCondTermAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitCondTerm(this);
+			if (typedListener != null) typedListener.ExitCondTermAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCondTermAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1115,6 +1494,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 22, RULE_condTerm);
 		int _la;
 		try {
+			_localctx = new CondTermASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 217; condFact();
@@ -1146,6 +1526,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class CondFactContext : ParserRuleContext {
+		public CondFactContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_condFact; } }
+	 
+		public CondFactContext() { }
+		public virtual void CopyFrom(CondFactContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class CondFactASTContext : CondFactContext {
 		public ExprContext[] expr() {
 			return GetRuleContexts<ExprContext>();
 		}
@@ -1155,18 +1547,19 @@ public partial class VoltaParser : Parser {
 		public RelopContext relop() {
 			return GetRuleContext<RelopContext>(0);
 		}
-		public CondFactContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_condFact; } }
+		public CondFactASTContext(CondFactContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterCondFact(this);
+			if (typedListener != null) typedListener.EnterCondFactAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitCondFact(this);
+			if (typedListener != null) typedListener.ExitCondFactAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCondFactAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1175,6 +1568,7 @@ public partial class VoltaParser : Parser {
 		CondFactContext _localctx = new CondFactContext(Context, State);
 		EnterRule(_localctx, 24, RULE_condFact);
 		try {
+			_localctx = new CondFactASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 225; expr();
@@ -1194,6 +1588,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class ExprContext : ParserRuleContext {
+		public ExprContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_expr; } }
+	 
+		public ExprContext() { }
+		public virtual void CopyFrom(ExprContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class ExprASTContext : ExprContext {
 		public TermContext[] term() {
 			return GetRuleContexts<TermContext>();
 		}
@@ -1207,18 +1613,19 @@ public partial class VoltaParser : Parser {
 		public AddopContext addop(int i) {
 			return GetRuleContext<AddopContext>(i);
 		}
-		public ExprContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_expr; } }
+		public ExprASTContext(ExprContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterExpr(this);
+			if (typedListener != null) typedListener.EnterExprAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitExpr(this);
+			if (typedListener != null) typedListener.ExitExprAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitExprAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1228,6 +1635,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 26, RULE_expr);
 		int _la;
 		try {
+			_localctx = new ExprASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 230;
@@ -1268,6 +1676,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class TermContext : ParserRuleContext {
+		public TermContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_term; } }
+	 
+		public TermContext() { }
+		public virtual void CopyFrom(TermContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class TermASTContext : TermContext {
 		public FactorContext[] factor() {
 			return GetRuleContexts<FactorContext>();
 		}
@@ -1280,18 +1700,19 @@ public partial class VoltaParser : Parser {
 		public MulopContext mulop(int i) {
 			return GetRuleContext<MulopContext>(i);
 		}
-		public TermContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_term; } }
+		public TermASTContext(TermContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterTerm(this);
+			if (typedListener != null) typedListener.EnterTermAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitTerm(this);
+			if (typedListener != null) typedListener.ExitTermAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTermAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1301,6 +1722,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 28, RULE_term);
 		int _la;
 		try {
+			_localctx = new TermASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 241; factor();
@@ -1332,6 +1754,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class FactorContext : ParserRuleContext {
+		public FactorContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_factor; } }
+	 
+		public FactorContext() { }
+		public virtual void CopyFrom(FactorContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class CallFactorASTContext : FactorContext {
 		public DesignatorContext designator() {
 			return GetRuleContext<DesignatorContext>(0);
 		}
@@ -1340,27 +1774,110 @@ public partial class VoltaParser : Parser {
 		public ActParsContext actPars() {
 			return GetRuleContext<ActParsContext>(0);
 		}
-		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
-		public ITerminalNode CHARCONST() { return GetToken(VoltaParser.CHARCONST, 0); }
-		public ITerminalNode TRUE() { return GetToken(VoltaParser.TRUE, 0); }
-		public ITerminalNode FALSE() { return GetToken(VoltaParser.FALSE, 0); }
-		public ITerminalNode NEW() { return GetToken(VoltaParser.NEW, 0); }
-		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
-		public ExprContext expr() {
-			return GetRuleContext<ExprContext>(0);
-		}
-		public FactorContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_factor; } }
+		public CallFactorASTContext(FactorContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterFactor(this);
+			if (typedListener != null) typedListener.EnterCallFactorAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitFactor(this);
+			if (typedListener != null) typedListener.ExitCallFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCallFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class NewFactorASTContext : FactorContext {
+		public ITerminalNode NEW() { return GetToken(VoltaParser.NEW, 0); }
+		public ITerminalNode IDENT() { return GetToken(VoltaParser.IDENT, 0); }
+		public NewFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterNewFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitNewFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitNewFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class NumFactorASTContext : FactorContext {
+		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
+		public NumFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterNumFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitNumFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitNumFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class CharConstFactorASTContext : FactorContext {
+		public ITerminalNode CHARCONST() { return GetToken(VoltaParser.CHARCONST, 0); }
+		public CharConstFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterCharConstFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitCharConstFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCharConstFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class BolleanFactorASTContext : FactorContext {
+		public ITerminalNode TRUE() { return GetToken(VoltaParser.TRUE, 0); }
+		public ITerminalNode FALSE() { return GetToken(VoltaParser.FALSE, 0); }
+		public BolleanFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterBolleanFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitBolleanFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBolleanFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class BracketFactorASTContext : FactorContext {
+		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
+		public ExprContext expr() {
+			return GetRuleContext<ExprContext>(0);
+		}
+		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
+		public BracketFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterBracketFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitBracketFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBracketFactorAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1374,6 +1891,7 @@ public partial class VoltaParser : Parser {
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case IDENT:
+				_localctx = new CallFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 250; designator();
@@ -1399,12 +1917,14 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case NUM:
+				_localctx = new NumFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 258; Match(NUM);
 				}
 				break;
 			case CHARCONST:
+				_localctx = new CharConstFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 259; Match(CHARCONST);
@@ -1412,6 +1932,7 @@ public partial class VoltaParser : Parser {
 				break;
 			case TRUE:
 			case FALSE:
+				_localctx = new BolleanFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 4);
 				{
 				State = 260;
@@ -1426,6 +1947,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case NEW:
+				_localctx = new NewFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 5);
 				{
 				State = 261; Match(NEW);
@@ -1433,6 +1955,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case BL:
+				_localctx = new BracketFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 6);
 				{
 				State = 263; Match(BL);
@@ -1456,6 +1979,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class DesignatorContext : ParserRuleContext {
+		public DesignatorContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_designator; } }
+	 
+		public DesignatorContext() { }
+		public virtual void CopyFrom(DesignatorContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class DesignatorASTContext : DesignatorContext {
 		public ITerminalNode[] IDENT() { return GetTokens(VoltaParser.IDENT); }
 		public ITerminalNode IDENT(int i) {
 			return GetToken(VoltaParser.IDENT, i);
@@ -1478,18 +2013,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode SQUAREBR(int i) {
 			return GetToken(VoltaParser.SQUAREBR, i);
 		}
-		public DesignatorContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_designator; } }
+		public DesignatorASTContext(DesignatorContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterDesignator(this);
+			if (typedListener != null) typedListener.EnterDesignatorAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitDesignator(this);
+			if (typedListener != null) typedListener.ExitDesignatorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDesignatorAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1499,6 +2035,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 32, RULE_designator);
 		int _la;
 		try {
+			_localctx = new DesignatorASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 269; Match(IDENT);
@@ -1561,6 +2098,11 @@ public partial class VoltaParser : Parser {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
 			if (typedListener != null) typedListener.ExitMulop(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitMulop(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -1594,20 +2136,33 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class AddopContext : ParserRuleContext {
-		public ITerminalNode ADD() { return GetToken(VoltaParser.ADD, 0); }
-		public ITerminalNode SUB() { return GetToken(VoltaParser.SUB, 0); }
 		public AddopContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
 		public override int RuleIndex { get { return RULE_addop; } }
+	 
+		public AddopContext() { }
+		public virtual void CopyFrom(AddopContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class AddopASTContext : AddopContext {
+		public ITerminalNode ADD() { return GetToken(VoltaParser.ADD, 0); }
+		public ITerminalNode SUB() { return GetToken(VoltaParser.SUB, 0); }
+		public AddopASTContext(AddopContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterAddop(this);
+			if (typedListener != null) typedListener.EnterAddopAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitAddop(this);
+			if (typedListener != null) typedListener.ExitAddopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitAddopAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1617,6 +2172,7 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 36, RULE_addop);
 		int _la;
 		try {
+			_localctx = new AddopASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 283;
@@ -1642,24 +2198,117 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class RelopContext : ParserRuleContext {
-		public ITerminalNode EQUALEQUAL() { return GetToken(VoltaParser.EQUALEQUAL, 0); }
-		public ITerminalNode NOTEQUAL() { return GetToken(VoltaParser.NOTEQUAL, 0); }
-		public ITerminalNode GREATEREQUAL() { return GetToken(VoltaParser.GREATEREQUAL, 0); }
-		public ITerminalNode LESSEQUAL() { return GetToken(VoltaParser.LESSEQUAL, 0); }
-		public ITerminalNode GREATER() { return GetToken(VoltaParser.GREATER, 0); }
-		public ITerminalNode LESS() { return GetToken(VoltaParser.LESS, 0); }
 		public RelopContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
 		public override int RuleIndex { get { return RULE_relop; } }
+	 
+		public RelopContext() { }
+		public virtual void CopyFrom(RelopContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class GreaterRelopASTContext : RelopContext {
+		public ITerminalNode GREATER() { return GetToken(VoltaParser.GREATER, 0); }
+		public GreaterRelopASTContext(RelopContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterRelop(this);
+			if (typedListener != null) typedListener.EnterGreaterRelopAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitRelop(this);
+			if (typedListener != null) typedListener.ExitGreaterRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitGreaterRelopAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class EqualEqualRelopASTContext : RelopContext {
+		public ITerminalNode EQUALEQUAL() { return GetToken(VoltaParser.EQUALEQUAL, 0); }
+		public EqualEqualRelopASTContext(RelopContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterEqualEqualRelopAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitEqualEqualRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitEqualEqualRelopAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class LessRelopASTContext : RelopContext {
+		public ITerminalNode LESS() { return GetToken(VoltaParser.LESS, 0); }
+		public LessRelopASTContext(RelopContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterLessRelopAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitLessRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitLessRelopAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class GreaterEqualRelopASTContext : RelopContext {
+		public ITerminalNode GREATEREQUAL() { return GetToken(VoltaParser.GREATEREQUAL, 0); }
+		public GreaterEqualRelopASTContext(RelopContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterGreaterEqualRelopAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitGreaterEqualRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitGreaterEqualRelopAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class NotEqualRelopASTContext : RelopContext {
+		public ITerminalNode NOTEQUAL() { return GetToken(VoltaParser.NOTEQUAL, 0); }
+		public NotEqualRelopASTContext(RelopContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterNotEqualRelopAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitNotEqualRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitNotEqualRelopAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+	public partial class LessEqualRelopASTContext : RelopContext {
+		public ITerminalNode LESSEQUAL() { return GetToken(VoltaParser.LESSEQUAL, 0); }
+		public LessEqualRelopASTContext(RelopContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterLessEqualRelopAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitLessEqualRelopAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitLessEqualRelopAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1667,19 +2316,54 @@ public partial class VoltaParser : Parser {
 	public RelopContext relop() {
 		RelopContext _localctx = new RelopContext(Context, State);
 		EnterRule(_localctx, 38, RULE_relop);
-		int _la;
 		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 285;
-			_la = TokenStream.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << EQUALEQUAL) | (1L << NOTEQUAL) | (1L << GREATEREQUAL) | (1L << LESSEQUAL) | (1L << GREATER) | (1L << LESS))) != 0)) ) {
-			ErrorHandler.RecoverInline(this);
-			}
-			else {
-				ErrorHandler.ReportMatch(this);
-			    Consume();
-			}
+			State = 291;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case EQUALEQUAL:
+				_localctx = new EqualEqualRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 285; Match(EQUALEQUAL);
+				}
+				break;
+			case NOTEQUAL:
+				_localctx = new NotEqualRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 286; Match(NOTEQUAL);
+				}
+				break;
+			case GREATEREQUAL:
+				_localctx = new GreaterEqualRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 3);
+				{
+				State = 287; Match(GREATEREQUAL);
+				}
+				break;
+			case LESSEQUAL:
+				_localctx = new LessEqualRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 4);
+				{
+				State = 288; Match(LESSEQUAL);
+				}
+				break;
+			case GREATER:
+				_localctx = new GreaterRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 5);
+				{
+				State = 289; Match(GREATER);
+				}
+				break;
+			case LESS:
+				_localctx = new LessRelopASTContext(_localctx);
+				EnterOuterAlt(_localctx, 6);
+				{
+				State = 290; Match(LESS);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1694,6 +2378,18 @@ public partial class VoltaParser : Parser {
 	}
 
 	public partial class SwitchContext : ParserRuleContext {
+		public SwitchContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_switch; } }
+	 
+		public SwitchContext() { }
+		public virtual void CopyFrom(SwitchContext context) {
+			base.CopyFrom(context);
+		}
+	}
+	public partial class SwitchASTContext : SwitchContext {
 		public ITerminalNode SWITCH() { return GetToken(VoltaParser.SWITCH, 0); }
 		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
 		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
@@ -1735,18 +2431,19 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode SEMICOLON(int i) {
 			return GetToken(VoltaParser.SEMICOLON, i);
 		}
-		public SwitchContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_switch; } }
+		public SwitchASTContext(SwitchContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterSwitch(this);
+			if (typedListener != null) typedListener.EnterSwitchAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitSwitch(this);
+			if (typedListener != null) typedListener.ExitSwitchAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSwitchAST(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1756,11 +2453,12 @@ public partial class VoltaParser : Parser {
 		EnterRule(_localctx, 40, RULE_switch);
 		int _la;
 		try {
+			_localctx = new SwitchASTContext(_localctx);
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 287; Match(SWITCH);
-			State = 288; Match(BL);
-			State = 289;
+			State = 293; Match(SWITCH);
+			State = 294; Match(BL);
+			State = 295;
 			_la = TokenStream.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IDENT) | (1L << NUM) | (1L << CHARCONST) | (1L << STRING))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -1769,16 +2467,16 @@ public partial class VoltaParser : Parser {
 				ErrorHandler.ReportMatch(this);
 			    Consume();
 			}
-			State = 290; Match(BR);
-			State = 291; Match(CURLYBL);
-			State = 304;
+			State = 296; Match(BR);
+			State = 297; Match(CURLYBL);
+			State = 310;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==CASE) {
 				{
 				{
-				State = 292; Match(CASE);
-				State = 293;
+				State = 298; Match(CASE);
+				State = 299;
 				_la = TokenStream.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NUM) | (1L << CHARCONST) | (1L << STRING))) != 0)) ) {
 				ErrorHandler.RecoverInline(this);
@@ -1787,20 +2485,20 @@ public partial class VoltaParser : Parser {
 					ErrorHandler.ReportMatch(this);
 				    Consume();
 				}
-				State = 294; Match(COLON);
-				State = 300;
+				State = 300; Match(COLON);
+				State = 306;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SEMICOLON) | (1L << CURLYBL) | (1L << IF) | (1L << READ) | (1L << RETURN) | (1L << WHILE) | (1L << WRITE) | (1L << FOR) | (1L << SWITCH) | (1L << BREAK) | (1L << IDENT))) != 0)) {
 					{
-					State = 295; statement();
-					State = 298;
+					State = 301; statement();
+					State = 304;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 					if (_la==BREAK) {
 						{
-						State = 296; Match(BREAK);
-						State = 297; Match(SEMICOLON);
+						State = 302; Match(BREAK);
+						State = 303; Match(SEMICOLON);
 						}
 					}
 
@@ -1809,30 +2507,30 @@ public partial class VoltaParser : Parser {
 
 				}
 				}
-				State = 306;
+				State = 312;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 316;
+			State = 322;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==DEFAULT) {
 				{
-				State = 307; Match(DEFAULT);
-				State = 308; Match(COLON);
-				State = 314;
+				State = 313; Match(DEFAULT);
+				State = 314; Match(COLON);
+				State = 320;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SEMICOLON) | (1L << CURLYBL) | (1L << IF) | (1L << READ) | (1L << RETURN) | (1L << WHILE) | (1L << WRITE) | (1L << FOR) | (1L << SWITCH) | (1L << BREAK) | (1L << IDENT))) != 0)) {
 					{
-					State = 309; statement();
-					State = 312;
+					State = 315; statement();
+					State = 318;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 					if (_la==BREAK) {
 						{
-						State = 310; Match(BREAK);
-						State = 311; Match(SEMICOLON);
+						State = 316; Match(BREAK);
+						State = 317; Match(SEMICOLON);
 						}
 					}
 
@@ -1842,7 +2540,7 @@ public partial class VoltaParser : Parser {
 				}
 			}
 
-			State = 318; Match(CURLYBR);
+			State = 324; Match(CURLYBR);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1858,7 +2556,7 @@ public partial class VoltaParser : Parser {
 
 	private static char[] _serializedATN = {
 		'\x3', '\x608B', '\xA72A', '\x8133', '\xB9ED', '\x417C', '\x3BE7', '\x7786', 
-		'\x5964', '\x3', '\x37', '\x143', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
+		'\x5964', '\x3', '\x37', '\x149', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
 		'\t', '\x3', '\x4', '\x4', '\t', '\x4', '\x4', '\x5', '\t', '\x5', '\x4', 
 		'\x6', '\t', '\x6', '\x4', '\a', '\t', '\a', '\x4', '\b', '\t', '\b', 
 		'\x4', '\t', '\t', '\t', '\x4', '\n', '\t', '\n', '\x4', '\v', '\t', '\v', 
@@ -1915,230 +2613,237 @@ public partial class VoltaParser : Parser {
 		'\x3', '\x12', '\x3', '\x12', '\x3', '\x12', '\x3', '\x12', '\x3', '\x12', 
 		'\x3', '\x12', '\a', '\x12', '\x117', '\n', '\x12', '\f', '\x12', '\xE', 
 		'\x12', '\x11A', '\v', '\x12', '\x3', '\x13', '\x3', '\x13', '\x3', '\x14', 
-		'\x3', '\x14', '\x3', '\x15', '\x3', '\x15', '\x3', '\x16', '\x3', '\x16', 
-		'\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', 
-		'\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x5', '\x16', 
-		'\x12D', '\n', '\x16', '\x5', '\x16', '\x12F', '\n', '\x16', '\a', '\x16', 
-		'\x131', '\n', '\x16', '\f', '\x16', '\xE', '\x16', '\x134', '\v', '\x16', 
-		'\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', 
-		'\x5', '\x16', '\x13B', '\n', '\x16', '\x5', '\x16', '\x13D', '\n', '\x16', 
-		'\x5', '\x16', '\x13F', '\n', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', 
-		'\x16', '\x2', '\x2', '\x17', '\x2', '\x4', '\x6', '\b', '\n', '\f', '\xE', 
-		'\x10', '\x12', '\x14', '\x16', '\x18', '\x1A', '\x1C', '\x1E', ' ', '\"', 
-		'$', '&', '(', '*', '\x2', '\b', '\x3', '\x2', '\x33', '\x35', '\x3', 
-		'\x2', '+', ',', '\x3', '\x2', '\xF', '\x11', '\x4', '\x2', '\v', '\v', 
-		'\r', '\r', '\x4', '\x2', '\x12', '\x15', '\x17', '\x18', '\x3', '\x2', 
-		'\x32', '\x35', '\x2', '\x162', '\x2', ',', '\x3', '\x2', '\x2', '\x2', 
-		'\x4', '@', '\x3', '\x2', '\x2', '\x2', '\x6', 'G', '\x3', '\x2', '\x2', 
-		'\x2', '\b', 'R', '\x3', '\x2', '\x2', '\x2', '\n', 'Z', '\x3', '\x2', 
-		'\x2', '\x2', '\f', 'j', '\x3', '\x2', '\x2', '\x2', '\xE', 'u', '\x3', 
-		'\x2', '\x2', '\x2', '\x10', '\xBE', '\x3', '\x2', '\x2', '\x2', '\x12', 
-		'\xC0', '\x3', '\x2', '\x2', '\x2', '\x14', '\xCB', '\x3', '\x2', '\x2', 
-		'\x2', '\x16', '\xD3', '\x3', '\x2', '\x2', '\x2', '\x18', '\xDB', '\x3', 
-		'\x2', '\x2', '\x2', '\x1A', '\xE3', '\x3', '\x2', '\x2', '\x2', '\x1C', 
-		'\xE8', '\x3', '\x2', '\x2', '\x2', '\x1E', '\xF3', '\x3', '\x2', '\x2', 
-		'\x2', ' ', '\x10D', '\x3', '\x2', '\x2', '\x2', '\"', '\x10F', '\x3', 
-		'\x2', '\x2', '\x2', '$', '\x11B', '\x3', '\x2', '\x2', '\x2', '&', '\x11D', 
-		'\x3', '\x2', '\x2', '\x2', '(', '\x11F', '\x3', '\x2', '\x2', '\x2', 
-		'*', '\x121', '\x3', '\x2', '\x2', '\x2', ',', '-', '\a', '!', '\x2', 
-		'\x2', '-', '\x33', '\a', '\x32', '\x2', '\x2', '.', '\x32', '\x5', '\x4', 
-		'\x3', '\x2', '/', '\x32', '\x5', '\x6', '\x4', '\x2', '\x30', '\x32', 
-		'\x5', '\b', '\x5', '\x2', '\x31', '.', '\x3', '\x2', '\x2', '\x2', '\x31', 
-		'/', '\x3', '\x2', '\x2', '\x2', '\x31', '\x30', '\x3', '\x2', '\x2', 
-		'\x2', '\x32', '\x35', '\x3', '\x2', '\x2', '\x2', '\x33', '\x31', '\x3', 
-		'\x2', '\x2', '\x2', '\x33', '\x34', '\x3', '\x2', '\x2', '\x2', '\x34', 
-		'\x36', '\x3', '\x2', '\x2', '\x2', '\x35', '\x33', '\x3', '\x2', '\x2', 
-		'\x2', '\x36', ':', '\a', '\x19', '\x2', '\x2', '\x37', '\x39', '\x5', 
-		'\n', '\x6', '\x2', '\x38', '\x37', '\x3', '\x2', '\x2', '\x2', '\x39', 
-		'<', '\x3', '\x2', '\x2', '\x2', ':', '\x38', '\x3', '\x2', '\x2', '\x2', 
-		':', ';', '\x3', '\x2', '\x2', '\x2', ';', '=', '\x3', '\x2', '\x2', '\x2', 
-		'<', ':', '\x3', '\x2', '\x2', '\x2', '=', '>', '\a', '\x1A', '\x2', '\x2', 
-		'>', '?', '\a', '\x2', '\x2', '\x3', '?', '\x3', '\x3', '\x2', '\x2', 
-		'\x2', '@', '\x41', '\a', '\"', '\x2', '\x2', '\x41', '\x42', '\x5', '\xE', 
-		'\b', '\x2', '\x42', '\x43', '\a', '\x32', '\x2', '\x2', '\x43', '\x44', 
-		'\a', '\x16', '\x2', '\x2', '\x44', '\x45', '\t', '\x2', '\x2', '\x2', 
-		'\x45', '\x46', '\a', '\n', '\x2', '\x2', '\x46', '\x5', '\x3', '\x2', 
-		'\x2', '\x2', 'G', 'H', '\x5', '\xE', '\b', '\x2', 'H', 'M', '\a', '\x32', 
-		'\x2', '\x2', 'I', 'J', '\a', '\x1F', '\x2', '\x2', 'J', 'L', '\a', '\x32', 
-		'\x2', '\x2', 'K', 'I', '\x3', '\x2', '\x2', '\x2', 'L', 'O', '\x3', '\x2', 
-		'\x2', '\x2', 'M', 'K', '\x3', '\x2', '\x2', '\x2', 'M', 'N', '\x3', '\x2', 
-		'\x2', '\x2', 'N', 'P', '\x3', '\x2', '\x2', '\x2', 'O', 'M', '\x3', '\x2', 
-		'\x2', '\x2', 'P', 'Q', '\a', '\n', '\x2', '\x2', 'Q', '\a', '\x3', '\x2', 
-		'\x2', '\x2', 'R', 'S', '\a', '!', '\x2', '\x2', 'S', 'T', '\a', '\x32', 
-		'\x2', '\x2', 'T', 'U', '\a', '\x19', '\x2', '\x2', 'U', 'V', '\x5', '\x6', 
-		'\x4', '\x2', 'V', 'W', '\a', '\x1A', '\x2', '\x2', 'W', '\t', '\x3', 
-		'\x2', '\x2', '\x2', 'X', '[', '\x5', '\xE', '\b', '\x2', 'Y', '[', '\a', 
-		'(', '\x2', '\x2', 'Z', 'X', '\x3', '\x2', '\x2', '\x2', 'Z', 'Y', '\x3', 
-		'\x2', '\x2', '\x2', '[', '\\', '\x3', '\x2', '\x2', '\x2', '\\', ']', 
-		'\a', '\x32', '\x2', '\x2', ']', '_', '\a', '\b', '\x2', '\x2', '^', '`', 
-		'\x5', '\f', '\a', '\x2', '_', '^', '\x3', '\x2', '\x2', '\x2', '_', '`', 
-		'\x3', '\x2', '\x2', '\x2', '`', '\x61', '\x3', '\x2', '\x2', '\x2', '\x61', 
-		'\x65', '\a', '\t', '\x2', '\x2', '\x62', '\x64', '\x5', '\x6', '\x4', 
-		'\x2', '\x63', '\x62', '\x3', '\x2', '\x2', '\x2', '\x64', 'g', '\x3', 
-		'\x2', '\x2', '\x2', '\x65', '\x63', '\x3', '\x2', '\x2', '\x2', '\x65', 
-		'\x66', '\x3', '\x2', '\x2', '\x2', '\x66', 'h', '\x3', '\x2', '\x2', 
-		'\x2', 'g', '\x65', '\x3', '\x2', '\x2', '\x2', 'h', 'i', '\x5', '\x12', 
-		'\n', '\x2', 'i', '\v', '\x3', '\x2', '\x2', '\x2', 'j', 'k', '\x5', '\xE', 
-		'\b', '\x2', 'k', 'r', '\a', '\x32', '\x2', '\x2', 'l', 'm', '\a', '\x1F', 
-		'\x2', '\x2', 'm', 'n', '\x5', '\xE', '\b', '\x2', 'n', 'o', '\a', '\x32', 
-		'\x2', '\x2', 'o', 'q', '\x3', '\x2', '\x2', '\x2', 'p', 'l', '\x3', '\x2', 
-		'\x2', '\x2', 'q', 't', '\x3', '\x2', '\x2', '\x2', 'r', 'p', '\x3', '\x2', 
-		'\x2', '\x2', 'r', 's', '\x3', '\x2', '\x2', '\x2', 's', '\r', '\x3', 
-		'\x2', '\x2', '\x2', 't', 'r', '\x3', '\x2', '\x2', '\x2', 'u', 'x', '\a', 
-		'\x32', '\x2', '\x2', 'v', 'w', '\a', '\x1B', '\x2', '\x2', 'w', 'y', 
-		'\a', '\x1C', '\x2', '\x2', 'x', 'v', '\x3', '\x2', '\x2', '\x2', 'x', 
-		'y', '\x3', '\x2', '\x2', '\x2', 'y', '\xF', '\x3', '\x2', '\x2', '\x2', 
-		'z', '\x84', '\x5', '\"', '\x12', '\x2', '{', '|', '\a', '\x16', '\x2', 
-		'\x2', '|', '\x85', '\x5', '\x1C', '\xF', '\x2', '}', '\x7F', '\a', '\b', 
-		'\x2', '\x2', '~', '\x80', '\x5', '\x14', '\v', '\x2', '\x7F', '~', '\x3', 
-		'\x2', '\x2', '\x2', '\x7F', '\x80', '\x3', '\x2', '\x2', '\x2', '\x80', 
-		'\x81', '\x3', '\x2', '\x2', '\x2', '\x81', '\x85', '\a', '\t', '\x2', 
-		'\x2', '\x82', '\x85', '\a', '\f', '\x2', '\x2', '\x83', '\x85', '\a', 
-		'\xE', '\x2', '\x2', '\x84', '{', '\x3', '\x2', '\x2', '\x2', '\x84', 
-		'}', '\x3', '\x2', '\x2', '\x2', '\x84', '\x82', '\x3', '\x2', '\x2', 
-		'\x2', '\x84', '\x83', '\x3', '\x2', '\x2', '\x2', '\x85', '\x86', '\x3', 
-		'\x2', '\x2', '\x2', '\x86', '\x87', '\a', '\n', '\x2', '\x2', '\x87', 
-		'\xBF', '\x3', '\x2', '\x2', '\x2', '\x88', '\x89', '\a', '$', '\x2', 
-		'\x2', '\x89', '\x8A', '\a', '\b', '\x2', '\x2', '\x8A', '\x8B', '\x5', 
-		'\x16', '\f', '\x2', '\x8B', '\x8C', '\a', '\t', '\x2', '\x2', '\x8C', 
-		'\x8F', '\x5', '\x10', '\t', '\x2', '\x8D', '\x8E', '\a', '#', '\x2', 
-		'\x2', '\x8E', '\x90', '\x5', '\x10', '\t', '\x2', '\x8F', '\x8D', '\x3', 
-		'\x2', '\x2', '\x2', '\x8F', '\x90', '\x3', '\x2', '\x2', '\x2', '\x90', 
-		'\xBF', '\x3', '\x2', '\x2', '\x2', '\x91', '\x92', '\a', '-', '\x2', 
-		'\x2', '\x92', '\x93', '\a', '\b', '\x2', '\x2', '\x93', '\x94', '\x5', 
-		'\x1C', '\xF', '\x2', '\x94', '\x96', '\a', '\n', '\x2', '\x2', '\x95', 
-		'\x97', '\x5', '\x16', '\f', '\x2', '\x96', '\x95', '\x3', '\x2', '\x2', 
-		'\x2', '\x96', '\x97', '\x3', '\x2', '\x2', '\x2', '\x97', '\x98', '\x3', 
-		'\x2', '\x2', '\x2', '\x98', '\x9A', '\a', '\n', '\x2', '\x2', '\x99', 
-		'\x9B', '\x5', '\x10', '\t', '\x2', '\x9A', '\x99', '\x3', '\x2', '\x2', 
-		'\x2', '\x9A', '\x9B', '\x3', '\x2', '\x2', '\x2', '\x9B', '\x9C', '\x3', 
-		'\x2', '\x2', '\x2', '\x9C', '\x9D', '\a', '\t', '\x2', '\x2', '\x9D', 
-		'\x9E', '\x5', '\x10', '\t', '\x2', '\x9E', '\xBF', '\x3', '\x2', '\x2', 
-		'\x2', '\x9F', '\xA0', '\a', ')', '\x2', '\x2', '\xA0', '\xA1', '\a', 
-		'\b', '\x2', '\x2', '\xA1', '\xA2', '\x5', '\x16', '\f', '\x2', '\xA2', 
-		'\xA3', '\a', '\t', '\x2', '\x2', '\xA3', '\xA4', '\x5', '\x10', '\t', 
-		'\x2', '\xA4', '\xBF', '\x3', '\x2', '\x2', '\x2', '\xA5', '\xA6', '\a', 
-		'\x30', '\x2', '\x2', '\xA6', '\xBF', '\a', '\n', '\x2', '\x2', '\xA7', 
-		'\xBF', '\x5', '*', '\x16', '\x2', '\xA8', '\xAA', '\a', '\'', '\x2', 
-		'\x2', '\xA9', '\xAB', '\x5', '\x1C', '\xF', '\x2', '\xAA', '\xA9', '\x3', 
-		'\x2', '\x2', '\x2', '\xAA', '\xAB', '\x3', '\x2', '\x2', '\x2', '\xAB', 
-		'\xBF', '\x3', '\x2', '\x2', '\x2', '\xAC', '\xAD', '\a', '&', '\x2', 
-		'\x2', '\xAD', '\xAE', '\a', '\b', '\x2', '\x2', '\xAE', '\xAF', '\x5', 
-		'\"', '\x12', '\x2', '\xAF', '\xB0', '\a', '\t', '\x2', '\x2', '\xB0', 
-		'\xB1', '\a', '\n', '\x2', '\x2', '\xB1', '\xBF', '\x3', '\x2', '\x2', 
-		'\x2', '\xB2', '\xB3', '\a', '*', '\x2', '\x2', '\xB3', '\xB4', '\a', 
-		'\b', '\x2', '\x2', '\xB4', '\xB7', '\x5', '\x1C', '\xF', '\x2', '\xB5', 
-		'\xB6', '\a', '\x1F', '\x2', '\x2', '\xB6', '\xB8', '\a', '\x33', '\x2', 
-		'\x2', '\xB7', '\xB5', '\x3', '\x2', '\x2', '\x2', '\xB7', '\xB8', '\x3', 
-		'\x2', '\x2', '\x2', '\xB8', '\xB9', '\x3', '\x2', '\x2', '\x2', '\xB9', 
-		'\xBA', '\a', '\t', '\x2', '\x2', '\xBA', '\xBB', '\a', '\n', '\x2', '\x2', 
-		'\xBB', '\xBF', '\x3', '\x2', '\x2', '\x2', '\xBC', '\xBF', '\x5', '\x12', 
-		'\n', '\x2', '\xBD', '\xBF', '\a', '\n', '\x2', '\x2', '\xBE', 'z', '\x3', 
-		'\x2', '\x2', '\x2', '\xBE', '\x88', '\x3', '\x2', '\x2', '\x2', '\xBE', 
-		'\x91', '\x3', '\x2', '\x2', '\x2', '\xBE', '\x9F', '\x3', '\x2', '\x2', 
-		'\x2', '\xBE', '\xA5', '\x3', '\x2', '\x2', '\x2', '\xBE', '\xA7', '\x3', 
-		'\x2', '\x2', '\x2', '\xBE', '\xA8', '\x3', '\x2', '\x2', '\x2', '\xBE', 
-		'\xAC', '\x3', '\x2', '\x2', '\x2', '\xBE', '\xB2', '\x3', '\x2', '\x2', 
-		'\x2', '\xBE', '\xBC', '\x3', '\x2', '\x2', '\x2', '\xBE', '\xBD', '\x3', 
-		'\x2', '\x2', '\x2', '\xBF', '\x11', '\x3', '\x2', '\x2', '\x2', '\xC0', 
-		'\xC6', '\a', '\x19', '\x2', '\x2', '\xC1', '\xC5', '\x5', '\x10', '\t', 
-		'\x2', '\xC2', '\xC5', '\x5', '\x4', '\x3', '\x2', '\xC3', '\xC5', '\x5', 
-		'\x6', '\x4', '\x2', '\xC4', '\xC1', '\x3', '\x2', '\x2', '\x2', '\xC4', 
-		'\xC2', '\x3', '\x2', '\x2', '\x2', '\xC4', '\xC3', '\x3', '\x2', '\x2', 
-		'\x2', '\xC5', '\xC8', '\x3', '\x2', '\x2', '\x2', '\xC6', '\xC4', '\x3', 
-		'\x2', '\x2', '\x2', '\xC6', '\xC7', '\x3', '\x2', '\x2', '\x2', '\xC7', 
-		'\xC9', '\x3', '\x2', '\x2', '\x2', '\xC8', '\xC6', '\x3', '\x2', '\x2', 
-		'\x2', '\xC9', '\xCA', '\a', '\x1A', '\x2', '\x2', '\xCA', '\x13', '\x3', 
-		'\x2', '\x2', '\x2', '\xCB', '\xD0', '\x5', '\x1C', '\xF', '\x2', '\xCC', 
-		'\xCD', '\a', '\x1F', '\x2', '\x2', '\xCD', '\xCF', '\x5', '\x1C', '\xF', 
-		'\x2', '\xCE', '\xCC', '\x3', '\x2', '\x2', '\x2', '\xCF', '\xD2', '\x3', 
-		'\x2', '\x2', '\x2', '\xD0', '\xCE', '\x3', '\x2', '\x2', '\x2', '\xD0', 
-		'\xD1', '\x3', '\x2', '\x2', '\x2', '\xD1', '\x15', '\x3', '\x2', '\x2', 
-		'\x2', '\xD2', '\xD0', '\x3', '\x2', '\x2', '\x2', '\xD3', '\xD8', '\x5', 
-		'\x18', '\r', '\x2', '\xD4', '\xD5', '\a', '\a', '\x2', '\x2', '\xD5', 
-		'\xD7', '\x5', '\x18', '\r', '\x2', '\xD6', '\xD4', '\x3', '\x2', '\x2', 
-		'\x2', '\xD7', '\xDA', '\x3', '\x2', '\x2', '\x2', '\xD8', '\xD6', '\x3', 
-		'\x2', '\x2', '\x2', '\xD8', '\xD9', '\x3', '\x2', '\x2', '\x2', '\xD9', 
-		'\x17', '\x3', '\x2', '\x2', '\x2', '\xDA', '\xD8', '\x3', '\x2', '\x2', 
-		'\x2', '\xDB', '\xE0', '\x5', '\x1A', '\xE', '\x2', '\xDC', '\xDD', '\a', 
-		'\x6', '\x2', '\x2', '\xDD', '\xDF', '\x5', '\x1A', '\xE', '\x2', '\xDE', 
-		'\xDC', '\x3', '\x2', '\x2', '\x2', '\xDF', '\xE2', '\x3', '\x2', '\x2', 
-		'\x2', '\xE0', '\xDE', '\x3', '\x2', '\x2', '\x2', '\xE0', '\xE1', '\x3', 
-		'\x2', '\x2', '\x2', '\xE1', '\x19', '\x3', '\x2', '\x2', '\x2', '\xE2', 
-		'\xE0', '\x3', '\x2', '\x2', '\x2', '\xE3', '\xE4', '\x5', '\x1C', '\xF', 
-		'\x2', '\xE4', '\xE5', '\x5', '(', '\x15', '\x2', '\xE5', '\xE6', '\x5', 
-		'\x1C', '\xF', '\x2', '\xE6', '\x1B', '\x3', '\x2', '\x2', '\x2', '\xE7', 
-		'\xE9', '\a', '\r', '\x2', '\x2', '\xE8', '\xE7', '\x3', '\x2', '\x2', 
-		'\x2', '\xE8', '\xE9', '\x3', '\x2', '\x2', '\x2', '\xE9', '\xEA', '\x3', 
-		'\x2', '\x2', '\x2', '\xEA', '\xF0', '\x5', '\x1E', '\x10', '\x2', '\xEB', 
-		'\xEC', '\x5', '&', '\x14', '\x2', '\xEC', '\xED', '\x5', '\x1E', '\x10', 
-		'\x2', '\xED', '\xEF', '\x3', '\x2', '\x2', '\x2', '\xEE', '\xEB', '\x3', 
-		'\x2', '\x2', '\x2', '\xEF', '\xF2', '\x3', '\x2', '\x2', '\x2', '\xF0', 
-		'\xEE', '\x3', '\x2', '\x2', '\x2', '\xF0', '\xF1', '\x3', '\x2', '\x2', 
-		'\x2', '\xF1', '\x1D', '\x3', '\x2', '\x2', '\x2', '\xF2', '\xF0', '\x3', 
-		'\x2', '\x2', '\x2', '\xF3', '\xF9', '\x5', ' ', '\x11', '\x2', '\xF4', 
-		'\xF5', '\x5', '$', '\x13', '\x2', '\xF5', '\xF6', '\x5', ' ', '\x11', 
-		'\x2', '\xF6', '\xF8', '\x3', '\x2', '\x2', '\x2', '\xF7', '\xF4', '\x3', 
-		'\x2', '\x2', '\x2', '\xF8', '\xFB', '\x3', '\x2', '\x2', '\x2', '\xF9', 
-		'\xF7', '\x3', '\x2', '\x2', '\x2', '\xF9', '\xFA', '\x3', '\x2', '\x2', 
-		'\x2', '\xFA', '\x1F', '\x3', '\x2', '\x2', '\x2', '\xFB', '\xF9', '\x3', 
-		'\x2', '\x2', '\x2', '\xFC', '\x102', '\x5', '\"', '\x12', '\x2', '\xFD', 
-		'\xFF', '\a', '\b', '\x2', '\x2', '\xFE', '\x100', '\x5', '\x14', '\v', 
-		'\x2', '\xFF', '\xFE', '\x3', '\x2', '\x2', '\x2', '\xFF', '\x100', '\x3', 
-		'\x2', '\x2', '\x2', '\x100', '\x101', '\x3', '\x2', '\x2', '\x2', '\x101', 
-		'\x103', '\a', '\t', '\x2', '\x2', '\x102', '\xFD', '\x3', '\x2', '\x2', 
-		'\x2', '\x102', '\x103', '\x3', '\x2', '\x2', '\x2', '\x103', '\x10E', 
-		'\x3', '\x2', '\x2', '\x2', '\x104', '\x10E', '\a', '\x33', '\x2', '\x2', 
-		'\x105', '\x10E', '\a', '\x34', '\x2', '\x2', '\x106', '\x10E', '\t', 
-		'\x3', '\x2', '\x2', '\x107', '\x108', '\a', '%', '\x2', '\x2', '\x108', 
-		'\x10E', '\a', '\x32', '\x2', '\x2', '\x109', '\x10A', '\a', '\b', '\x2', 
-		'\x2', '\x10A', '\x10B', '\x5', '\x1C', '\xF', '\x2', '\x10B', '\x10C', 
-		'\a', '\t', '\x2', '\x2', '\x10C', '\x10E', '\x3', '\x2', '\x2', '\x2', 
-		'\x10D', '\xFC', '\x3', '\x2', '\x2', '\x2', '\x10D', '\x104', '\x3', 
-		'\x2', '\x2', '\x2', '\x10D', '\x105', '\x3', '\x2', '\x2', '\x2', '\x10D', 
-		'\x106', '\x3', '\x2', '\x2', '\x2', '\x10D', '\x107', '\x3', '\x2', '\x2', 
-		'\x2', '\x10D', '\x109', '\x3', '\x2', '\x2', '\x2', '\x10E', '!', '\x3', 
-		'\x2', '\x2', '\x2', '\x10F', '\x118', '\a', '\x32', '\x2', '\x2', '\x110', 
-		'\x111', '\a', '\x1E', '\x2', '\x2', '\x111', '\x117', '\a', '\x32', '\x2', 
-		'\x2', '\x112', '\x113', '\a', '\x1B', '\x2', '\x2', '\x113', '\x114', 
-		'\x5', '\x1C', '\xF', '\x2', '\x114', '\x115', '\a', '\x1C', '\x2', '\x2', 
-		'\x115', '\x117', '\x3', '\x2', '\x2', '\x2', '\x116', '\x110', '\x3', 
-		'\x2', '\x2', '\x2', '\x116', '\x112', '\x3', '\x2', '\x2', '\x2', '\x117', 
-		'\x11A', '\x3', '\x2', '\x2', '\x2', '\x118', '\x116', '\x3', '\x2', '\x2', 
-		'\x2', '\x118', '\x119', '\x3', '\x2', '\x2', '\x2', '\x119', '#', '\x3', 
-		'\x2', '\x2', '\x2', '\x11A', '\x118', '\x3', '\x2', '\x2', '\x2', '\x11B', 
-		'\x11C', '\t', '\x4', '\x2', '\x2', '\x11C', '%', '\x3', '\x2', '\x2', 
-		'\x2', '\x11D', '\x11E', '\t', '\x5', '\x2', '\x2', '\x11E', '\'', '\x3', 
-		'\x2', '\x2', '\x2', '\x11F', '\x120', '\t', '\x6', '\x2', '\x2', '\x120', 
-		')', '\x3', '\x2', '\x2', '\x2', '\x121', '\x122', '\a', '.', '\x2', '\x2', 
-		'\x122', '\x123', '\a', '\b', '\x2', '\x2', '\x123', '\x124', '\t', '\a', 
-		'\x2', '\x2', '\x124', '\x125', '\a', '\t', '\x2', '\x2', '\x125', '\x132', 
-		'\a', '\x19', '\x2', '\x2', '\x126', '\x127', '\a', '/', '\x2', '\x2', 
-		'\x127', '\x128', '\t', '\x2', '\x2', '\x2', '\x128', '\x12E', '\a', '\x1D', 
-		'\x2', '\x2', '\x129', '\x12C', '\x5', '\x10', '\t', '\x2', '\x12A', '\x12B', 
-		'\a', '\x30', '\x2', '\x2', '\x12B', '\x12D', '\a', '\n', '\x2', '\x2', 
-		'\x12C', '\x12A', '\x3', '\x2', '\x2', '\x2', '\x12C', '\x12D', '\x3', 
-		'\x2', '\x2', '\x2', '\x12D', '\x12F', '\x3', '\x2', '\x2', '\x2', '\x12E', 
-		'\x129', '\x3', '\x2', '\x2', '\x2', '\x12E', '\x12F', '\x3', '\x2', '\x2', 
-		'\x2', '\x12F', '\x131', '\x3', '\x2', '\x2', '\x2', '\x130', '\x126', 
-		'\x3', '\x2', '\x2', '\x2', '\x131', '\x134', '\x3', '\x2', '\x2', '\x2', 
-		'\x132', '\x130', '\x3', '\x2', '\x2', '\x2', '\x132', '\x133', '\x3', 
-		'\x2', '\x2', '\x2', '\x133', '\x13E', '\x3', '\x2', '\x2', '\x2', '\x134', 
-		'\x132', '\x3', '\x2', '\x2', '\x2', '\x135', '\x136', '\a', '\x31', '\x2', 
-		'\x2', '\x136', '\x13C', '\a', '\x1D', '\x2', '\x2', '\x137', '\x13A', 
-		'\x5', '\x10', '\t', '\x2', '\x138', '\x139', '\a', '\x30', '\x2', '\x2', 
-		'\x139', '\x13B', '\a', '\n', '\x2', '\x2', '\x13A', '\x138', '\x3', '\x2', 
-		'\x2', '\x2', '\x13A', '\x13B', '\x3', '\x2', '\x2', '\x2', '\x13B', '\x13D', 
-		'\x3', '\x2', '\x2', '\x2', '\x13C', '\x137', '\x3', '\x2', '\x2', '\x2', 
-		'\x13C', '\x13D', '\x3', '\x2', '\x2', '\x2', '\x13D', '\x13F', '\x3', 
-		'\x2', '\x2', '\x2', '\x13E', '\x135', '\x3', '\x2', '\x2', '\x2', '\x13E', 
-		'\x13F', '\x3', '\x2', '\x2', '\x2', '\x13F', '\x140', '\x3', '\x2', '\x2', 
-		'\x2', '\x140', '\x141', '\a', '\x1A', '\x2', '\x2', '\x141', '+', '\x3', 
-		'\x2', '\x2', '\x2', '&', '\x31', '\x33', ':', 'M', 'Z', '_', '\x65', 
-		'r', 'x', '\x7F', '\x84', '\x8F', '\x96', '\x9A', '\xAA', '\xB7', '\xBE', 
-		'\xC4', '\xC6', '\xD0', '\xD8', '\xE0', '\xE8', '\xF0', '\xF9', '\xFF', 
-		'\x102', '\x10D', '\x116', '\x118', '\x12C', '\x12E', '\x132', '\x13A', 
-		'\x13C', '\x13E',
+		'\x3', '\x14', '\x3', '\x15', '\x3', '\x15', '\x3', '\x15', '\x3', '\x15', 
+		'\x3', '\x15', '\x3', '\x15', '\x5', '\x15', '\x126', '\n', '\x15', '\x3', 
+		'\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', 
+		'\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', 
+		'\x16', '\x5', '\x16', '\x133', '\n', '\x16', '\x5', '\x16', '\x135', 
+		'\n', '\x16', '\a', '\x16', '\x137', '\n', '\x16', '\f', '\x16', '\xE', 
+		'\x16', '\x13A', '\v', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', 
+		'\x3', '\x16', '\x3', '\x16', '\x5', '\x16', '\x141', '\n', '\x16', '\x5', 
+		'\x16', '\x143', '\n', '\x16', '\x5', '\x16', '\x145', '\n', '\x16', '\x3', 
+		'\x16', '\x3', '\x16', '\x3', '\x16', '\x2', '\x2', '\x17', '\x2', '\x4', 
+		'\x6', '\b', '\n', '\f', '\xE', '\x10', '\x12', '\x14', '\x16', '\x18', 
+		'\x1A', '\x1C', '\x1E', ' ', '\"', '$', '&', '(', '*', '\x2', '\a', '\x3', 
+		'\x2', '\x33', '\x35', '\x3', '\x2', '+', ',', '\x3', '\x2', '\xF', '\x11', 
+		'\x4', '\x2', '\v', '\v', '\r', '\r', '\x3', '\x2', '\x32', '\x35', '\x2', 
+		'\x16D', '\x2', ',', '\x3', '\x2', '\x2', '\x2', '\x4', '@', '\x3', '\x2', 
+		'\x2', '\x2', '\x6', 'G', '\x3', '\x2', '\x2', '\x2', '\b', 'R', '\x3', 
+		'\x2', '\x2', '\x2', '\n', 'Z', '\x3', '\x2', '\x2', '\x2', '\f', 'j', 
+		'\x3', '\x2', '\x2', '\x2', '\xE', 'u', '\x3', '\x2', '\x2', '\x2', '\x10', 
+		'\xBE', '\x3', '\x2', '\x2', '\x2', '\x12', '\xC0', '\x3', '\x2', '\x2', 
+		'\x2', '\x14', '\xCB', '\x3', '\x2', '\x2', '\x2', '\x16', '\xD3', '\x3', 
+		'\x2', '\x2', '\x2', '\x18', '\xDB', '\x3', '\x2', '\x2', '\x2', '\x1A', 
+		'\xE3', '\x3', '\x2', '\x2', '\x2', '\x1C', '\xE8', '\x3', '\x2', '\x2', 
+		'\x2', '\x1E', '\xF3', '\x3', '\x2', '\x2', '\x2', ' ', '\x10D', '\x3', 
+		'\x2', '\x2', '\x2', '\"', '\x10F', '\x3', '\x2', '\x2', '\x2', '$', '\x11B', 
+		'\x3', '\x2', '\x2', '\x2', '&', '\x11D', '\x3', '\x2', '\x2', '\x2', 
+		'(', '\x125', '\x3', '\x2', '\x2', '\x2', '*', '\x127', '\x3', '\x2', 
+		'\x2', '\x2', ',', '-', '\a', '!', '\x2', '\x2', '-', '\x33', '\a', '\x32', 
+		'\x2', '\x2', '.', '\x32', '\x5', '\x4', '\x3', '\x2', '/', '\x32', '\x5', 
+		'\x6', '\x4', '\x2', '\x30', '\x32', '\x5', '\b', '\x5', '\x2', '\x31', 
+		'.', '\x3', '\x2', '\x2', '\x2', '\x31', '/', '\x3', '\x2', '\x2', '\x2', 
+		'\x31', '\x30', '\x3', '\x2', '\x2', '\x2', '\x32', '\x35', '\x3', '\x2', 
+		'\x2', '\x2', '\x33', '\x31', '\x3', '\x2', '\x2', '\x2', '\x33', '\x34', 
+		'\x3', '\x2', '\x2', '\x2', '\x34', '\x36', '\x3', '\x2', '\x2', '\x2', 
+		'\x35', '\x33', '\x3', '\x2', '\x2', '\x2', '\x36', ':', '\a', '\x19', 
+		'\x2', '\x2', '\x37', '\x39', '\x5', '\n', '\x6', '\x2', '\x38', '\x37', 
+		'\x3', '\x2', '\x2', '\x2', '\x39', '<', '\x3', '\x2', '\x2', '\x2', ':', 
+		'\x38', '\x3', '\x2', '\x2', '\x2', ':', ';', '\x3', '\x2', '\x2', '\x2', 
+		';', '=', '\x3', '\x2', '\x2', '\x2', '<', ':', '\x3', '\x2', '\x2', '\x2', 
+		'=', '>', '\a', '\x1A', '\x2', '\x2', '>', '?', '\a', '\x2', '\x2', '\x3', 
+		'?', '\x3', '\x3', '\x2', '\x2', '\x2', '@', '\x41', '\a', '\"', '\x2', 
+		'\x2', '\x41', '\x42', '\x5', '\xE', '\b', '\x2', '\x42', '\x43', '\a', 
+		'\x32', '\x2', '\x2', '\x43', '\x44', '\a', '\x16', '\x2', '\x2', '\x44', 
+		'\x45', '\t', '\x2', '\x2', '\x2', '\x45', '\x46', '\a', '\n', '\x2', 
+		'\x2', '\x46', '\x5', '\x3', '\x2', '\x2', '\x2', 'G', 'H', '\x5', '\xE', 
+		'\b', '\x2', 'H', 'M', '\a', '\x32', '\x2', '\x2', 'I', 'J', '\a', '\x1F', 
+		'\x2', '\x2', 'J', 'L', '\a', '\x32', '\x2', '\x2', 'K', 'I', '\x3', '\x2', 
+		'\x2', '\x2', 'L', 'O', '\x3', '\x2', '\x2', '\x2', 'M', 'K', '\x3', '\x2', 
+		'\x2', '\x2', 'M', 'N', '\x3', '\x2', '\x2', '\x2', 'N', 'P', '\x3', '\x2', 
+		'\x2', '\x2', 'O', 'M', '\x3', '\x2', '\x2', '\x2', 'P', 'Q', '\a', '\n', 
+		'\x2', '\x2', 'Q', '\a', '\x3', '\x2', '\x2', '\x2', 'R', 'S', '\a', '!', 
+		'\x2', '\x2', 'S', 'T', '\a', '\x32', '\x2', '\x2', 'T', 'U', '\a', '\x19', 
+		'\x2', '\x2', 'U', 'V', '\x5', '\x6', '\x4', '\x2', 'V', 'W', '\a', '\x1A', 
+		'\x2', '\x2', 'W', '\t', '\x3', '\x2', '\x2', '\x2', 'X', '[', '\x5', 
+		'\xE', '\b', '\x2', 'Y', '[', '\a', '(', '\x2', '\x2', 'Z', 'X', '\x3', 
+		'\x2', '\x2', '\x2', 'Z', 'Y', '\x3', '\x2', '\x2', '\x2', '[', '\\', 
+		'\x3', '\x2', '\x2', '\x2', '\\', ']', '\a', '\x32', '\x2', '\x2', ']', 
+		'_', '\a', '\b', '\x2', '\x2', '^', '`', '\x5', '\f', '\a', '\x2', '_', 
+		'^', '\x3', '\x2', '\x2', '\x2', '_', '`', '\x3', '\x2', '\x2', '\x2', 
+		'`', '\x61', '\x3', '\x2', '\x2', '\x2', '\x61', '\x65', '\a', '\t', '\x2', 
+		'\x2', '\x62', '\x64', '\x5', '\x6', '\x4', '\x2', '\x63', '\x62', '\x3', 
+		'\x2', '\x2', '\x2', '\x64', 'g', '\x3', '\x2', '\x2', '\x2', '\x65', 
+		'\x63', '\x3', '\x2', '\x2', '\x2', '\x65', '\x66', '\x3', '\x2', '\x2', 
+		'\x2', '\x66', 'h', '\x3', '\x2', '\x2', '\x2', 'g', '\x65', '\x3', '\x2', 
+		'\x2', '\x2', 'h', 'i', '\x5', '\x12', '\n', '\x2', 'i', '\v', '\x3', 
+		'\x2', '\x2', '\x2', 'j', 'k', '\x5', '\xE', '\b', '\x2', 'k', 'r', '\a', 
+		'\x32', '\x2', '\x2', 'l', 'm', '\a', '\x1F', '\x2', '\x2', 'm', 'n', 
+		'\x5', '\xE', '\b', '\x2', 'n', 'o', '\a', '\x32', '\x2', '\x2', 'o', 
+		'q', '\x3', '\x2', '\x2', '\x2', 'p', 'l', '\x3', '\x2', '\x2', '\x2', 
+		'q', 't', '\x3', '\x2', '\x2', '\x2', 'r', 'p', '\x3', '\x2', '\x2', '\x2', 
+		'r', 's', '\x3', '\x2', '\x2', '\x2', 's', '\r', '\x3', '\x2', '\x2', 
+		'\x2', 't', 'r', '\x3', '\x2', '\x2', '\x2', 'u', 'x', '\a', '\x32', '\x2', 
+		'\x2', 'v', 'w', '\a', '\x1B', '\x2', '\x2', 'w', 'y', '\a', '\x1C', '\x2', 
+		'\x2', 'x', 'v', '\x3', '\x2', '\x2', '\x2', 'x', 'y', '\x3', '\x2', '\x2', 
+		'\x2', 'y', '\xF', '\x3', '\x2', '\x2', '\x2', 'z', '\x84', '\x5', '\"', 
+		'\x12', '\x2', '{', '|', '\a', '\x16', '\x2', '\x2', '|', '\x85', '\x5', 
+		'\x1C', '\xF', '\x2', '}', '\x7F', '\a', '\b', '\x2', '\x2', '~', '\x80', 
+		'\x5', '\x14', '\v', '\x2', '\x7F', '~', '\x3', '\x2', '\x2', '\x2', '\x7F', 
+		'\x80', '\x3', '\x2', '\x2', '\x2', '\x80', '\x81', '\x3', '\x2', '\x2', 
+		'\x2', '\x81', '\x85', '\a', '\t', '\x2', '\x2', '\x82', '\x85', '\a', 
+		'\f', '\x2', '\x2', '\x83', '\x85', '\a', '\xE', '\x2', '\x2', '\x84', 
+		'{', '\x3', '\x2', '\x2', '\x2', '\x84', '}', '\x3', '\x2', '\x2', '\x2', 
+		'\x84', '\x82', '\x3', '\x2', '\x2', '\x2', '\x84', '\x83', '\x3', '\x2', 
+		'\x2', '\x2', '\x85', '\x86', '\x3', '\x2', '\x2', '\x2', '\x86', '\x87', 
+		'\a', '\n', '\x2', '\x2', '\x87', '\xBF', '\x3', '\x2', '\x2', '\x2', 
+		'\x88', '\x89', '\a', '$', '\x2', '\x2', '\x89', '\x8A', '\a', '\b', '\x2', 
+		'\x2', '\x8A', '\x8B', '\x5', '\x16', '\f', '\x2', '\x8B', '\x8C', '\a', 
+		'\t', '\x2', '\x2', '\x8C', '\x8F', '\x5', '\x10', '\t', '\x2', '\x8D', 
+		'\x8E', '\a', '#', '\x2', '\x2', '\x8E', '\x90', '\x5', '\x10', '\t', 
+		'\x2', '\x8F', '\x8D', '\x3', '\x2', '\x2', '\x2', '\x8F', '\x90', '\x3', 
+		'\x2', '\x2', '\x2', '\x90', '\xBF', '\x3', '\x2', '\x2', '\x2', '\x91', 
+		'\x92', '\a', '-', '\x2', '\x2', '\x92', '\x93', '\a', '\b', '\x2', '\x2', 
+		'\x93', '\x94', '\x5', '\x1C', '\xF', '\x2', '\x94', '\x96', '\a', '\n', 
+		'\x2', '\x2', '\x95', '\x97', '\x5', '\x16', '\f', '\x2', '\x96', '\x95', 
+		'\x3', '\x2', '\x2', '\x2', '\x96', '\x97', '\x3', '\x2', '\x2', '\x2', 
+		'\x97', '\x98', '\x3', '\x2', '\x2', '\x2', '\x98', '\x9A', '\a', '\n', 
+		'\x2', '\x2', '\x99', '\x9B', '\x5', '\x10', '\t', '\x2', '\x9A', '\x99', 
+		'\x3', '\x2', '\x2', '\x2', '\x9A', '\x9B', '\x3', '\x2', '\x2', '\x2', 
+		'\x9B', '\x9C', '\x3', '\x2', '\x2', '\x2', '\x9C', '\x9D', '\a', '\t', 
+		'\x2', '\x2', '\x9D', '\x9E', '\x5', '\x10', '\t', '\x2', '\x9E', '\xBF', 
+		'\x3', '\x2', '\x2', '\x2', '\x9F', '\xA0', '\a', ')', '\x2', '\x2', '\xA0', 
+		'\xA1', '\a', '\b', '\x2', '\x2', '\xA1', '\xA2', '\x5', '\x16', '\f', 
+		'\x2', '\xA2', '\xA3', '\a', '\t', '\x2', '\x2', '\xA3', '\xA4', '\x5', 
+		'\x10', '\t', '\x2', '\xA4', '\xBF', '\x3', '\x2', '\x2', '\x2', '\xA5', 
+		'\xA6', '\a', '\x30', '\x2', '\x2', '\xA6', '\xBF', '\a', '\n', '\x2', 
+		'\x2', '\xA7', '\xBF', '\x5', '*', '\x16', '\x2', '\xA8', '\xAA', '\a', 
+		'\'', '\x2', '\x2', '\xA9', '\xAB', '\x5', '\x1C', '\xF', '\x2', '\xAA', 
+		'\xA9', '\x3', '\x2', '\x2', '\x2', '\xAA', '\xAB', '\x3', '\x2', '\x2', 
+		'\x2', '\xAB', '\xBF', '\x3', '\x2', '\x2', '\x2', '\xAC', '\xAD', '\a', 
+		'&', '\x2', '\x2', '\xAD', '\xAE', '\a', '\b', '\x2', '\x2', '\xAE', '\xAF', 
+		'\x5', '\"', '\x12', '\x2', '\xAF', '\xB0', '\a', '\t', '\x2', '\x2', 
+		'\xB0', '\xB1', '\a', '\n', '\x2', '\x2', '\xB1', '\xBF', '\x3', '\x2', 
+		'\x2', '\x2', '\xB2', '\xB3', '\a', '*', '\x2', '\x2', '\xB3', '\xB4', 
+		'\a', '\b', '\x2', '\x2', '\xB4', '\xB7', '\x5', '\x1C', '\xF', '\x2', 
+		'\xB5', '\xB6', '\a', '\x1F', '\x2', '\x2', '\xB6', '\xB8', '\a', '\x33', 
+		'\x2', '\x2', '\xB7', '\xB5', '\x3', '\x2', '\x2', '\x2', '\xB7', '\xB8', 
+		'\x3', '\x2', '\x2', '\x2', '\xB8', '\xB9', '\x3', '\x2', '\x2', '\x2', 
+		'\xB9', '\xBA', '\a', '\t', '\x2', '\x2', '\xBA', '\xBB', '\a', '\n', 
+		'\x2', '\x2', '\xBB', '\xBF', '\x3', '\x2', '\x2', '\x2', '\xBC', '\xBF', 
+		'\x5', '\x12', '\n', '\x2', '\xBD', '\xBF', '\a', '\n', '\x2', '\x2', 
+		'\xBE', 'z', '\x3', '\x2', '\x2', '\x2', '\xBE', '\x88', '\x3', '\x2', 
+		'\x2', '\x2', '\xBE', '\x91', '\x3', '\x2', '\x2', '\x2', '\xBE', '\x9F', 
+		'\x3', '\x2', '\x2', '\x2', '\xBE', '\xA5', '\x3', '\x2', '\x2', '\x2', 
+		'\xBE', '\xA7', '\x3', '\x2', '\x2', '\x2', '\xBE', '\xA8', '\x3', '\x2', 
+		'\x2', '\x2', '\xBE', '\xAC', '\x3', '\x2', '\x2', '\x2', '\xBE', '\xB2', 
+		'\x3', '\x2', '\x2', '\x2', '\xBE', '\xBC', '\x3', '\x2', '\x2', '\x2', 
+		'\xBE', '\xBD', '\x3', '\x2', '\x2', '\x2', '\xBF', '\x11', '\x3', '\x2', 
+		'\x2', '\x2', '\xC0', '\xC6', '\a', '\x19', '\x2', '\x2', '\xC1', '\xC5', 
+		'\x5', '\x10', '\t', '\x2', '\xC2', '\xC5', '\x5', '\x4', '\x3', '\x2', 
+		'\xC3', '\xC5', '\x5', '\x6', '\x4', '\x2', '\xC4', '\xC1', '\x3', '\x2', 
+		'\x2', '\x2', '\xC4', '\xC2', '\x3', '\x2', '\x2', '\x2', '\xC4', '\xC3', 
+		'\x3', '\x2', '\x2', '\x2', '\xC5', '\xC8', '\x3', '\x2', '\x2', '\x2', 
+		'\xC6', '\xC4', '\x3', '\x2', '\x2', '\x2', '\xC6', '\xC7', '\x3', '\x2', 
+		'\x2', '\x2', '\xC7', '\xC9', '\x3', '\x2', '\x2', '\x2', '\xC8', '\xC6', 
+		'\x3', '\x2', '\x2', '\x2', '\xC9', '\xCA', '\a', '\x1A', '\x2', '\x2', 
+		'\xCA', '\x13', '\x3', '\x2', '\x2', '\x2', '\xCB', '\xD0', '\x5', '\x1C', 
+		'\xF', '\x2', '\xCC', '\xCD', '\a', '\x1F', '\x2', '\x2', '\xCD', '\xCF', 
+		'\x5', '\x1C', '\xF', '\x2', '\xCE', '\xCC', '\x3', '\x2', '\x2', '\x2', 
+		'\xCF', '\xD2', '\x3', '\x2', '\x2', '\x2', '\xD0', '\xCE', '\x3', '\x2', 
+		'\x2', '\x2', '\xD0', '\xD1', '\x3', '\x2', '\x2', '\x2', '\xD1', '\x15', 
+		'\x3', '\x2', '\x2', '\x2', '\xD2', '\xD0', '\x3', '\x2', '\x2', '\x2', 
+		'\xD3', '\xD8', '\x5', '\x18', '\r', '\x2', '\xD4', '\xD5', '\a', '\a', 
+		'\x2', '\x2', '\xD5', '\xD7', '\x5', '\x18', '\r', '\x2', '\xD6', '\xD4', 
+		'\x3', '\x2', '\x2', '\x2', '\xD7', '\xDA', '\x3', '\x2', '\x2', '\x2', 
+		'\xD8', '\xD6', '\x3', '\x2', '\x2', '\x2', '\xD8', '\xD9', '\x3', '\x2', 
+		'\x2', '\x2', '\xD9', '\x17', '\x3', '\x2', '\x2', '\x2', '\xDA', '\xD8', 
+		'\x3', '\x2', '\x2', '\x2', '\xDB', '\xE0', '\x5', '\x1A', '\xE', '\x2', 
+		'\xDC', '\xDD', '\a', '\x6', '\x2', '\x2', '\xDD', '\xDF', '\x5', '\x1A', 
+		'\xE', '\x2', '\xDE', '\xDC', '\x3', '\x2', '\x2', '\x2', '\xDF', '\xE2', 
+		'\x3', '\x2', '\x2', '\x2', '\xE0', '\xDE', '\x3', '\x2', '\x2', '\x2', 
+		'\xE0', '\xE1', '\x3', '\x2', '\x2', '\x2', '\xE1', '\x19', '\x3', '\x2', 
+		'\x2', '\x2', '\xE2', '\xE0', '\x3', '\x2', '\x2', '\x2', '\xE3', '\xE4', 
+		'\x5', '\x1C', '\xF', '\x2', '\xE4', '\xE5', '\x5', '(', '\x15', '\x2', 
+		'\xE5', '\xE6', '\x5', '\x1C', '\xF', '\x2', '\xE6', '\x1B', '\x3', '\x2', 
+		'\x2', '\x2', '\xE7', '\xE9', '\a', '\r', '\x2', '\x2', '\xE8', '\xE7', 
+		'\x3', '\x2', '\x2', '\x2', '\xE8', '\xE9', '\x3', '\x2', '\x2', '\x2', 
+		'\xE9', '\xEA', '\x3', '\x2', '\x2', '\x2', '\xEA', '\xF0', '\x5', '\x1E', 
+		'\x10', '\x2', '\xEB', '\xEC', '\x5', '&', '\x14', '\x2', '\xEC', '\xED', 
+		'\x5', '\x1E', '\x10', '\x2', '\xED', '\xEF', '\x3', '\x2', '\x2', '\x2', 
+		'\xEE', '\xEB', '\x3', '\x2', '\x2', '\x2', '\xEF', '\xF2', '\x3', '\x2', 
+		'\x2', '\x2', '\xF0', '\xEE', '\x3', '\x2', '\x2', '\x2', '\xF0', '\xF1', 
+		'\x3', '\x2', '\x2', '\x2', '\xF1', '\x1D', '\x3', '\x2', '\x2', '\x2', 
+		'\xF2', '\xF0', '\x3', '\x2', '\x2', '\x2', '\xF3', '\xF9', '\x5', ' ', 
+		'\x11', '\x2', '\xF4', '\xF5', '\x5', '$', '\x13', '\x2', '\xF5', '\xF6', 
+		'\x5', ' ', '\x11', '\x2', '\xF6', '\xF8', '\x3', '\x2', '\x2', '\x2', 
+		'\xF7', '\xF4', '\x3', '\x2', '\x2', '\x2', '\xF8', '\xFB', '\x3', '\x2', 
+		'\x2', '\x2', '\xF9', '\xF7', '\x3', '\x2', '\x2', '\x2', '\xF9', '\xFA', 
+		'\x3', '\x2', '\x2', '\x2', '\xFA', '\x1F', '\x3', '\x2', '\x2', '\x2', 
+		'\xFB', '\xF9', '\x3', '\x2', '\x2', '\x2', '\xFC', '\x102', '\x5', '\"', 
+		'\x12', '\x2', '\xFD', '\xFF', '\a', '\b', '\x2', '\x2', '\xFE', '\x100', 
+		'\x5', '\x14', '\v', '\x2', '\xFF', '\xFE', '\x3', '\x2', '\x2', '\x2', 
+		'\xFF', '\x100', '\x3', '\x2', '\x2', '\x2', '\x100', '\x101', '\x3', 
+		'\x2', '\x2', '\x2', '\x101', '\x103', '\a', '\t', '\x2', '\x2', '\x102', 
+		'\xFD', '\x3', '\x2', '\x2', '\x2', '\x102', '\x103', '\x3', '\x2', '\x2', 
+		'\x2', '\x103', '\x10E', '\x3', '\x2', '\x2', '\x2', '\x104', '\x10E', 
+		'\a', '\x33', '\x2', '\x2', '\x105', '\x10E', '\a', '\x34', '\x2', '\x2', 
+		'\x106', '\x10E', '\t', '\x3', '\x2', '\x2', '\x107', '\x108', '\a', '%', 
+		'\x2', '\x2', '\x108', '\x10E', '\a', '\x32', '\x2', '\x2', '\x109', '\x10A', 
+		'\a', '\b', '\x2', '\x2', '\x10A', '\x10B', '\x5', '\x1C', '\xF', '\x2', 
+		'\x10B', '\x10C', '\a', '\t', '\x2', '\x2', '\x10C', '\x10E', '\x3', '\x2', 
+		'\x2', '\x2', '\x10D', '\xFC', '\x3', '\x2', '\x2', '\x2', '\x10D', '\x104', 
+		'\x3', '\x2', '\x2', '\x2', '\x10D', '\x105', '\x3', '\x2', '\x2', '\x2', 
+		'\x10D', '\x106', '\x3', '\x2', '\x2', '\x2', '\x10D', '\x107', '\x3', 
+		'\x2', '\x2', '\x2', '\x10D', '\x109', '\x3', '\x2', '\x2', '\x2', '\x10E', 
+		'!', '\x3', '\x2', '\x2', '\x2', '\x10F', '\x118', '\a', '\x32', '\x2', 
+		'\x2', '\x110', '\x111', '\a', '\x1E', '\x2', '\x2', '\x111', '\x117', 
+		'\a', '\x32', '\x2', '\x2', '\x112', '\x113', '\a', '\x1B', '\x2', '\x2', 
+		'\x113', '\x114', '\x5', '\x1C', '\xF', '\x2', '\x114', '\x115', '\a', 
+		'\x1C', '\x2', '\x2', '\x115', '\x117', '\x3', '\x2', '\x2', '\x2', '\x116', 
+		'\x110', '\x3', '\x2', '\x2', '\x2', '\x116', '\x112', '\x3', '\x2', '\x2', 
+		'\x2', '\x117', '\x11A', '\x3', '\x2', '\x2', '\x2', '\x118', '\x116', 
+		'\x3', '\x2', '\x2', '\x2', '\x118', '\x119', '\x3', '\x2', '\x2', '\x2', 
+		'\x119', '#', '\x3', '\x2', '\x2', '\x2', '\x11A', '\x118', '\x3', '\x2', 
+		'\x2', '\x2', '\x11B', '\x11C', '\t', '\x4', '\x2', '\x2', '\x11C', '%', 
+		'\x3', '\x2', '\x2', '\x2', '\x11D', '\x11E', '\t', '\x5', '\x2', '\x2', 
+		'\x11E', '\'', '\x3', '\x2', '\x2', '\x2', '\x11F', '\x126', '\a', '\x12', 
+		'\x2', '\x2', '\x120', '\x126', '\a', '\x13', '\x2', '\x2', '\x121', '\x126', 
+		'\a', '\x14', '\x2', '\x2', '\x122', '\x126', '\a', '\x15', '\x2', '\x2', 
+		'\x123', '\x126', '\a', '\x17', '\x2', '\x2', '\x124', '\x126', '\a', 
+		'\x18', '\x2', '\x2', '\x125', '\x11F', '\x3', '\x2', '\x2', '\x2', '\x125', 
+		'\x120', '\x3', '\x2', '\x2', '\x2', '\x125', '\x121', '\x3', '\x2', '\x2', 
+		'\x2', '\x125', '\x122', '\x3', '\x2', '\x2', '\x2', '\x125', '\x123', 
+		'\x3', '\x2', '\x2', '\x2', '\x125', '\x124', '\x3', '\x2', '\x2', '\x2', 
+		'\x126', ')', '\x3', '\x2', '\x2', '\x2', '\x127', '\x128', '\a', '.', 
+		'\x2', '\x2', '\x128', '\x129', '\a', '\b', '\x2', '\x2', '\x129', '\x12A', 
+		'\t', '\x6', '\x2', '\x2', '\x12A', '\x12B', '\a', '\t', '\x2', '\x2', 
+		'\x12B', '\x138', '\a', '\x19', '\x2', '\x2', '\x12C', '\x12D', '\a', 
+		'/', '\x2', '\x2', '\x12D', '\x12E', '\t', '\x2', '\x2', '\x2', '\x12E', 
+		'\x134', '\a', '\x1D', '\x2', '\x2', '\x12F', '\x132', '\x5', '\x10', 
+		'\t', '\x2', '\x130', '\x131', '\a', '\x30', '\x2', '\x2', '\x131', '\x133', 
+		'\a', '\n', '\x2', '\x2', '\x132', '\x130', '\x3', '\x2', '\x2', '\x2', 
+		'\x132', '\x133', '\x3', '\x2', '\x2', '\x2', '\x133', '\x135', '\x3', 
+		'\x2', '\x2', '\x2', '\x134', '\x12F', '\x3', '\x2', '\x2', '\x2', '\x134', 
+		'\x135', '\x3', '\x2', '\x2', '\x2', '\x135', '\x137', '\x3', '\x2', '\x2', 
+		'\x2', '\x136', '\x12C', '\x3', '\x2', '\x2', '\x2', '\x137', '\x13A', 
+		'\x3', '\x2', '\x2', '\x2', '\x138', '\x136', '\x3', '\x2', '\x2', '\x2', 
+		'\x138', '\x139', '\x3', '\x2', '\x2', '\x2', '\x139', '\x144', '\x3', 
+		'\x2', '\x2', '\x2', '\x13A', '\x138', '\x3', '\x2', '\x2', '\x2', '\x13B', 
+		'\x13C', '\a', '\x31', '\x2', '\x2', '\x13C', '\x142', '\a', '\x1D', '\x2', 
+		'\x2', '\x13D', '\x140', '\x5', '\x10', '\t', '\x2', '\x13E', '\x13F', 
+		'\a', '\x30', '\x2', '\x2', '\x13F', '\x141', '\a', '\n', '\x2', '\x2', 
+		'\x140', '\x13E', '\x3', '\x2', '\x2', '\x2', '\x140', '\x141', '\x3', 
+		'\x2', '\x2', '\x2', '\x141', '\x143', '\x3', '\x2', '\x2', '\x2', '\x142', 
+		'\x13D', '\x3', '\x2', '\x2', '\x2', '\x142', '\x143', '\x3', '\x2', '\x2', 
+		'\x2', '\x143', '\x145', '\x3', '\x2', '\x2', '\x2', '\x144', '\x13B', 
+		'\x3', '\x2', '\x2', '\x2', '\x144', '\x145', '\x3', '\x2', '\x2', '\x2', 
+		'\x145', '\x146', '\x3', '\x2', '\x2', '\x2', '\x146', '\x147', '\a', 
+		'\x1A', '\x2', '\x2', '\x147', '+', '\x3', '\x2', '\x2', '\x2', '\'', 
+		'\x31', '\x33', ':', 'M', 'Z', '_', '\x65', 'r', 'x', '\x7F', '\x84', 
+		'\x8F', '\x96', '\x9A', '\xAA', '\xB7', '\xBE', '\xC4', '\xC6', '\xD0', 
+		'\xD8', '\xE0', '\xE8', '\xF0', '\xF9', '\xFF', '\x102', '\x10D', '\x116', 
+		'\x118', '\x125', '\x132', '\x134', '\x138', '\x140', '\x142', '\x144',
 	};
 
 	public static readonly ATN _ATN =
