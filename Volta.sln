@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta.Desktop", "Volta.Desktop\Volta.Desktop.csproj", "{B50C3451-8EE9-496C-A764-AED9A6AC0F83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Volta", "Volta\Volta.csproj", "{444B33F1-8EC5-4522-9191-CA68544E7061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta", "Volta\Volta.csproj", "{444B33F1-8EC5-4522-9191-CA68544E7061}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

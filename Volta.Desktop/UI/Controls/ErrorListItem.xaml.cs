@@ -15,23 +15,26 @@ using Volta.Compiler;
 namespace Volta.UI.Controls
 {
     /// <summary>
-    /// Interaction logic for ErrorList.xaml
+    /// Interaction logic for ErrorListItem.xaml
     /// </summary>
-    public partial class ErrorList : UserControl
+    public partial class ErrorListItem : UserControl
     {
-        public event Action OnRequestHide;
+        public VoltaParserError ParserError { get; private set; }
 
-        public ErrorList() {
+        public ErrorListItem() {
             InitializeComponent();
         }
 
-        public void UpdateErrorList(List<VoltaParserError> errors) {
-            ErrorListContainer.Children.Clear();
-            errors.ForEach(e => ErrorListContainer.Children.Add(new ErrorListItem(e)));
+        public ErrorListItem(VoltaParserError error) {
+            InitializeComponent();
+            DataContext = this;
+
+            ParserError = error;
+            Defaults();
         }
 
-        private void BtnClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            OnRequestHide?.Invoke();
+        private void Defaults() {
+            TxtErrorMessage.Text = ParserError.Message;
         }
     }
 }

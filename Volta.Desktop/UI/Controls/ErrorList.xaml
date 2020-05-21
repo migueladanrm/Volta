@@ -20,9 +20,17 @@
                 </Border.Background>
                 <Grid>
                     <TextBlock Text="Lista de errores" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Segoe UI Semibold" Foreground="White"/>
+                    <Border Background="Transparent" HorizontalAlignment="Right" MouseLeftButtonDown="BtnClose_MouseLeftButtonDown">
+                        <Path Data="{StaticResource Vector.Close}" Fill="White" Stretch="Uniform" HorizontalAlignment="Right" Margin="5"/>
+                    </Border>
                 </Grid>
             </Border>
+
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="ErrorListContainer" Orientation="Vertical">
+
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Border>
-
 </UserControl>

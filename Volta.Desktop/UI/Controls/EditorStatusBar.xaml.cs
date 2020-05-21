@@ -20,12 +20,27 @@ namespace Volta.UI.Controls
     public partial class EditorStatusBar : UserControl
     {
 
+        public event Action RequestErrorList;
+
         public EditorStatusBar() {
             InitializeComponent();
         }
 
         public void UpdateEditorCaretPositions(Caret caret) {
             TxtEditorCaret.Text = $"Ln {caret.Line} Col {caret.Column}";
+        }
+
+        private void Btn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            try {
+                var tag = (sender as FrameworkElement).Tag.ToString();
+                switch (tag) {
+                    case "errorlist":
+                        RequestErrorList?.Invoke();
+                        break;
+                }
+            } catch {
+
+            }
         }
     }
 }

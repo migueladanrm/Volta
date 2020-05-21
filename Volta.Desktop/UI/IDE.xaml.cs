@@ -147,7 +147,9 @@ namespace Volta.UI
             LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
             ErrorList.Visibility = Visibility.Collapsed;
+            ErrorList.OnRequestHide += AlternateErrorList;
             EditorStatusBar.Visibility = Visibility.Collapsed;
+            EditorStatusBar.RequestErrorList += AlternateErrorList;
             Toolbar.Visibility = Visibility.Collapsed;
         }
 
@@ -185,6 +187,7 @@ namespace Volta.UI
             ct.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
             ct.OnRequestSaveNewFile += SaveNewFile;
             ct.OnRequestTabClose += TabCloseRequest;
+            ct.OnErrorListUpdated += ErrorList.UpdateErrorList;
 
             TC.Items.Add(new TabItem {
                 Header = cf.FileName,
@@ -255,6 +258,10 @@ namespace Volta.UI
             }catch(Exception ex) {
                 Debug.Fail(ex.Message);
             }
+        }
+
+        private void AlternateErrorList() {
+            ErrorList.Visibility = ErrorList.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

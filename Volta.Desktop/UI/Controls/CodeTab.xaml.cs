@@ -32,6 +32,8 @@ namespace Volta.UI.Controls
         public event Action<CodeFile> OnRequestCloseUnsavedFile;
         public event Action OnRequestTabClose;
 
+        public event Action<List<VoltaParserError>> OnErrorListUpdated;
+
         public CodeTab() {
             InitializeComponent();
         }
@@ -75,10 +77,9 @@ namespace Volta.UI.Controls
             toolTipService.RemoveAll();
             textMarkerService.RemoveAll(delegate (ITextMarker marker) { return true; });
 
-            TextEditor textEditor = (sender as TextEditor);
-
-            string text = textEditor.Text;
-            List<VoltaParserError> errors = Controller.check(text);
+            var textEditor = sender as TextEditor;
+            var text = textEditor.Text;
+            var errors = Controller.Check(text);
             Debug.WriteLine("\n");
             errors.ForEach((VoltaParserError error) => {
                 /*
@@ -94,7 +95,7 @@ namespace Volta.UI.Controls
                 toolTipService.CreateErrorToolTip(error, marker as TextMarker);
             });
 
-            Debug.WriteLine("Hey!");
+            OnErrorListUpdated?.Invoke(errors);
             CodeFile.HasUnsavedChanges = true;
         }
 

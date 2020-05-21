@@ -10,7 +10,7 @@ namespace Volta.Compiler
 {
     public class Controller
     {
-        public static List<VoltaParserError> check(string text)
+        public static List<VoltaParserError> Check(string text)
         {
             ICharStream charStream = CharStreams.fromstring(text);
             VoltaScanner scanner = new VoltaScanner(charStream);
