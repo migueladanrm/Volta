@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="Volta.UI.Controls.EditorStatusBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Volta.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="24" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style x:Key="StatusBarButton" TargetType="{x:Type Border}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="Gray" Opacity="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border x:Name="LayoutRoot" Background="WhiteSmoke" BorderBrush="#FFC8C8C8" Grid.Row="1" Padding="10,0">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="1" Direction="90" Opacity="0.25" ShadowDepth="1"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </Grid.Resources>
+            <TextBlock x:Name="TxtCurrentState" Grid.Column="0" Text="Listo"/>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <TextBlock x:Name="TxtEditorCaret" Text="Ln 15 Col 3"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Border x:Name="BtnErrorList" Style="{StaticResource StatusBarButton}" Padding="5,0" Tag="errorlist"
+                        MouseLeftButtonDown="Btn_MouseLeftButtonDown">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource Vector.Error}" Margin="0,5" Stretch="Uniform" Fill="#FFC8C8C8"/>
+                        <TextBlock x:Name="TxtErrorCount" Foreground="Gray" Margin="5,0,0,0" Text="0 errores"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
+    

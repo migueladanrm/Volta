@@ -6,10 +6,33 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>Volta</RootNamespace>
     <AssemblyName>VoltaDesktop</AssemblyName>
+    <ApplicationIcon>Resources\volta.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Volta.Core\Volta.Core.csproj" />
+    <None Remove="Resources\volta%40256px.png" />
+    <None Remove="Resources\volta.ico" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Volta\Volta.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\volta.ico" />
+    <Resource Include="Resources\volta@256px.png" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="../Volta.g4/generator/generator.bat" />
+  </Target>
 
 </Project>
