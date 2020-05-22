@@ -153,10 +153,10 @@ namespace Volta.UI
             EditorStatusBar.RequestErrorList += AlternateErrorList;
             Toolbar.Visibility = Visibility.Collapsed;
         }
-        
+
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
             => NewFileCommand.Execute(null);
-        
+
 
         private void ChangeViewMode(bool showEnvironment) {
             LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
@@ -196,7 +196,7 @@ namespace Volta.UI
                 Content = ct
             };
             ti.GotFocus += (sender, e) => (ti.Content as CodeTab).Focus();
-            
+
             TC.Items.Add(ti);
 
             TC.SelectedIndex = TC.Items.Count - 1;
@@ -227,7 +227,7 @@ namespace Volta.UI
 
         private void ToolbarButton_Click(object sender, RoutedEventArgs e) {
             try {
-                switch((sender as FrameworkElement).Tag.ToString().Replace("toolbar.", "")) {
+                switch ((sender as FrameworkElement).Tag.ToString().Replace("toolbar.", "")) {
                     case "new":
                         NewFileCommand.Execute(null);
                         break;
@@ -252,7 +252,7 @@ namespace Volta.UI
                         CloseTabCommand.Execute(null);
                         break;
                 }
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 Debug.Fail(ex.Message);
             }
         }

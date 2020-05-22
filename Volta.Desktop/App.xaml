@@ -6,6 +6,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/VoltaDesktop;component/Resources/Vector.xaml"/>
+                <ResourceDictionary Source="/VoltaDesktop;component/Resources/VoltaStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -51,7 +51,7 @@
                     </Grid>
                 </Border>
                 
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Template="{StaticResource Style.ScrollViewer.Default}">
                     <StackPanel x:Name="ErrorListContainer" Orientation="Vertical"/>
                 </ScrollViewer>
             </Grid>

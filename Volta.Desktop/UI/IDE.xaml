@@ -250,16 +250,18 @@
 
             <Grid x:Name="CodeEditorContainer" Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition x:Name="ColTC" Height="*"/>
+                    <!--<RowDefinition Height="5"/>-->
+                    <RowDefinition x:Name="ColEL" Height="auto" />
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
 
                 <TabControl x:Name="TC" Margin="0,2,0,0" BorderThickness="1,1,1,0"/>
-                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" Height="150"/>
+                <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
+                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" MinHeight="200"/>
                 <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
 
-                <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10">
+                <Label x:Name="LblEditorHint" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10" Grid.RowSpan="3">
                     <StackPanel Orientation="Vertical">
                         <Path Data="{StaticResource Vector.FileCode}" Stretch="Uniform" Height="80">
                             <Path.Fill>
