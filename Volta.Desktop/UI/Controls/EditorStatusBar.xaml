@@ -43,7 +43,7 @@
                         MouseLeftButtonDown="Btn_MouseLeftButtonDown">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource Vector.Error}" Margin="0,5" Stretch="Uniform" Fill="#FFC8C8C8"/>
-                        <TextBlock Foreground="Gray" Margin="5,0,0,0" Text="0 errores"/>
+                        <TextBlock x:Name="TxtErrorCount" Foreground="Gray" Margin="5,0,0,0" Text="0 errores"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

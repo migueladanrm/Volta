@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Volta.Compiler;
 
 namespace Volta.UI.Controls
 {
@@ -42,5 +43,10 @@ namespace Volta.UI.Controls
 
             }
         }
+
+        public void UpdateErrorsCount(List<VoltaParserError> errorList) {
+            TxtErrorCount.Text = errorList.Count == 1 ? "1 error" : $"{errorList.Count} errores";
+        }
+
     }
 }

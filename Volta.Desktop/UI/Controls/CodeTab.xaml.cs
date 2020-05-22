@@ -26,6 +26,7 @@ namespace Volta.UI.Controls
         private ITextMarkerService textMarkerService;
 
         private Editor.ToolTipManager.ToolTipService toolTipService;
+        private List<VoltaParserError> errors = new List<VoltaParserError>();
 
         public event Action<Caret> OnEditorCaretChanged;
         public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
@@ -79,7 +80,7 @@ namespace Volta.UI.Controls
 
             var textEditor = sender as TextEditor;
             var text = textEditor.Text;
-            var errors = Controller.Check(text);
+            errors = Controller.Check(text);
             Debug.WriteLine("\n");
             errors.ForEach((VoltaParserError error) => {
                 /*
@@ -147,6 +148,11 @@ namespace Volta.UI.Controls
         public void Paste() {
             if (Clipboard.ContainsText())
                 TE.Paste();
+        }
+
+        public new void Focus() {
+            OnEditorCaretChanged?.Invoke(TE.TextArea.Caret);
+            OnErrorListUpdated?.Invoke(errors);
         }
     }
 }

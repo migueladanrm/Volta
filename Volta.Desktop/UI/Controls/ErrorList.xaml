@@ -26,11 +26,35 @@
                 </Grid>
             </Border>
 
-            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="ErrorListContainer" Orientation="Vertical">
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" BorderBrush="WhiteSmoke" BorderThickness="0,0,0,1" >
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="32"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="0.3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="{x:Type TextBlock}"    >
+                                <Setter Property="FontFamily" Value="Segoe UI Semibold"/>
+                                <Setter Property="Foreground" Value="Gray"/>
+                                <Setter Property="Margin" Value="0,5"/>
+                            </Style>
+                        </Grid.Resources>
 
-                </StackPanel>
-            </ScrollViewer>
+                        <TextBlock Text="Descripción" Grid.Column="1" />
+                        <TextBlock Text="Línea" Grid.Column="2" />
+                    </Grid>
+                </Border>
+                
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="ErrorListContainer" Orientation="Vertical"/>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

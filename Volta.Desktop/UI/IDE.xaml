@@ -16,6 +16,7 @@
         <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding TestCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseTabCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}"/>
+        <KeyBinding Key="E" Modifiers="Ctrl+Shift" Command="{Binding AlternateErrorListCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>

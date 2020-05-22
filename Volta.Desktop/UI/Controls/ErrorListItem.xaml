@@ -8,11 +8,12 @@
              d:DesignHeight="32" d:DesignWidth="800"
              Height="32">
 
-    <Border x:Name="LayoutRoot" Background="White">
+    <Border x:Name="LayoutRoot" Background="White" BorderBrush="#C8C8C8" BorderThickness="0,0,0,1">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="32" />
                 <ColumnDefinition />
+                <ColumnDefinition Width=".3*"/>
             </Grid.ColumnDefinitions>
             <Path Data="{StaticResource Vector.Error}" Fill="Red" Stretch="Uniform" Margin="8"/>
 
@@ -20,6 +21,8 @@
                        TextWrapping="Wrap"
                        TextTrimming="CharacterEllipsis"
                        VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="TxtErrorLineNumber" Grid.Column="2" VerticalAlignment="Center" Padding="5,0" FontFamily="Consolas" FontWeight="Bold"/>
         </Grid>
     </Border>
 </UserControl>

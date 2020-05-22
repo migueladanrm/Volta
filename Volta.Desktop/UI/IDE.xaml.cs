@@ -29,6 +29,8 @@ namespace Volta.UI
 
         #region Comandos
 
+        public ICommand AlternateErrorListCommand => new DelegateCommand((x) => AlternateErrorList());
+
         public ICommand CloseTabCommand => new DelegateCommand((x) => {
             GetCurrentCodeTab()?.Close();
 
@@ -143,7 +145,6 @@ namespace Volta.UI
 
         private void Defaults() {
             LayoutSecondary.Visibility = Visibility.Collapsed;
-
             LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
             ErrorList.Visibility = Visibility.Collapsed;
@@ -152,10 +153,10 @@ namespace Volta.UI
             EditorStatusBar.RequestErrorList += AlternateErrorList;
             Toolbar.Visibility = Visibility.Collapsed;
         }
-
-        private void BtnNewFile_Click(object sender, RoutedEventArgs e) {
-            NewFileCommand.Execute(null);
-        }
+        
+        private void BtnNewFile_Click(object sender, RoutedEventArgs e)
+            => NewFileCommand.Execute(null);
+        
 
         private void ChangeViewMode(bool showEnvironment) {
             LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
@@ -188,11 +189,15 @@ namespace Volta.UI
             ct.OnRequestSaveNewFile += SaveNewFile;
             ct.OnRequestTabClose += TabCloseRequest;
             ct.OnErrorListUpdated += ErrorList.UpdateErrorList;
+            ct.OnErrorListUpdated += EditorStatusBar.UpdateErrorsCount;
 
-            TC.Items.Add(new TabItem {
+            var ti = new TabItem {
                 Header = cf.FileName,
                 Content = ct
-            });
+            };
+            ti.GotFocus += (sender, e) => (ti.Content as CodeTab).Focus();
+            
+            TC.Items.Add(ti);
 
             TC.SelectedIndex = TC.Items.Count - 1;
         }
@@ -218,14 +223,6 @@ namespace Volta.UI
 
         private void TabCloseRequest() {
             TC.Items.Remove(TC.Items[TC.SelectedIndex]);
-        }
-
-        private void DlgPendingChangesBtnSave_Click(object sender, RoutedEventArgs e) {
-
-        }
-
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e) {
-            e.CanExecute = true;
         }
 
         private void ToolbarButton_Click(object sender, RoutedEventArgs e) {
