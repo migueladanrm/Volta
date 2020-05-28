@@ -152,6 +152,7 @@ namespace Volta.UI
             EditorStatusBar.Visibility = Visibility.Collapsed;
             EditorStatusBar.RequestErrorList += AlternateErrorList;
             Toolbar.Visibility = Visibility.Collapsed;
+            MC.Visibility = Visibility.Collapsed;
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
@@ -247,6 +248,7 @@ namespace Volta.UI
                         PasteCommand.Execute(null);
                         break;
                     case "buildrun":
+                        MCShow("This is a sample!");
                         break;
                     case "close":
                         CloseTabCommand.Execute(null);
@@ -259,6 +261,19 @@ namespace Volta.UI
 
         private void AlternateErrorList() {
             ErrorList.Visibility = ErrorList.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void MCShow(string message) {
+            MC.Opacity = 1;
+            MC.Text = message;
+            MC.IsVisibleChanged += (sender, e) => {
+                var sb = FindResource("Storyboard.MC.Hide") as Storyboard;
+                sb.Completed += (_sender, _e) => {
+                    MC.Visibility = Visibility.Collapsed;
+                };
+                sb.Begin();
+            };
+            MC.Visibility = Visibility.Visible;
         }
     }
 }

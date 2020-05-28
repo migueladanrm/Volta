@@ -237,6 +237,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Storyboard x:Key="Storyboard.MC.Hide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MC" Storyboard.TargetProperty="(UIElement.Opacity)">
+                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
 
     </Window.Resources>
 
@@ -257,6 +264,11 @@
                 </Grid.RowDefinitions>
 
                 <TabControl x:Name="TC" Margin="0,2,0,0" BorderThickness="1,1,1,0"/>
+                <controls:MessageCard x:Name="MC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,32,24" Height="48">
+                    <controls:MessageCard.Effect>
+                        <DropShadowEffect BlurRadius="3" Opacity="0.3" ShadowDepth="3"/>
+                    </controls:MessageCard.Effect>
+                </controls:MessageCard>
                 <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
                 <controls:ErrorList x:Name="ErrorList" Grid.Row="1" MinHeight="200"/>
                 <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
