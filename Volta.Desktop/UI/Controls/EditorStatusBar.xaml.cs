@@ -44,7 +44,7 @@ namespace Volta.UI.Controls
             }
         }
 
-        public void UpdateErrorsCount(List<VoltaParserError> errorList) {
+        public void UpdateErrorsCount(List<VoltaCompilerError> errorList) {
             TxtErrorCount.Text = errorList.Count == 1 ? "1 error" : $"{errorList.Count} errores";
         }
 

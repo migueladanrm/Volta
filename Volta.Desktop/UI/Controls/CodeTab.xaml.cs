@@ -26,14 +26,14 @@ namespace Volta.UI.Controls
         private ITextMarkerService textMarkerService;
 
         private Editor.ToolTipManager.ToolTipService toolTipService;
-        private List<VoltaParserError> errors = new List<VoltaParserError>();
+        private List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
 
         public event Action<Caret> OnEditorCaretChanged;
         public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
         public event Action<CodeFile> OnRequestCloseUnsavedFile;
         public event Action OnRequestTabClose;
 
-        public event Action<List<VoltaParserError>> OnErrorListUpdated;
+        public event Action<List<VoltaCompilerError>> OnErrorListUpdated;
 
         public CodeTab() {
             InitializeComponent();
@@ -82,7 +82,7 @@ namespace Volta.UI.Controls
             var text = textEditor.Text;
             errors = Controller.Check(text);
             Debug.WriteLine("\n");
-            errors.ForEach((VoltaParserError error) => {
+            errors.ForEach((VoltaCompilerError error) => {
                 /*
                 Debug.WriteLine("El error es: ");
                 Debug.WriteLine(error.msg);

@@ -39,7 +39,7 @@ namespace Volta.Editor.ToolTipManager
             }
         }
 
-        public void CreateErrorToolTip(VoltaParserError error, TextMarker marker) {
+        public void CreateErrorToolTip(VoltaCompilerError error, TextMarker marker) {
             ErrorToolTip errorToolTip = new ErrorToolTip(error, marker);
             this.errorsToolTips.Add(errorToolTip);
         }
