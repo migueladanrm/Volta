@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Volta.Compiler.IdentificationTable;
 
 namespace Volta.Compiler
 {
     public class Controller
     {
-        public static List<VoltaParserError> Check(string text)
+        public static List<VoltaCompilerError> Check(string text)
         {
             ICharStream charStream = CharStreams.fromstring(text);
             VoltaScanner scanner = new VoltaScanner(charStream);
@@ -27,12 +28,24 @@ namespace Volta.Compiler
             IParseTree tree = parser.program();
 
             Debug.WriteLine(":D");
-            Debug.WriteLine((tree as ParserRuleContext).ToStringTree());
+            Debug.WriteLine((tree as ParserRuleContext).ToStringTree(parser));
+
+            ContextualAnalysis contextualAnalysis = new ContextualAnalysis();
+
+            List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
+            errors.AddRange(errorListener.Errors);
+            
+            //if(errors.Count == 0)
+            {
+                contextualAnalysis.Visit(tree);
+                errors.AddRange(contextualAnalysis.Errors);
+            }
+
            
             
             
 
-            return errorListener.GetErrors();
+            return errors;
         }
     }
 }

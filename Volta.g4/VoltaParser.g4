@@ -24,7 +24,7 @@ statement                       :   designator (EQUAL expr | BL actPars? BR | AD
                                      | WHILE BL condition BR statement                                                  #whileStatementAST
                                      | BREAK SEMICOLON                                                                  #breakStatementAST
                                      | switch                                                                           #switchStatementAST
-                                     | RETURN expr? SEMICOLON                                                       #returnStatementAST
+                                     | RETURN expr? SEMICOLON                                                           #returnStatementAST
                                      | READ BL designator BR SEMICOLON                                                  #readStatementAST
                                      | WRITE BL expr (COMMA NUM)? BR SEMICOLON                                          #writeStatementAST
                                      | block                                                                            #blockStatementAST
