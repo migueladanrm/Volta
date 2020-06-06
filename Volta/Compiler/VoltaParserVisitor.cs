@@ -81,12 +81,26 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTypeAST([NotNull] VoltaParser.TypeASTContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Visit a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context);
+	Result VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>addsubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.

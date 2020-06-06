@@ -18,7 +18,9 @@ formPars                        :   type ident ((COMMA) type ident)*            
 
 type                            :   ident (SQUAREBL SQUAREBR)?                                                          #typeAST;
 
-statement                       :   designator (EQUAL expr | BL actPars? BR | ADDADD | SUBSUB) SEMICOLON                #callORassignStatementAST
+statement                       :   designator (BL actPars? BR) SEMICOLON                                               #callStatementAST
+                                     | designator (EQUAL expr) SEMICOLON                                                #assignStatementAST
+                                     | designator (ADDADD | SUBSUB) SEMICOLON                                           #addsubStatementAST
                                      | IF BL condition BR statement (ELSE statement)?                                   #ifStatementAST
                                      | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement               #forStatementAST
                                      | WHILE BL condition BR statement                                                  #whileStatementAST

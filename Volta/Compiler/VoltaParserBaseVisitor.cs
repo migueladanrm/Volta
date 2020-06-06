@@ -111,7 +111,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <return>The visitor result.</return>
 	public virtual Result VisitTypeAST([NotNull] VoltaParser.TypeASTContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Visit a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -120,7 +120,29 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context) { return VisitChildren(context); }
+	public virtual Result VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>addsubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.

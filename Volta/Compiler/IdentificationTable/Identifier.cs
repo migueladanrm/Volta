@@ -18,8 +18,6 @@ namespace Volta.Compiler.IdentificationTable
     {
         List<VoltaParser.VarDeclASTContext> varDecls;
 
-        VoltaParser.ClassDeclASTContext classDecl;
-
         public ClassIdentifier(string id, IToken token, int level, string type,  List<VoltaParser.VarDeclASTContext> varDecls, VoltaParser.ClassDeclASTContext classDecl)
         {
             this.id = id;
@@ -35,7 +33,6 @@ namespace Volta.Compiler.IdentificationTable
     {
         List<VoltaParser.FormParsASTContext> formPars;
 
-        VoltaParser.MethodDeclASTContext methodDecl;
         public MethodIdentifier(string id, IToken token, int level, string type, List<VoltaParser.FormParsASTContext> formPars, VoltaParser.MethodDeclASTContext methodDecl)
         {
             this.id = id;
@@ -49,7 +46,6 @@ namespace Volta.Compiler.IdentificationTable
 
     public class ConstIdentifier: Identifier
     {
-        VoltaParser.ConstDeclASTContext constDecl;
         public ConstIdentifier(string id, IToken token, int level, string type, VoltaParser.ConstDeclASTContext constDecl)
         {
             this.id = id;
@@ -63,8 +59,7 @@ namespace Volta.Compiler.IdentificationTable
 
     public class VarIdentifier : Identifier
     {
-        VoltaParser.VarDeclASTContext varDecl;
-        public VarIdentifier(string id, IToken token, int level, string type, VoltaParser.VarDeclASTContext varDecl)
+        public VarIdentifier(string id, IToken token, int level, string type, ParserRuleContext varDecl)
         {
             this.id = id;
             this.token = token;

@@ -133,19 +133,47 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTypeAST([NotNull] VoltaParser.TypeASTContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Enter a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context) { }
+	public virtual void EnterCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Exit a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context) { }
+	public virtual void ExitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>addsubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>addsubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
