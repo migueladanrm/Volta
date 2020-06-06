@@ -237,28 +237,37 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context)
         {
-            if(context.VOID() != null || (context.type() != null && Visit(context.type()) != null))
-            {
-                VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
-                if (ident != null && !ExistIdent(ident.IDENT().Symbol.Text, true)){
-                    identificationTable.OpenLevel(); // Para los parámetros ya existe un scope nuevo
-                    if(context.formPars() != null)
-                        Visit(context.formPars()); //Cuando se visitan los parámetros y se encuentra un error, ellos lo reportan
+            string type = "void";
+            if (context.type() != null)
+                type = (string) Visit(context.type());
+
+            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
+
+            MethodIdentifier identifier = new MethodIdentifier(ident.IDENT().Symbol.Text, ident.IDENT().Symbol, identificationTable.getLevel(), type,
+                    (VoltaParser.FormParsASTContext)context.formPars(), context);
+
+            identificationTable.Insert(identifier);
+
+            if (ident != null && !ExistIdent(ident.IDENT().Symbol.Text, true)){
+                identificationTable.OpenLevel(); // Para los parámetros ya existe un scope nuevo
+                if(context.formPars() != null)
+                    Visit(context.formPars()); //Cuando se visitan los parámetros y se encuentra un error, ellos lo reportan
                     
 
-                    if(context.varDecl() != null)
-                        context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
+                if(context.varDecl() != null)
+                    context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
 
-                    if (context.block() != null)
-                        Visit(context.block());
+                if (context.block() != null)
+                    Visit(context.block());
                     
-                    identificationTable.CloseLevel();
-                }
-                else
-                {
-                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
-                }
+                identificationTable.CloseLevel();
+                
             }
+            else
+            {
+                InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+            }
+            
             return null;
         }
 

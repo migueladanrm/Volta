@@ -31,9 +31,9 @@ namespace Volta.Compiler.IdentificationTable
 
     public class MethodIdentifier : Identifier
     {
-        List<VoltaParser.FormParsASTContext> formPars;
+        VoltaParser.FormParsASTContext formPars;
 
-        public MethodIdentifier(string id, IToken token, int level, string type, List<VoltaParser.FormParsASTContext> formPars, VoltaParser.MethodDeclASTContext methodDecl)
+        public MethodIdentifier(string id, IToken token, int level, string type, VoltaParser.FormParsASTContext formPars, VoltaParser.MethodDeclASTContext methodDecl)
         {
             this.id = id;
             this.token = token;
