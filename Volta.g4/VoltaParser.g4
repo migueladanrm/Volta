@@ -4,19 +4,19 @@ options {
     tokenVocab = VoltaScanner;
 }
 
-program                         :   CLASS IDENT (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF      #programAST;
+program                         :   CLASS ident (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF      #programAST;
 
-constDecl                       :   CONST type IDENT EQUAL ( NUM | CHARCONST | STRING) SEMICOLON                        #constDeclAST;
+constDecl                       :   CONST type ident EQUAL ( NUM | CHARCONST | STRING) SEMICOLON                        #constDeclAST;
 
-varDecl                         :   type IDENT (COMMA IDENT)* SEMICOLON                                                 #varDeclAST;
+varDecl                         :   type ident (COMMA ident)* SEMICOLON                                                 #varDeclAST;
 
-classDecl                       :   CLASS IDENT CURLYBL varDecl CURLYBR                                                 #classDeclAST;
+classDecl                       :   CLASS ident CURLYBL (varDecl)* CURLYBR                                                 #classDeclAST;
 
-methodDecl                      :   (type | VOID) IDENT BL formPars? BR (varDecl)* block                                #methodDeclAST;
+methodDecl                      :   (type | VOID) ident BL formPars? BR (varDecl)* block                                #methodDeclAST;
 
-formPars                        :   type IDENT ((COMMA) type IDENT)*                                                    #formParsAST;
+formPars                        :   type ident ((COMMA) type ident)*                                                    #formParsAST;
 
-type                            :   IDENT (SQUAREBL SQUAREBR)?                                                          #typeAST;
+type                            :   ident (SQUAREBL SQUAREBR)?                                                          #typeAST;
 
 statement                       :   designator (EQUAL expr | BL actPars? BR | ADDADD | SUBSUB) SEMICOLON                #callORassignStatementAST
                                      | IF BL condition BR statement (ELSE statement)?                                   #ifStatementAST
@@ -49,10 +49,10 @@ factor                          :   designator (BL actPars? BR)?                
                                       | CHARCONST                                                                       #charConstFactorAST
                                       | STRING                                                                          #stringFactorAST
                                       | (TRUE|FALSE)                                                                    #bolleanFactorAST
-                                      | NEW IDENT                                                                       #newFactorAST
+                                      | NEW ident                                                                       #newFactorAST
                                       | BL expr BR                                                                      #bracketFactorAST;
 
-designator                      :   IDENT (DOT IDENT | SQUAREBL expr SQUAREBR)*                                         #designatorAST;
+designator                      :   ident (DOT ident | SQUAREBL expr SQUAREBR)*                                         #designatorAST;
 
 mulop                           :   MUL | DIV | MDIV                                                                    #mulopAST;
 
@@ -65,7 +65,7 @@ relop                           :   EQUALEQUAL                                  
                                     | GREATER                                                                           #greaterRelopAST
                                     | LESS                                                                              #lessRelopAST;
 
-switch                          :   SWITCH BL(IDENT | NUM | CHARCONST | STRING)BR 
+switch                          :   SWITCH BL(ident | NUM | CHARCONST | STRING)BR 
                                     CURLYBL 
                                         (CASE (NUM | CHARCONST | STRING) COLON 
                                             (statement (BREAK SEMICOLON)?)?
@@ -74,4 +74,8 @@ switch                          :   SWITCH BL(IDENT | NUM | CHARCONST | STRING)B
                                             (statement (BREAK SEMICOLON)?)?
                                         )?
                                     CURLYBR                                                                             #switchAST;
+
+ident
+locals [ParserRuleContext decl=null]
+                    : IDENT                                                                                             #identAST;
                                 

@@ -620,6 +620,20 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitSwitchAST([NotNull] VoltaParser.SwitchASTContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterIdentAST([NotNull] VoltaParser.IdentASTContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitIdentAST([NotNull] VoltaParser.IdentASTContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

@@ -36,7 +36,24 @@ namespace Volta.Compiler.IdentificationTable
             Errors.Add(error);
         }
 
+        public bool ExistIdent(string id, bool inThisLevel)
+        {
+            return identificationTable.Find(id, inThisLevel) != null;
+        }
+
         public List<VoltaCompilerError> Errors { get; private set; }
+
+        public object VisitIdentAST([NotNull] VoltaParser.IdentASTContext context)
+        {
+            if(context.IDENT() != null)
+            {
+                Identifier identifier = identificationTable.Find(context.IDENT().GetText(), false);
+                if(identifier != null){
+                    context.decl = identifier.decl;
+                }
+            }
+            return context;
+        }
 
         public object VisitActParsAST([NotNull] VoltaParser.ActParsASTContext context)
         {
@@ -56,7 +73,10 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitBlockStatementAST([NotNull] VoltaParser.BlockStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            identificationTable.OpenLevel();
+            VisitChildren(context);
+            identificationTable.CloseLevel();
+            return null;
         }
 
         public object VisitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context)
@@ -86,12 +106,28 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context)
         {
+            
             VisitChildren(context); return null;
         }
 
         public object VisitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context)
         {
-            VisitChildren(context); return null;
+            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
+            if (!ExistIdent(ident.GetText(), true))
+            {
+
+                List<VoltaParser.VarDeclASTContext> varDecls = new List<VoltaParser.VarDeclASTContext>(context.varDecl().ToList().Cast<VoltaParser.VarDeclASTContext>());
+                ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], varDecls, context);
+
+                identificationTable.Insert(classIdentifier);
+                types.Add(ident.GetText());
+            }
+            else
+            {
+                InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+            }
+            VisitChildren(context); 
+            return null;
         }
 
         public object VisitCondFactAST([NotNull] VoltaParser.CondFactASTContext context)
@@ -114,12 +150,12 @@ namespace Volta.Compiler.IdentificationTable
             string type = (string)Visit(context.type());
             if (type != null)
             {
-                ITerminalNode ident = context.IDENT();
+                VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
                 if (ident != null)
                 {
-                    if (identificationTable.Find(ident.Symbol.Text, true) == null)
+                    if (!ExistIdent(ident.IDENT().Symbol.Text, true))
                     {
-                        Identifier identifier = new VarCostIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type);
+                        Identifier identifier = new ConstIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), type, context);
                         identificationTable.Insert(identifier);
 
                         if ((context.NUM() != null && type != "int") ||
@@ -131,7 +167,7 @@ namespace Volta.Compiler.IdentificationTable
                     }
                     else
                     {
-                        InsertError(context.IDENT().Symbol, context.IDENT().Symbol.Line, context.IDENT().Symbol.Column, "El identificador " + ident.Symbol.Text + " ya fue declarado en este scope");
+                        InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
                     }
                 }
             }
@@ -190,7 +226,10 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context)
         {
-            VisitChildren(context); return null;
+            identificationTable.OpenLevel();
+            VisitChildren(context);
+            identificationTable.CloseLevel();
+            return null;
         }
 
         public object VisitMulop([NotNull] VoltaParser.MulopContext context)
@@ -215,7 +254,10 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitProgramAST([NotNull] VoltaParser.ProgramASTContext context)
         {
-            VisitChildren(context); return null;
+            identificationTable.OpenLevel();
+            VisitChildren(context); 
+            identificationTable.CloseLevel();
+            return null;
         }
 
         public object VisitReadStatementAST([NotNull] VoltaParser.ReadStatementASTContext context)
@@ -255,31 +297,35 @@ namespace Volta.Compiler.IdentificationTable
 
         public object VisitTypeAST([NotNull] VoltaParser.TypeASTContext context)
         {
-            if (context.IDENT() != null)
+            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
+
+            if (ident.IDENT() != null)
             {
-                if (types.Contains(context.IDENT().GetText()))
+                if (types.Contains(ident.IDENT().GetText()))
                 {
-                    return context.IDENT().GetText();
+                    return context.ident().GetText();
                 }
                 else
                 {
-                    InsertError(context.IDENT().Symbol, context.IDENT().Symbol.Line, context.IDENT().Symbol.Column, "El tipo " + context.IDENT().GetText() + " no existe");
+                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El tipo " + ident.IDENT().GetText() + " no existe");
 
                 }
             }
-            VisitChildren(context); 
             return null;
         }
 
         public object VisitVarDeclAST([NotNull] VoltaParser.VarDeclASTContext context)
         {
+
+
             string type = (string) Visit(context.type());
             if(type != null)
             {
-                context.IDENT().ToList().ForEach(delegate (ITerminalNode ident)
+                context.ident().ToList().ForEach(delegate (VoltaParser.IdentContext identC)
                 {
-                    if (identificationTable.Find(ident.Symbol.Text, true) == null){
-                        Identifier identifier = new VarCostIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type);
+                    ITerminalNode ident = ((VoltaParser.IdentASTContext) identC).IDENT();
+                    if (!ExistIdent(ident.Symbol.Text, true)){
+                        Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
                         identificationTable.Insert(identifier);
                     }
                     else

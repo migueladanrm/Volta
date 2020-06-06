@@ -324,4 +324,11 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIdentAST([NotNull] VoltaParser.IdentASTContext context);
 }

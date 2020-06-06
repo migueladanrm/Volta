@@ -532,4 +532,16 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterIdentAST([NotNull] VoltaParser.IdentASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitIdentAST([NotNull] VoltaParser.IdentASTContext context);
 }
