@@ -79,7 +79,7 @@ namespace Volta.Compiler.IdentificationTable
             return null;
         }
 
-        public object VisitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context)
+        public object VisitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context)
         {
             VisitChildren(context); return null;
         }

@@ -1885,6 +1885,24 @@ public partial class VoltaParser : Parser {
 			else return visitor.VisitChildren(this);
 		}
 	}
+	public partial class BooleanFactorASTContext : FactorContext {
+		public ITerminalNode TRUE() { return GetToken(VoltaParser.TRUE, 0); }
+		public ITerminalNode FALSE() { return GetToken(VoltaParser.FALSE, 0); }
+		public BooleanFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterBooleanFactorAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitBooleanFactorAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBooleanFactorAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
 	public partial class NumFactorASTContext : FactorContext {
 		public ITerminalNode NUM() { return GetToken(VoltaParser.NUM, 0); }
 		public NumFactorASTContext(FactorContext context) { CopyFrom(context); }
@@ -1933,24 +1951,6 @@ public partial class VoltaParser : Parser {
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitStringFactorAST(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-	public partial class BolleanFactorASTContext : FactorContext {
-		public ITerminalNode TRUE() { return GetToken(VoltaParser.TRUE, 0); }
-		public ITerminalNode FALSE() { return GetToken(VoltaParser.FALSE, 0); }
-		public BolleanFactorASTContext(FactorContext context) { CopyFrom(context); }
-		public override void EnterRule(IParseTreeListener listener) {
-			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterBolleanFactorAST(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitBolleanFactorAST(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitBolleanFactorAST(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
@@ -2034,7 +2034,7 @@ public partial class VoltaParser : Parser {
 				break;
 			case TRUE:
 			case FALSE:
-				_localctx = new BolleanFactorASTContext(_localctx);
+				_localctx = new BooleanFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 5);
 				{
 				State = 274;

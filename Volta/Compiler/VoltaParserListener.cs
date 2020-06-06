@@ -403,17 +403,17 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by the <c>bolleanFactorAST</c>
+	/// Enter a parse tree produced by the <c>booleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context);
+	void EnterBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by the <c>bolleanFactorAST</c>
+	/// Exit a parse tree produced by the <c>booleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context);
+	void ExitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>newFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.

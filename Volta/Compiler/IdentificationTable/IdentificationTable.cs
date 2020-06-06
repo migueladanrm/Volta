@@ -10,8 +10,6 @@ namespace Volta.Compiler.IdentificationTable
         private int level = -1;
         private List<Identifier> identifiers;
 
-        
-
         public IdentificationTable() {
             identifiers = new List<Identifier>();
         }
@@ -20,27 +18,25 @@ namespace Volta.Compiler.IdentificationTable
             identifiers.Add(identifier);
         }
 
-        public Identifier Find(string id, Boolean inThisLevel) {
-            if (inThisLevel)
-            {
-                return identifiers.FindLast(delegate (Identifier identifier) { return identifier.id == id && identifier.level == level; });
+        public Identifier Find(string id, bool inThisLevel) {
+            if (inThisLevel) {
+                return identifiers.FindLast(delegate (Identifier identifier) {
+                    return identifier.id == id && identifier.level == level;
+                });
             }
             return identifiers.FindLast(delegate (Identifier identifier) { return identifier.id == id; });
         }
 
-        public void OpenLevel()
-        {
+        public void OpenLevel() {
             level++;
         }
 
-        public void CloseLevel()
-        {
+        public void CloseLevel() {
             identifiers = identifiers.FindAll(delegate (Identifier identifier) { return identifier.level != level; });
             level--;
         }
 
-        public int getLevel()
-        {
+        public int getLevel() {
             return level;
         }
     }

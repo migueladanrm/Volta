@@ -50,7 +50,7 @@ factor                          :   designator (BL actPars? BR)?                
                                       | NUM                                                                             #numFactorAST
                                       | CHARCONST                                                                       #charConstFactorAST
                                       | STRING                                                                          #stringFactorAST
-                                      | (TRUE|FALSE)                                                                    #bolleanFactorAST
+                                      | (TRUE|FALSE)                                                                    #booleanFactorAST
                                       | NEW ident                                                                       #newFactorAST
                                       | BL expr BR                                                                      #bracketFactorAST;
 
