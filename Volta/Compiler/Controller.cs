@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Volta.Compiler.IdentificationTable;
+using Volta.Compiler.CodeAnalysis;
 
 namespace Volta.Compiler
 {

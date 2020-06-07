@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Volta.Compiler.IdentificationTable
+namespace Volta.Compiler.CodeAnalysis
 {
     public class VoltaContextualError : VoltaCompilerError
     {

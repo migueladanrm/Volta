@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Volta.Compiler.IdentificationTable
+namespace Volta.Compiler.CodeAnalysis
 {
     public class IdentificationTable
     {
@@ -21,10 +21,10 @@ namespace Volta.Compiler.IdentificationTable
         public Identifier Find(string id, bool inThisLevel) {
             if (inThisLevel) {
                 return identifiers.FindLast(delegate (Identifier identifier) {
-                    return identifier.id == id && identifier.level == level;
+                    return identifier.Id == id && identifier.Level == level;
                 });
             }
-            return identifiers.FindLast(delegate (Identifier identifier) { return identifier.id == id; });
+            return identifiers.FindLast(delegate (Identifier identifier) { return identifier.Id == id; });
         }
 
         public void OpenLevel() {
@@ -32,7 +32,7 @@ namespace Volta.Compiler.IdentificationTable
         }
 
         public void CloseLevel() {
-            identifiers = identifiers.FindAll(delegate (Identifier identifier) { return identifier.level != level; });
+            identifiers = identifiers.FindAll(delegate (Identifier identifier) { return identifier.Level != level; });
             level--;
         }
 

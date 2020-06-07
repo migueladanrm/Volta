@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
-namespace Volta.Compiler.IdentificationTable
+namespace Volta.Compiler.CodeAnalysis
 {
     class ContextualAnalysis : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
@@ -49,7 +49,7 @@ namespace Volta.Compiler.IdentificationTable
             {
                 Identifier identifier = identificationTable.Find(context.IDENT().GetText(), false);
                 if(identifier != null){
-                    context.decl = identifier.decl;
+                    context.decl = identifier.Declaration;
                 }
             }
             return context;
@@ -112,7 +112,7 @@ namespace Volta.Compiler.IdentificationTable
             {
 
                 List<VoltaParser.VarDeclASTContext> varDecls = new List<VoltaParser.VarDeclASTContext>(context.varDecl().ToList().Cast<VoltaParser.VarDeclASTContext>());
-                ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], varDecls, context);
+                ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], context, varDecls);
 
                 identificationTable.Insert(classIdentifier);
                 types.Add(ident.GetText());
@@ -244,7 +244,7 @@ namespace Volta.Compiler.IdentificationTable
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
 
             MethodIdentifier identifier = new MethodIdentifier(ident.IDENT().Symbol.Text, ident.IDENT().Symbol, identificationTable.getLevel(), type,
-                    (VoltaParser.FormParsASTContext)context.formPars(), context);
+                    context, (VoltaParser.FormParsASTContext)context.formPars());
 
             identificationTable.Insert(identifier);
 
