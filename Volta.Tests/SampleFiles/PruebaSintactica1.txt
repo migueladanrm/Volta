@@ -1,0 +1,113 @@
+﻿class AllProds
+  const int nPoints = 2;
+  const char exclaim = '!!'; //debe mostrar error de scanner o de parser por el char de dos elementos
+  const char caracterEspecial = '\n'; //no debe mostrar error puesto que es caracter especial
+
+  class Point {
+    int x, y; @ ` //error de caracteres invalidos
+  }
+
+  char[] msg;
+  Point[] pArr;
+  boolean test1;
+  string cadena; //EN CASO DE USAR OTRO TOKEN, CAMBIARLO
+
+{
+  void WriteError ()
+  {
+	int i;
+    
+    /* imprimir mensaje error */
+    i = 0;
+    test1 = true;
+    while(i<len(msg)){write(msg[i]);i++;}
+    
+	boolean test2; //EN CASO DE SOLO ACEPTAR EN UN LUGAR ESPECÍFICO, CAMBIARLO
+	
+    for(i;i<len(msg);i++){write(msg[i])} //debe dar error por falta de ;
+    write(exclaim);
+    while (i > 0) {
+	  char test3; //DEBE ACEPTAR DECLARACIONES EN CUALQUIER BLOQUE O CONTEXTO
+      i--;
+      if (i < 3 && test1==true) break;	
+      write(msg[i], 2);
+    }
+  }
+
+  int GetX (Point p) { return p.x.Z[3+4]; } //no debería dar error la expresión
+
+  void SetX (int x, Point p) {
+    if (x > -10 && x <= 9 ||
+        x == 4*3/4%4+12-11*(2147483647/(-2147483647-1)%2) ) //no debería dar error la expresión
+      p.x = x;
+    else WriteError();
+	
+	//ESTE SWITCH ES AL ESTILO C# COMO SE PIDIÓ... SI DEBEN HACER CAMBIOS, DOCUMENTARLO CON COMENTARIOS
+	switch (x)
+    {
+        case 1:
+            write("Case 1");
+            break;
+        case 2:
+            write("Case 2");
+            break;
+		case 3:
+        default:
+            write("Default case",2);
+            break;
+    }
+  }
+
+  //REVISAR EL MANEJO DE LOS STRING
+  string SetMsg () {
+    msg = new char[5];
+    msg[0] = 'E';
+    msg[1] = 'r';
+    msg[2] = 'r';
+    msg[3] = 'r';
+    msg[4] = msg[3];
+    msg[3] = 'o';    
+	
+	return "retorno del método con caracteres extraños en el string &]{ #"
+  }
+
+  void SetPoints ()
+  {
+    pArr = new Point[nPoints];
+	int i; //OTRA VEZ LO DE LAS DECLARACIONES
+    i = 0;
+    while (i < len(pArr)) {
+      pArr[i] = new Point;
+      pArr[i].x = i;
+      pArr[i].y = i;
+      i++;
+    }
+  }
+
+  int prueba(Point x, char w)
+  {
+      return val.neg[i].algo;
+	/*comentario
+	/*mal*/ /*anidado 
+	*/
+  }
+
+  void Main ()
+  {
+    int i;
+    SetMsg();
+    SetPoints();
+    read(i);
+    if (i < nPoints) {
+      write(GetX(pArr[i]));
+      write(pArr[i].y);
+    }
+    else
+      WriteError();
+    write('n');
+
+  }
+}
+
+// ANOTAR SUS COMENTARIOS EN MAYUSCULA Y NO QUITAR NADA DE LO QUE VIENE EN EL ARCHIVO SINO SOLO COMENTARLO PERO A LA VEZ COLOCAR EL EQUIVALENTE CORRECTO
+// CUALQUIER COSA QUE SEA ERROR MIO AL MOMENTO DE HACER LA PRUEBA, FAVOR CORREGIRLO Y ANOTARLO
