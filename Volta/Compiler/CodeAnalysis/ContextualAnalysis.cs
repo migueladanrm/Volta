@@ -51,8 +51,9 @@ namespace Volta.Compiler.CodeAnalysis
                 if(identifier != null){
                     context.decl = identifier.Declaration;
                 }
+                return context;
             }
-            return context;
+            return null;
         }
 
         public object VisitActParsAST([NotNull] VoltaParser.ActParsASTContext context)
@@ -171,7 +172,15 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitDesignatorAST([NotNull] VoltaParser.DesignatorASTContext context)
         {
-            VisitChildren(context); return null;
+            if(context.ident().Length == 1 && context.SQUAREBL() == null && context.DOT() == null)
+            {
+                if (ExistIdent(context.ident()[0].GetText(), false))
+                {
+                    Visit(context.ident()[0]);
+                    return context.ident()[0].decl;
+                }
+            }
+            return null;
         }
 
         public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context)
@@ -243,30 +252,33 @@ namespace Volta.Compiler.CodeAnalysis
 
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
 
-            MethodIdentifier identifier = new MethodIdentifier(ident.IDENT().Symbol.Text, ident.IDENT().Symbol, identificationTable.getLevel(), type,
-                    context, (VoltaParser.FormParsASTContext)context.formPars());
-
-            identificationTable.Insert(identifier);
-
-            if (ident != null && !ExistIdent(ident.IDENT().Symbol.Text, true)){
-                identificationTable.OpenLevel(); // Para los parámetros ya existe un scope nuevo
-                if(context.formPars() != null)
-                    Visit(context.formPars()); //Cuando se visitan los parámetros y se encuentra un error, ellos lo reportan
-                    
-
-                if(context.varDecl() != null)
-                    context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
-
-                if (context.block() != null)
-                    Visit(context.block());
-                    
-                identificationTable.CloseLevel();
-                
-            }
-            else
+            if(ident != null)
             {
-                InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                if (!ExistIdent(ident.IDENT().Symbol.Text, true)){
+                MethodIdentifier identifier = new MethodIdentifier(ident.IDENT().Symbol.Text, ident.IDENT().Symbol, identificationTable.getLevel(), type,
+                        context, (VoltaParser.FormParsASTContext)context.formPars());
+
+                identificationTable.Insert(identifier);
+                    identificationTable.OpenLevel(); // Para los parámetros ya existe un scope nuevo
+                    if(context.formPars() != null)
+                        Visit(context.formPars()); //Cuando se visitan los parámetros y se encuentra un error, ellos lo reportan
+                    
+
+                    if(context.varDecl() != null)
+                        context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
+
+                    if (context.block() != null)
+                        Visit(context.block());
+                    
+                    identificationTable.CloseLevel();
+                
+                }
+                else
+                {
+                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                }
             }
+
             
             return null;
         }
@@ -338,7 +350,7 @@ namespace Volta.Compiler.CodeAnalysis
         {
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
 
-            if (ident.IDENT() != null)
+            if (ident != null)
             {
                 if (types.Contains(ident.IDENT().GetText()))
                 {
@@ -388,7 +400,17 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            Identifier identifier = (Identifier) Visit(context.designator());
+            if (identifier != null && identifier.GetType().Equals(typeof(MethodIdentifier)))
+            {
+                Debug.WriteLine("Sí es un método");
+            }
+            else
+            {
+                IToken token = context.BL() != null ? context.BL().Symbol : ((VoltaParser.IdentASTContext)((VoltaParser.DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
+                InsertError(token, token.Line, token.Column, "El identificador " + ((VoltaParser.DesignatorASTContext)context.designator()).ident()[0].GetText() + "no corresponde a un método");   
+            }
+            return null;
         }
 
         public object VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context)
