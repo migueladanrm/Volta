@@ -1841,7 +1841,7 @@ public partial class VoltaParser : Parser {
 			base.CopyFrom(context);
 		}
 	}
-	public partial class CallFactorASTContext : FactorContext {
+	public partial class IdentOrCallFactorASTContext : FactorContext {
 		public DesignatorContext designator() {
 			return GetRuleContext<DesignatorContext>(0);
 		}
@@ -1850,18 +1850,18 @@ public partial class VoltaParser : Parser {
 		public ActParsContext actPars() {
 			return GetRuleContext<ActParsContext>(0);
 		}
-		public CallFactorASTContext(FactorContext context) { CopyFrom(context); }
+		public IdentOrCallFactorASTContext(FactorContext context) { CopyFrom(context); }
 		public override void EnterRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterCallFactorAST(this);
+			if (typedListener != null) typedListener.EnterIdentOrCallFactorAST(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitCallFactorAST(this);
+			if (typedListener != null) typedListener.ExitIdentOrCallFactorAST(this);
 		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitCallFactorAST(this);
+			if (typedVisitor != null) return typedVisitor.VisitIdentOrCallFactorAST(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
@@ -1986,7 +1986,7 @@ public partial class VoltaParser : Parser {
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case IDENT:
-				_localctx = new CallFactorASTContext(_localctx);
+				_localctx = new IdentOrCallFactorASTContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 263; designator();

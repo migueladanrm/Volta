@@ -355,17 +355,17 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTermAST([NotNull] VoltaParser.TermASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by the <c>callFactorAST</c>
+	/// Enter a parse tree produced by the <c>identOrCallFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context);
+	void EnterIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by the <c>callFactorAST</c>
+	/// Exit a parse tree produced by the <c>identOrCallFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context);
+	void ExitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>numFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.

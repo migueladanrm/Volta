@@ -35,7 +35,7 @@ namespace Volta.Compiler.CodeAnalysis
             VarDecl = varDecls;
         }
 
-        public List<VoltaParser.VarDeclASTContext> VarDecl { get; set; }
+        public List<VoltaParser.VarDeclASTContext> VarDecl { get; private set; }
 
     }
 
@@ -46,7 +46,7 @@ namespace Volta.Compiler.CodeAnalysis
             FormPars = formPars;
         }
 
-        public VoltaParser.FormParsASTContext FormPars { get; set; }
+        public VoltaParser.FormParsASTContext FormPars { get; private set; }
     }
 
     public class ConstIdentifier : Identifier

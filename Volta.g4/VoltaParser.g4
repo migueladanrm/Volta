@@ -46,7 +46,7 @@ expr                            :   SUB? term (addop term)*                     
 
 term                            :   factor (mulop factor)*                                                              #termAST;
 
-factor                          :   designator (BL actPars? BR)?                                                        #callFactorAST
+factor                          :   designator (BL actPars? BR)?                                                        #identOrCallFactorAST
                                       | NUM                                                                             #numFactorAST
                                       | CHARCONST                                                                       #charConstFactorAST
                                       | STRING                                                                          #stringFactorAST
