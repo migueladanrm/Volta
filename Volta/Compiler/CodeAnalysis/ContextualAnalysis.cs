@@ -505,7 +505,7 @@ namespace Volta.Compiler.CodeAnalysis
                 context.ident().ToList().ForEach((VoltaParser.IdentContext identC) =>
                 {
                     ITerminalNode ident = ((VoltaParser.IdentASTContext) identC).IDENT();
-                    if (!ExistIdent(ident.Symbol.Text, true)){
+                    if (!ExistIdent(ident.Symbol.Text, false)){
                         Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
                         identificationTable.Insert(identifier);
                     }
@@ -553,9 +553,28 @@ namespace Volta.Compiler.CodeAnalysis
             return identifier.Type;
         }
 
-        public object VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context)
-        {
-            VisitChildren(context); return null;
+        public object VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) {
+            var identifier = Visit(context.designator()) as Identifier;
+
+            if (identifier != null) {
+                if (identifier is VarIdentifier) {
+                    var type = Visit(context.expr()) as string;
+                    if (identifier.Type.Equals(type))
+                        return type;
+                    else {
+                        var tmpExpr = context.expr();
+                        InsertError(tmpExpr.Start, tmpExpr.Start.Line, tmpExpr.Start.Column,
+                            $"No se puede asignar un valor de tipo '{type}' a una variable de tipo '{identifier.Type}'.");
+                    }
+                } else if (identifier is ConstIdentifier) {
+                    InsertError(context.EQUAL().Symbol, context.EQUAL().Symbol.Line, context.EQUAL().Symbol.Column,
+                        "No es posible modificar el valor de una constante después de su declaración.");
+                }
+            } else {
+                InsertError(context.designator().Start, context.designator().Start.Line, context.designator().Start.Column,
+                    $"La variable '{context.designator()}' no ha sido declarada.");
+            }
+            return null;
         }
 
         public object VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context)
