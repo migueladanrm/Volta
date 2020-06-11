@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace Volta.Compiler.CodeAnalysis
 {
     class ContextualAnalysis : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
-        List<string> types;
-
-        IdentificationTable identificationTable;
+        private IdentificationTable identificationTable;
+        private List<string> types;
 
         public ContextualAnalysis() {
             types = new List<string>() { 
@@ -30,18 +27,23 @@ namespace Volta.Compiler.CodeAnalysis
             Errors = new List<VoltaCompilerError>();
         }
 
-        public void InsertError(IToken token, int line, int charPositionInLine, string msg)
-        {
-            VoltaContextualError error = new VoltaContextualError(token, line, charPositionInLine, msg);
-            Errors.Add(error);
+        public List<VoltaCompilerError> Errors { get; private set; }
+
+        #region Auxiliar
+
+        public void InsertError(IToken token, int line, int col, string message) {
+            Errors.Add(new VoltaContextualError(token, line, col, message));
         }
+
+        public void InsertError(IToken token, string message)
+            => InsertError(token, token.Line, token.Column, message);
 
         public bool ExistIdent(string id, bool inThisLevel)
         {
             return identificationTable.Find(id, inThisLevel) != null;
         }
 
-        public List<VoltaCompilerError> Errors { get; private set; }
+        #endregion
 
         public object VisitIdentAST([NotNull] VoltaParser.IdentASTContext context)
         {

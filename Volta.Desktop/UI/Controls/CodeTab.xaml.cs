@@ -83,7 +83,7 @@ namespace Volta.UI.Controls
             errors = Controller.Check(text);
             Debug.WriteLine("\n");
             errors.ForEach((VoltaCompilerError error) => {
-                int offset = textEditor.Document.GetOffset(error.Line, error.CharPositionInLine);
+                int offset = textEditor.Document.GetOffset(error.Line, error.Column);
                 ITextMarker marker = textMarkerService.Create(offset, 0);
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                 marker.MarkerColor = Colors.Red;

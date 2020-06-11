@@ -20,7 +20,7 @@ namespace Volta.CLI.Commands
                 var text = File.ReadAllText(OptionFile);
                 var errors = Controller.Check(text);
                 foreach (var vpe in errors) {
-                    Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.CharPositionInLine}:\n\t{vpe.Message}");
+                    Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.Column}:\n\t{vpe.Message}");
                 }
                 return 0;
             } catch (Exception e) {
