@@ -54,7 +54,7 @@ namespace Volta.UI
 
         public ICommand OpenFileCommand => new DelegateCommand((x) => {
             var dlg = new OpenFileDialog {
-                Filter = "Archivos de código C# (*.cs) | *.cs;",
+                Filter = "Archivos de código C# (*.cs) | *.cs|Todos los archivos (*.*) | *.*",
                 InitialDirectory = VoltaSettings.LastDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Multiselect = false
             };
