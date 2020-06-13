@@ -71,7 +71,6 @@ namespace Volta.Compiler.CodeAnalysis
             
             if(methodIdentifier == null)
             {
-                Debug.WriteLine("Es nulo");
                 return null;
             }
 
@@ -95,7 +94,7 @@ namespace Volta.Compiler.CodeAnalysis
                     {
                         return null;
                     }
-                    else if (exprType != originalPars.type()[i].GetText())
+                    else if (exprType != "none" && exprType != originalPars.type()[i].GetText())
                     {
                         InsertError(context.expr()[i].Start, context.expr()[i].Start.Line, context.expr()[i].Start.Column,
                             
@@ -323,7 +322,6 @@ namespace Volta.Compiler.CodeAnalysis
                             VoltaParser.IdentASTContext ident = r as VoltaParser.IdentASTContext;
                             if (currentIdentifier is InstanceIdentifier)
                             {
-                                Debug.WriteLine(ident.IDENT().Symbol.Text);
                                 currentIdentifier = (currentIdentifier as InstanceIdentifier).Identifiers.Find(i => ident.GetText() == i.Id);
                                 if(currentIdentifier == null)
                                 {
@@ -365,10 +363,8 @@ namespace Volta.Compiler.CodeAnalysis
             if(context.term().Length == 1)
             {
                 string type = (string)Visit(context.term()[0]);
-                Debug.WriteLine("El tipo del término es " + type);
                 if(type != "int")
                 {
-                    Debug.WriteLine(context.SUB());
                     if(context.SUB() == null)
                     {
                         return type;
@@ -389,16 +385,26 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitFormParsAST([NotNull] VoltaParser.FormParsASTContext context)
         {
-            var types = new List<VoltaParser.TypeASTContext>(context.type().ToList().Cast<VoltaParser.TypeASTContext>());
+            var typesList = new List<VoltaParser.TypeASTContext>(context.type().ToList().Cast<VoltaParser.TypeASTContext>());
             var idents = new List<VoltaParser.IdentASTContext>(context.ident().ToList().Cast<VoltaParser.IdentASTContext>());
 
-            for(int i = 0; i < types.Count; i++)
+            for(int i = 0; i < typesList.Count; i++)
             {
-                var type = Visit(types[i]) as string;
+                var type = Visit(typesList[i]) as string;
 
                 if(!ExistIdent(idents[i].IDENT().Symbol.Text, true)){
-                    Identifier identifier = new VarIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context);
-                    identificationTable.Insert(identifier);
+                    if(types.IndexOf(type) > 5)
+                    {
+                        ClassIdentifier classIdentifier = identificationTable.FindClass(type);
+                        List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
+                        InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
+                        identificationTable.Insert(instanceIdentifier);
+                    }
+                    else
+                    {
+                        Identifier identifier = new VarIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context);
+                        identificationTable.Insert(identifier);
+                    }
                 }
                 else
                 {
@@ -485,6 +491,7 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitNewFactorAST([NotNull] VoltaParser.NewFactorASTContext context)
         {
+            
             if (types.Contains(context.ident().GetText()))
             {
                 return context.ident().GetText();
@@ -565,7 +572,6 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitTypeAST([NotNull] VoltaParser.TypeASTContext context)
         {
-            Debug.WriteLine("XXXXX");
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
 
             if (ident != null)
@@ -589,7 +595,6 @@ namespace Volta.Compiler.CodeAnalysis
 
             classIdentifier.VarDecl.ForEach(context =>
             {
-                Debug.WriteLine("YYY YYY");
                 string type = (string)Visit(context.type());
                 if (type != null)
                 {
@@ -629,23 +634,45 @@ namespace Volta.Compiler.CodeAnalysis
                     
                     if (identC.GetText() == "")
                     {
-                        Debug.WriteLine("Pasa por aquí");
                         return;
                     }
                     ITerminalNode ident = ((VoltaParser.IdentASTContext) identC).IDENT();
-                    if (!ExistIdent(ident.Symbol.Text, true)){
+                    if (ident != null && !ExistIdent(ident.Symbol.Text, true)){
                         if(types.IndexOf(type) > 5)
                         {
-                            ClassIdentifier classIdentifier = identificationTable.FindClass(type);
-                            List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
-                            Debug.WriteLine(instanceIdentifiers);
-                            InstanceIdentifier instanceIdentifier = new InstanceIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
-                            identificationTable.Insert(instanceIdentifier);
+                            if((context.type() as VoltaParser.TypeASTContext).SQUAREBL() == null)
+                            {
+                                ClassIdentifier classIdentifier = identificationTable.FindClass(type);
+                                List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
+                                InstanceIdentifier instanceIdentifier = new InstanceIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
+                                identificationTable.Insert(instanceIdentifier);
+                            }
+                            else
+                            {
+                                InsertError(ident.Symbol, ident.Symbol.Line, ident.Symbol.Column, "Solo es permitido declarar arreglos de tipos int o char");
+                            }
                         }
                         else
                         {
                             Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            identificationTable.Insert(identifier);
+                            if ((context.type() as VoltaParser.TypeASTContext).SQUAREBL() != null)
+                            {
+                                if(type == "int" || type == "char")
+                                {
+                                    List<Identifier> identifiers = new List<Identifier>();
+                                    identifier.Id = "0";
+                                    identifiers.Add(identifier);
+                                    ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
+                                    identificationTable.Insert(arrayIdentifier);
+                                }
+                                else
+                                {
+                                    InsertError(ident.Symbol, ident.Symbol.Line, ident.Symbol.Column, "Solo es permitido declarar arreglos de tipos int o char");
+                                }
+                            }
+                            else {
+                                identificationTable.Insert(identifier);
+                            }
                         }
                         
                     }
