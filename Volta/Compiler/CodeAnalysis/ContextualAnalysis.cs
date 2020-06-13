@@ -305,6 +305,10 @@ namespace Volta.Compiler.CodeAnalysis
                                     error = true;
                                     return;
                                 }
+                                else
+                                {
+                                    currentIdentifier = (currentIdentifier as ArrayIdentifier).Identifiers[0];
+                                }
                             }
                             else
                             {
@@ -716,6 +720,11 @@ namespace Volta.Compiler.CodeAnalysis
         public object VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context)
         {
             VisitChildren(context); return null;
+        }
+
+        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context)
+        {
+            return "none";
         }
     }
 }

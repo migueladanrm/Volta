@@ -67,13 +67,15 @@ namespace Volta.Compiler.CodeAnalysis
 
     public class ArrayIdentifier : Identifier
     {
-        public ArrayIdentifier(string id, IToken token, int level, string type, ParserRuleContext declaration, int length)
+        public ArrayIdentifier(string id, IToken token, int level, string type, ParserRuleContext declaration, int length, List<Identifier> identifiers)
             : base(id, token, level, type, declaration)
         {
             Length = length;
+            Identifiers = identifiers;
         }
 
         public int Length { get; private set; }
+        public List<Identifier> Identifiers { get; private set; }
     }
 
     public class InstanceIdentifier : Identifier

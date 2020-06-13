@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from ../Volta.g4//VoltaParser.g4 by ANTLR 4.8
+// Generated from ..//VoltaParser.g4 by ANTLR 4.8
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -438,6 +438,18 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>nullFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>nullFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>designatorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.designator"/>.

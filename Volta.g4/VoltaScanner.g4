@@ -55,6 +55,7 @@ SWITCH                                  :   'switch';
 CASE                                    :   'case';
 BREAK                                   :   'break';
 DEFAULT                                 :   'default';
+NULL                                    :   'null';
 
 // Numbers & identifiers
 
