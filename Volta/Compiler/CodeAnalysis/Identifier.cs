@@ -30,7 +30,7 @@ namespace Volta.Compiler.CodeAnalysis
 
     public class ClassIdentifier : Identifier
     {
-        public ClassIdentifier(string id, IToken token, int level, string type, VoltaParser.ClassDeclASTContext declaration, List<VoltaParser.VarDeclASTContext> varDecls)
+        public ClassIdentifier(string id, IToken token, int level, string type, VoltaParser.ClassDeclASTContext declaration, List<VoltaParser.VarDeclASTContext> varDecls )
             : base(id, token, level, type, declaration) {
             VarDecl = varDecls;
         }
@@ -63,5 +63,30 @@ namespace Volta.Compiler.CodeAnalysis
             : base(id, token, level, type, declaration) {
 
         }
+    }
+
+    public class ArrayIdentifier : Identifier
+    {
+        public ArrayIdentifier(string id, IToken token, int level, string type, ParserRuleContext declaration, int length)
+            : base(id, token, level, type, declaration)
+        {
+            Length = length;
+        }
+
+        public int Length { get; private set; }
+    }
+
+    public class InstanceIdentifier : Identifier
+    {
+        public InstanceIdentifier(string id, IToken token, int level, string type, ParserRuleContext declaration, ClassIdentifier classIdentifier, List<Identifier> identifiers)
+            : base(id, token, level, type, declaration)
+        {
+            ClassIdentifier = classIdentifier;
+            Identifiers = identifiers;
+        }
+
+        public ClassIdentifier ClassIdentifier { get; private set; }
+
+        public List<Identifier> Identifiers { get; set; }
     }
 }

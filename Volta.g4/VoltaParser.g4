@@ -51,7 +51,7 @@ factor                          :   designator (BL actPars? BR)?                
                                       | CHARCONST                                                                       #charConstFactorAST
                                       | STRING                                                                          #stringFactorAST
                                       | (TRUE|FALSE)                                                                    #booleanFactorAST
-                                      | NEW ident                                                                       #newFactorAST
+                                      | NEW ident (SQUAREBL expr SQUAREBR)?                                             #newFactorAST
                                       | BL expr BR                                                                      #bracketFactorAST;
 
 designator                      :   ident (DOT ident | SQUAREBL expr SQUAREBR)*                                         #designatorAST;

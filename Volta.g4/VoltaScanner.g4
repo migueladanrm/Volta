@@ -58,7 +58,7 @@ DEFAULT                                 :   'default';
 
 // Numbers & identifiers
 
-IDENT                                   :   (LETTER|[_])(LETTER|NUM|[_])*;
+IDENT                                   :   (LETTER|[_])(LETTER|[0-9]|[_])*;
 NUM                                     :   ([1-9][0-9]* | '0')(DOT[0-9]*)?;
 CHARCONST                               :   (SQMARK(PRINTABLE_CHAR | '\\n' | '\\r')(SQMARK));
 STRING                                  :   QMARK(~["]|'\\"')*QMARK;
