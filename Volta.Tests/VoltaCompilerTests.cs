@@ -34,7 +34,7 @@ namespace Volta.Tests
                 Console.WriteLine($"File: {kv.Key}");
                 var errors = Controller.Check(kv.Value);
                 foreach (var vpe in errors) {
-                    Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.CharPositionInLine}:\n\t{vpe.Message}");
+                    Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.Column}:\n\t{vpe.Message}");
                 }
                 Console.WriteLine();
             }

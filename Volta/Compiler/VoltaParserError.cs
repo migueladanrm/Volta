@@ -8,12 +8,12 @@ namespace Volta.Compiler
 {
     public class VoltaParserError : VoltaCompilerError
     {
-        public VoltaParserError(TextWriter output, IRecognizer recognizer, IToken token, int line, int charPositionInLine, string msg, RecognitionException e) {
+        public VoltaParserError(TextWriter output, IRecognizer recognizer, IToken token, int line, int col, string msg, RecognitionException e) {
             Output = output;
             Recognizer = recognizer;
             Token = token;
             Line = line;
-            CharPositionInLine = charPositionInLine;
+            Column = col;
             Message = msg;
             Exception = e;
         }

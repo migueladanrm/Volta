@@ -1,18 +1,22 @@
 ﻿using Antlr4.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Volta.Compiler.CodeAnalysis
 {
+    /// <summary>
+    /// Error de análisis contextual de compilador Volta.
+    /// </summary>
     public class VoltaContextualError : VoltaCompilerError
     {
-        public VoltaContextualError(IToken token, int line, int charPositionInLine, string msg)
-        {
-            Token = token;
-            Line = line;
-            CharPositionInLine = charPositionInLine;
-            Message = msg;
+        /// <summary>
+        /// Inicializa una instancia de <see cref="VoltaContextualError"/>.
+        /// </summary>
+        /// <param name="token">Token.</param>
+        /// <param name="line">Número de línea.</param>
+        /// <param name="row">Número de columna.</param>
+        /// <param name="message">Mensaje de error.</param>
+        public VoltaContextualError(IToken token, int line, int row, string message)
+            : base(token, line, row, message) {
+
         }
     }
 }

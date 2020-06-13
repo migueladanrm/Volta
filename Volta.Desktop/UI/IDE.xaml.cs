@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -47,24 +48,36 @@ namespace Volta.UI
             ChangeViewMode(showEnvironment: true);
 
             OpenCodeFile(new CodeFile {
-                FileName = $"Nuevo{_counter}.mcs"
+                FileName = $"Nuevo{_counter}.cs"
             });
             _counter++;
         });
 
         public ICommand OpenFileCommand => new DelegateCommand((x) => {
             var dlg = new OpenFileDialog {
-                Filter = "Archivos de código C# (*.cs) | *.cs;",
+                Filter = "Archivos de código C# (*.cs) | *.cs|Todos los archivos (*.*) | *.*",
                 InitialDirectory = VoltaSettings.LastDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Multiselect = false
             };
             if (dlg.ShowDialog().Value) {
                 ChangeViewMode(showEnvironment: true);
 
-                string containerPath = dlg.FileName;
-                OpenCodeFile(new CodeFile(containerPath));
+                string path = dlg.FileName;
+                OpenCodeFile(new CodeFile(path));
 
-                VoltaSettings.LastDirectory = dlg.FileName.Substring(0, dlg.FileName.LastIndexOf('\\'));
+                VoltaSettings.LastDirectory = path.Substring(0, path.LastIndexOf('\\'));
+
+                // actualización de archivos recientes.
+                var recentFiles = VoltaSettings.RecentFiles ?? new List<string>();
+                if (recentFiles.Contains(path))
+                    recentFiles.Remove(path);
+
+                recentFiles.Insert(0, path);
+
+                if (recentFiles.Count > 10)
+                    recentFiles.RemoveRange(VoltaSettings.MaxRecentFiles, recentFiles.Count - VoltaSettings.MaxRecentFiles);
+
+                VoltaSettings.RecentFiles = recentFiles;
             }
         });
 
@@ -145,7 +158,7 @@ namespace Volta.UI
 
         private void Defaults() {
             LayoutSecondary.Visibility = Visibility.Collapsed;
-            LblEditorHint.Visibility = Visibility.Visible;
+            //LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
             ErrorList.Visibility = Visibility.Collapsed;
             ErrorList.OnRequestHide += AlternateErrorList;
@@ -153,6 +166,9 @@ namespace Volta.UI
             EditorStatusBar.RequestErrorList += AlternateErrorList;
             Toolbar.Visibility = Visibility.Collapsed;
             MC.Visibility = Visibility.Collapsed;
+
+            WC.Visibility = Visibility.Visible;
+            WCRecentsLoad();
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
@@ -160,10 +176,13 @@ namespace Volta.UI
 
 
         private void ChangeViewMode(bool showEnvironment) {
-            LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
+            //LblEditorHint.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible;
+            WC.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible; ;
             TC.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
             Toolbar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
             EditorStatusBar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+
+            WCRecentsLoad();
         }
 
         private CodeTab GetCurrentCodeTab() {
@@ -202,6 +221,9 @@ namespace Volta.UI
 
             TC.SelectedIndex = TC.Items.Count - 1;
         }
+
+        private void OpenCodeFile(string path)
+            => OpenCodeFile(new CodeFile(path));
 
         private CodeFile SaveNewFile(CodeFile cf) {
             var dlg = new SaveFileDialog {
@@ -274,6 +296,57 @@ namespace Volta.UI
                 sb.Begin();
             };
             MC.Visibility = Visibility.Visible;
+        }
+
+        private void WCRecentsLoad() {
+            WCRecentContainer.Children.RemoveRange(2, WCRecentContainer.Children.Count - 1);
+
+            var recentFiles = VoltaSettings.RecentFiles;
+            var existsRecentFiles = recentFiles != null && 0 < recentFiles.Count;
+            (WCRecentContainer.Children[1] as FrameworkElement).Visibility = !existsRecentFiles ? Visibility.Visible : Visibility.Collapsed;
+
+            if (existsRecentFiles) {
+                foreach (var rf in recentFiles) {
+                    var item = new TextBlock {
+                        Style = WC.FindResource("Style.ActionLabel") as Style,
+                        Tag = $"recent {rf}",
+                        Text = rf
+                    };
+                    item.MouseLeftButtonDown += WCDoAction;
+                    WCRecentContainer.Children.Add(item);
+                }
+            }
+        }
+
+        private void WCDoAction(object sender, RoutedEventArgs e) {
+            var action = (sender as TextBlock).Tag as string;
+            if (action == null)
+                return;
+
+            switch (action) {
+                default:
+                    if (action.StartsWith("recent ")) {
+                        action = action.Replace("recent ", "");
+                        OpenCodeFile(action);
+                        ChangeViewMode(showEnvironment: true);
+
+                        //actualización de archivos recientes.
+                        var recentFiles = VoltaSettings.RecentFiles;
+                        recentFiles.Remove(action);
+                        recentFiles.Insert(0, action);
+                        VoltaSettings.RecentFiles = recentFiles;
+                    }
+                    break;
+                case "openFile":
+                    OpenFileCommand.Execute(null);
+                    break;
+                case "newFile":
+                    NewFileCommand.Execute(null);
+                    break;
+                case "about":
+                    SLDlgShow(nameof(DlgAbout));
+                    break;
+            }
         }
     }
 }
