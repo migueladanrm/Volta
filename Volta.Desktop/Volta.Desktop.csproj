@@ -8,7 +8,15 @@
     <AssemblyName>VoltaDesktop</AssemblyName>
     <ApplicationIcon>Resources\volta.ico</ApplicationIcon>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>$(SolutionDir)\bin\debug</OutputPath>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>$(SolutionDir)\bin\release</OutputPath>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="Resources\volta%40256px.png" />
     <None Remove="Resources\volta.ico" />
