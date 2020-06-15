@@ -117,16 +117,20 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitBlockAST([NotNull] VoltaParser.BlockASTContext context)
         {
-            VisitChildren(context); return null;
+            context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
+            context.constDecl().ToList().ForEach(constDecl => Visit(constDecl));
+            List<Pair<string, IToken>> returnedTypes= new List<Pair<string, IToken>>();
+            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            return returnedTypes;
             
         }
 
         public object VisitBlockStatementAST([NotNull] VoltaParser.BlockStatementASTContext context)
         {
             identificationTable.OpenLevel();
-            VisitChildren(context);
+            List<Pair<string, IToken>> returnedTypes = Visit(context.block()) as List<Pair<string, IToken>>;
             identificationTable.CloseLevel();
-            return null;
+            return returnedTypes;
         }
 
         public object VisitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context)
@@ -142,7 +146,8 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitBreakStatementAST([NotNull] VoltaParser.BreakStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); 
+            return new List<string>();
         }
 
         public object VisitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context)
@@ -416,7 +421,11 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context);
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+
+            return returnedTypes;
         }
 
         public object VisitGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context)
@@ -431,7 +440,11 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            if(context.condition() != null)
+                Visit(context.condition());
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            return returnedTypes;
         }
 
         public object VisitLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context)
@@ -469,7 +482,16 @@ namespace Volta.Compiler.CodeAnalysis
                         context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
 
                     if (context.block() != null)
-                        Visit(context.block());
+                    {
+                        List<Pair<string, IToken>> returnedTypes = Visit(context.block()) as List<Pair<string, IToken>>;
+                        returnedTypes.ForEach(returned =>
+                        {
+                            if(returned.a != null && (!returned.a.Equals(type) && (type == "void" || returned.a != "none")))
+                            {
+                                InsertError(returned.b, returned.b.Line, returned.b.Column, $"El tipo de retorno del método {identifier.Id} es {type}, pero se retorna {(returned.a == "none"? "null": returned.a)}");
+                            }
+                        });
+                    }
                     
                     identificationTable.CloseLevel();
                 
@@ -521,17 +543,45 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitReadStatementAST([NotNull] VoltaParser.ReadStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); 
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitReturnStatementAST([NotNull] VoltaParser.ReturnStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            // Revisando que el return se encuentre en una función
+            bool inMethod = false;
+            RuleContext ctx = context.Parent;
+            while(!(ctx is MethodDeclContext || ctx is ProgramContext))
+            {
+                ctx = ctx.Parent;
+                if(ctx is MethodDeclContext)
+                {
+                    inMethod = true;
+                }
+            }
+
+            if (!inMethod)
+            {
+                InsertError(context.Start, context.Start.Line, context.Start.Column, "No se permite utilizar un return fuera de un método");
+            }
+
+            // Retorna una lista con el tipo que está retornando
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            if(context.expr() != null)
+            {
+                returnedTypes.Add(new Pair<string, IToken>(Visit(context.expr()) as string, context.Start));
+            }
+            else
+            {
+                returnedTypes.Add(new Pair<string, IToken>("void", context.Start));
+            }
+            return returnedTypes;
         }
 
         public object VisitSemicolonStatementAST([NotNull] VoltaParser.SemicolonStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); return new List<Pair<string, IToken>>();
         }
 
         public object VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context)
@@ -541,12 +591,23 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context)
         {
-            VisitChildren(context); return null;
+            if(context.ident() != null)
+            {
+                if(Visit(context.ident()) == null)
+                {
+                    //Error que no existe el ident
+                }
+            }
+
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            return returnedTypes;
         }
 
         public object VisitSwitchStatementAST([NotNull] VoltaParser.SwitchStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            
+            return Visit(context.@switch());
         }
 
         public object VisitTermAST([NotNull] VoltaParser.TermASTContext context)
@@ -687,12 +748,14 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitWhileStatementAST([NotNull] VoltaParser.WhileStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            Visit(context.condition());
+            return Visit(context.statement());
         }
 
         public object VisitWriteStatementAST([NotNull] VoltaParser.WriteStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); 
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context)
@@ -717,7 +780,7 @@ namespace Volta.Compiler.CodeAnalysis
                 IToken token = context.BL() != null ? context.BL().Symbol : ((VoltaParser.IdentASTContext)((VoltaParser.DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
                 InsertError(token, token.Line, token.Column, "El identificador " + ((VoltaParser.DesignatorASTContext)context.designator()).ident()[0].GetText() + " no corresponde a un método");   
             }
-            return identifier != null? identifier.Type: null;
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) {
@@ -767,12 +830,13 @@ namespace Volta.Compiler.CodeAnalysis
                     $"La variable '{context.designator()}' no ha sido declarada.");
             }
 
-            return null;
+            return new List<Pair<string, IToken>>(); ;
         }
 
         public object VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); 
+            return new List<Pair<string, IToken>>(); 
         }
 
         public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context)
