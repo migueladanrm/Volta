@@ -28,6 +28,17 @@ namespace Volta.UI
             Defaults();
         }
 
+        public IDE(string args) {
+            InitializeComponent();
+            DataContext = this;
+            Defaults();
+
+            if (args.Contains("--test")) {
+                NewFileCommand.Execute(null);
+                AlternateErrorListCommand.Execute(null);
+            }
+        }
+
         #region Comandos
 
         public ICommand AlternateErrorListCommand => new DelegateCommand((x) => AlternateErrorList());

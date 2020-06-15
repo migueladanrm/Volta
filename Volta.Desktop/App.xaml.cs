@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -14,7 +15,11 @@ namespace Volta
     public partial class App : Application
     {
         protected override void OnStartup(StartupEventArgs e) {
-            new UI.IDE().Show();
+            var sb = new StringBuilder();
+            foreach (var s in e.Args)
+                sb.Append(s);
+
+            new UI.IDE(sb.ToString()).Show();
         }
     }
 }

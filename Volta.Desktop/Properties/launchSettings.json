@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Volta.Desktop": {
+      "commandName": "Project",
+      "commandLineArgs": "--test"
+    }
+  }
+}

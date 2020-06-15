@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static VoltaParser;
 
 namespace Volta.Compiler.CodeAnalysis
 {
@@ -353,9 +354,8 @@ namespace Volta.Compiler.CodeAnalysis
             return null;
         }
 
-        public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context)
-        {
-            VisitChildren(context); return null;
+        public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context) {
+            return "=";
         }
 
         public object VisitExprAST([NotNull] VoltaParser.ExprASTContext context)
@@ -733,6 +733,31 @@ namespace Volta.Compiler.CodeAnalysis
                         InsertError(tmpExpr.Start, tmpExpr.Start.Line, tmpExpr.Start.Column,
                             $"No se puede asignar un valor de tipo '{type}' a una variable de tipo '{identifier.Type}'.");
                     }
+                } else if (identifier is ArrayIdentifier) {
+                    var arr = identifier as ArrayIdentifier;
+                    var expr = context.expr() as ExprASTContext;
+
+                    if ((expr.term()[0] as TermASTContext).factor()[0] is NewFactorASTContext) {
+                        var nf = (expr.term()[0] as TermASTContext).factor()[0] as NewFactorASTContext;
+                        var nfType = Visit(nf) as string;
+
+                        if (arr.Type.Equals(nfType)) {
+                            if (nf.SQUAREBL() != null && nf.SQUAREBR() != null) {
+                                var arrExpr = nf.expr() as ExprASTContext;
+                                if (arrExpr != null && (Visit(arrExpr) as string) == "int") {
+                                    if (arrExpr.SUB() == null)
+                                        return nfType;
+                                    else InsertError(arrExpr.SUB().Symbol, "El tamaño del arreglo no puede ser negativo.");
+                                } else InsertError(arrExpr.Start, "Se esperaba un valor entero.");
+                            }
+                        } else {
+                            InsertError(nf.Start, $"No se puede asignar un valor de tipo '{nfType}' a una variable de tipo '{identifier.Type}'.");
+                        }
+                    } else {
+                        InsertError(expr.Start, "Sólo se puede asignar valores a arreglos usando el modificador 'new'.");
+                    }
+                } else if (identifier is InstanceIdentifier) {
+
                 } else if (identifier is ConstIdentifier) {
                     InsertError(context.EQUAL().Symbol, context.EQUAL().Symbol.Line, context.EQUAL().Symbol.Column,
                         "No es posible modificar el valor de una constante después de su declaración.");
@@ -741,6 +766,7 @@ namespace Volta.Compiler.CodeAnalysis
                 InsertError(context.designator().Start, context.designator().Start.Line, context.designator().Start.Column,
                     $"La variable '{context.designator()}' no ha sido declarada.");
             }
+
             return null;
         }
 
