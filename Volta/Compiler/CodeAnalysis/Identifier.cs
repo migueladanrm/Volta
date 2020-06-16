@@ -43,11 +43,24 @@ namespace Volta.Compiler.CodeAnalysis
     {
         public MethodIdentifier(string id, IToken token, int level, string type, VoltaParser.MethodDeclASTContext declaration, VoltaParser.FormParsASTContext formPars)
             : base(id, token, level, type, declaration) {
+            DefaultMethod = false;
             FormPars = formPars;
         }
 
+        public MethodIdentifier(string id, string type, List<string> defaulMethodParams)
+            : base(id, null, -1, type, null)
+        {
+            DefaultMethod = true;
+            DefaulMethodParams = defaulMethodParams;
+        }
+
         public VoltaParser.FormParsASTContext FormPars { get; private set; }
+
+        public bool DefaultMethod { get; private set; }
+
+        public List<string> DefaulMethodParams { get; private set; }
     }
+
 
     public class ConstIdentifier : Identifier
     {

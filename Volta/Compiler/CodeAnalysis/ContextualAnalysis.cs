@@ -21,17 +21,41 @@ namespace Volta.Compiler.CodeAnalysis
                 "char",
                 "float",
                 "bool",
-                "string"
+                "string",
+                "int[]",
+                "char[]",
+                "float[]",
+                "bool[]",
+                "string[]"
             };
 
             identificationTable = new IdentificationTable();
             Errors = new List<VoltaCompilerError>();
+
+            AddDefaultMethods();
         }
 
         public List<VoltaCompilerError> Errors { get; private set; }
 
         #region Auxiliar
 
+        public void AddDefaultMethods()
+        {
+            // CHR
+
+            Identifier chrIdenfifier = new MethodIdentifier("chr", "char", new List<string> { "int" });
+            identificationTable.Insert(chrIdenfifier);
+
+            // ORD
+
+            Identifier ordIdenfifier = new MethodIdentifier("ord", "int", new List<string> { "char" });
+            identificationTable.Insert(ordIdenfifier);
+
+            // LEN
+
+            Identifier lenIdenfifier = new MethodIdentifier("len", "int", new List<string> { "array" });
+            identificationTable.Insert(lenIdenfifier);
+        }
         public void InsertError(IToken token, int line, int col, string message) {
             Errors.Add(new VoltaContextualError(token, line, col, message));
         }
@@ -79,7 +103,40 @@ namespace Volta.Compiler.CodeAnalysis
 
             if(originalPars == null)
             {
-                InsertError(context.Start, context.Start.Line, context.Start.Column, "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
+                if (methodIdentifier.DefaultMethod)
+                {
+                    if (methodIdentifier.DefaulMethodParams == null)
+                    {
+                        InsertError(context.Start, context.Start.Line, context.Start.Column,
+                            "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
+                    }
+                    else if (context.expr().Length != methodIdentifier.DefaulMethodParams.Count)
+                    {
+                        InsertError(context.Start, context.Start.Line, context.Start.Column,
+                            "El método '" + methodIdentifier.Id + "' recibe " + methodIdentifier.DefaulMethodParams.Count + " parámetros, y se recibieron " + context.expr().Length);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < methodIdentifier.DefaulMethodParams.Count; i++)
+                        {
+                            string exprType = (string)Visit(context.expr()[i]);
+                            if (exprType == null)
+                            {
+                                return null;
+                            }
+                            else if (exprType != "none" && ((methodIdentifier.DefaulMethodParams[i] == "array" && !exprType.Contains("[]")) && exprType != methodIdentifier.DefaulMethodParams[i]))
+                            {
+                                InsertError(context.expr()[i].Start, context.expr()[i].Start.Line, context.expr()[i].Start.Column,
+
+                                    $"El tipo de la expresión '{ context.expr()[i].GetText()}' es '" + exprType + "', y se esperaba el tipo '" + methodIdentifier.DefaulMethodParams[i] + "'");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    InsertError(context.Start, context.Start.Line, context.Start.Column, "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
+                }
             }
 
             else if(context.expr().Length != originalPars.ident().Length)
@@ -120,7 +177,11 @@ namespace Volta.Compiler.CodeAnalysis
             context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
             context.constDecl().ToList().ForEach(constDecl => Visit(constDecl));
             List<Pair<string, IToken>> returnedTypes= new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null) 
+                    returnedTypes.AddRange(list); 
+                });
             return returnedTypes;
             
         }
@@ -147,7 +208,7 @@ namespace Volta.Compiler.CodeAnalysis
         public object VisitBreakStatementAST([NotNull] VoltaParser.BreakStatementASTContext context)
         {
             VisitChildren(context); 
-            return new List<string>();
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context)
@@ -193,22 +254,26 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context)
         {
+            
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
-            if (!ExistIdent(ident.GetText(), true))
+            if(ident != null)
             {
+                if (!ExistIdent(ident.GetText(), true))
+                {
                 
-                List<VoltaParser.VarDeclASTContext> varDecls = new List<VoltaParser.VarDeclASTContext>(context.varDecl().ToList().Cast<VoltaParser.VarDeclASTContext>());
+                    List<VoltaParser.VarDeclASTContext> varDecls = new List<VoltaParser.VarDeclASTContext>(context.varDecl().ToList().Cast<VoltaParser.VarDeclASTContext>());
 
-                varDecls.ForEach(varDecl => Visit(varDecl));
+                    varDecls.ForEach(varDecl => Visit(varDecl));
 
-                ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], context, varDecls);
+                    ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], context, varDecls);
 
-                identificationTable.Insert(classIdentifier);
-                types.Add(ident.GetText());
-            }
-            else
-            {
-                InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                    identificationTable.Insert(classIdentifier);
+                    types.Add(ident.GetText());
+                }
+                else
+                {
+                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                }
             }
             return null;
         }
@@ -397,23 +462,42 @@ namespace Volta.Compiler.CodeAnalysis
             {
                 var type = Visit(typesList[i]) as string;
 
-                if(!ExistIdent(idents[i].IDENT().Symbol.Text, true)){
-                    if(types.IndexOf(type) > 5)
-                    {
-                        ClassIdentifier classIdentifier = identificationTable.FindClass(type);
-                        List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
-                        InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
-                        identificationTable.Insert(instanceIdentifier);
+                if(type != null)
+                {
+                    if(!ExistIdent(idents[i].IDENT().Symbol.Text, true)){
+                        if(types.IndexOf(type) > 10)
+                        {
+                            ClassIdentifier classIdentifier = identificationTable.FindClass(type);
+                            List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
+                            InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
+                            identificationTable.Insert(instanceIdentifier);
+                        }
+                        else
+                        {
+                            var ident = idents[i].IDENT();
+                            Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
+                            if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null)
+                            {
+                                if (types.IndexOf(type) <= 10)
+                                {
+                                    List<Identifier> identifiers = new List<Identifier>();
+                                    identifier.Id = "0";
+                                    identifiers.Add(identifier);
+                                    identifier.Type = type.Replace("[]", "");
+                                    ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
+                                    identificationTable.Insert(arrayIdentifier);
+                                }
+                            }
+                            else
+                            {
+                                identificationTable.Insert(identifier);
+                            }
+                        }
                     }
                     else
                     {
-                        Identifier identifier = new VarIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context);
-                        identificationTable.Insert(identifier);
+                        InsertError(idents[i].IDENT().Symbol, idents[i].IDENT().Symbol.Line, idents[i].IDENT().Symbol.Column, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
                     }
-                }
-                else
-                {
-                    InsertError(idents[i].IDENT().Symbol, idents[i].IDENT().Symbol.Line, idents[i].IDENT().Symbol.Column, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
                 }
             }
             return context;
@@ -516,8 +600,22 @@ namespace Volta.Compiler.CodeAnalysis
             
             if (types.Contains(context.ident().GetText()))
             {
-                return context.ident().GetText();
+                if (context.SQUAREBL() != null && context.SQUAREBR() != null)
+                {
+                    if (types.Contains(context.ident().GetText() + "[]"))
+                    {
+                        return context.ident().GetText() + "[]";
+                    }
+                    else
+                    {
+                        InsertError(context.ident().Start, context.ident().Start.Line, context.ident().Start.Column,
+                            "No se puede crear un arreglo de tipo '" + context.ident().GetText() + "' porque no es un tipo simple");
+                    }
+                }
+                else
+                    return context.ident().GetText();
             }
+
             InsertError(context.ident().Start, context.ident().Start.Line, context.ident().Start.Column,
                 "No se puede crear una instancia de '" + context.ident().GetText() + "' porque no es un tipo");
             return null;
@@ -637,14 +735,20 @@ namespace Volta.Compiler.CodeAnalysis
 
             if (ident != null)
             {
-                if (types.Contains(ident.IDENT().GetText()))
+                if (types.Contains(ident.GetText()))
                 {
-                    return context.ident().GetText();
+                    if (context.SQUAREBL() != null)
+                    {
+                        if (types.Contains(ident.GetText() + "[]"))
+                            return ident.GetText() + "[]";
+                        InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "No se pueden declarar arreglos de tipo" + ident.IDENT().GetText() + " porque no es un tipo simple");
+                    }
+                    else
+                        return ident.GetText();
                 }
                 else
                 {
                     InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El tipo " + ident.IDENT().GetText() + " no existe");
-
                 }
             }
             return null;
@@ -666,7 +770,7 @@ namespace Volta.Compiler.CodeAnalysis
                             return;
                         }
                         ITerminalNode ident = ((VoltaParser.IdentASTContext)identC).IDENT();
-                        if (types.IndexOf(type) > 5)
+                        if (types.IndexOf(type) > 10)
                         {
                             ClassIdentifier classIdentifier1 = identificationTable.FindClass(type);
                             List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier1);
@@ -699,7 +803,7 @@ namespace Volta.Compiler.CodeAnalysis
                     }
                     ITerminalNode ident = ((VoltaParser.IdentASTContext) identC).IDENT();
                     if (ident != null && !ExistIdent(ident.Symbol.Text, true)){
-                        if(types.IndexOf(type) > 5)
+                        if(types.IndexOf(type) > 10)
                         {
                             if((context.type() as VoltaParser.TypeASTContext).SQUAREBL() == null)
                             {
@@ -708,27 +812,20 @@ namespace Volta.Compiler.CodeAnalysis
                                 InstanceIdentifier instanceIdentifier = new InstanceIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
                                 identificationTable.Insert(instanceIdentifier);
                             }
-                            else
-                            {
-                                InsertError(ident.Symbol, ident.Symbol.Line, ident.Symbol.Column, "Solo es permitido declarar arreglos de tipos int o char");
-                            }
                         }
                         else
                         {
                             Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            if ((context.type() as VoltaParser.TypeASTContext).SQUAREBL() != null)
+                            if ((context.type() as VoltaParser.TypeASTContext).SQUAREBL() != null && (context.type() as VoltaParser.TypeASTContext).SQUAREBR() != null)
                             {
-                                if(type == "int" || type == "char")
+                                if(types.IndexOf(type) <= 10)
                                 {
                                     List<Identifier> identifiers = new List<Identifier>();
                                     identifier.Id = "0";
                                     identifiers.Add(identifier);
+                                    identifier.Type = type.Replace("[]", "");
                                     ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
                                     identificationTable.Insert(arrayIdentifier);
-                                }
-                                else
-                                {
-                                    InsertError(ident.Symbol, ident.Symbol.Line, ident.Symbol.Column, "Solo es permitido declarar arreglos de tipos int o char");
                                 }
                             }
                             else {
@@ -790,7 +887,7 @@ namespace Volta.Compiler.CodeAnalysis
                 if (identifier is VarIdentifier) {
                     var type = Visit(context.expr()) as string;
                     if (identifier.Type.Equals(type))
-                        return type;
+                        return new List<Pair<string, IToken>>();
                     else {
                         var tmpExpr = context.expr();
                         InsertError(tmpExpr.Start, tmpExpr.Start.Line, tmpExpr.Start.Column,
@@ -809,7 +906,7 @@ namespace Volta.Compiler.CodeAnalysis
                                 var arrExpr = nf.expr() as ExprASTContext;
                                 if (arrExpr != null && (Visit(arrExpr) as string) == "int") {
                                     if (arrExpr.SUB() == null)
-                                        return nfType;
+                                        return new List<Pair<string, IToken>>();
                                     else InsertError(arrExpr.SUB().Symbol, "El tamaño del arreglo no puede ser negativo.");
                                 } else InsertError(arrExpr.Start, "Se esperaba un valor entero.");
                             }
