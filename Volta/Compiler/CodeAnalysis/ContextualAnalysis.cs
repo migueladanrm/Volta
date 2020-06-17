@@ -12,23 +12,21 @@ namespace Volta.Compiler.CodeAnalysis
     class ContextualAnalysis : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
         private IdentificationTable identificationTable;
-        private List<string> types;
+        private readonly List<string> types = new List<string>() {
+            "none",
+            "int",
+            "char",
+            "float",
+            "bool",
+            "string",
+            "int[]",
+            "char[]",
+            "float[]",
+            "bool[]",
+            "string[]"
+        };
 
         public ContextualAnalysis() {
-            types = new List<string>() { 
-                "none",
-                "int",
-                "char",
-                "float",
-                "bool",
-                "string",
-                "int[]",
-                "char[]",
-                "float[]",
-                "bool[]",
-                "string[]"
-            };
-
             identificationTable = new IdentificationTable();
             Errors = new List<VoltaCompilerError>();
 
@@ -63,11 +61,10 @@ namespace Volta.Compiler.CodeAnalysis
         public void InsertError(IToken token, string message)
             => InsertError(token, token.Line, token.Column, message);
 
-        public bool ExistIdent(string id, bool inThisLevel)
-        {
+        public bool ExistIdent(string id, bool inThisLevel) {
             return identificationTable.Find(id, inThisLevel) != null;
         }
-
+        
         #endregion
 
         public object VisitIdentAST([NotNull] VoltaParser.IdentASTContext context)
@@ -246,15 +243,12 @@ namespace Volta.Compiler.CodeAnalysis
             
         }
 
-        public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context)
-        {
-            
+        public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context) {
             return "char";
         }
 
         public object VisitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context)
         {
-            
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
             if(ident != null)
             {
@@ -280,19 +274,19 @@ namespace Volta.Compiler.CodeAnalysis
 
         #region Conditions
 
-        public object VisitConditionAST([NotNull] VoltaParser.ConditionASTContext context) {
+        public object VisitConditionAST([NotNull] ConditionASTContext context) {
             var relops = new List<List<string>>();
             context.condTerm().ToList().ForEach(condTerm => relops.Add(Visit(condTerm) as List<string>));
             return relops;
         }
 
-        public object VisitCondTermAST([NotNull] VoltaParser.CondTermASTContext context) {
+        public object VisitCondTermAST([NotNull] CondTermASTContext context) {
             var relops = new List<string>();
             context.condFact().ToList().ForEach(condFact => relops.Add(Visit(condFact) as string ?? "none"));
             return relops;
         }
 
-        public object VisitCondFactAST([NotNull] VoltaParser.CondFactASTContext context) {
+        public object VisitCondFactAST([NotNull] CondFactASTContext context) {
             var a = Visit(context.expr()[0]) as string;
             var b = Visit(context.expr()[1]) as string;
             var relop = Visit(context.relop()) as string;
@@ -960,8 +954,7 @@ namespace Volta.Compiler.CodeAnalysis
             return new List<Pair<string, IToken>>(); 
         }
 
-        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context)
-        {
+        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context) {
             return "none";
         }
     }
