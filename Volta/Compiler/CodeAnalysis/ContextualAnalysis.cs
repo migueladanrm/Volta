@@ -286,9 +286,9 @@ namespace Volta.Compiler.CodeAnalysis
             var relop = Visit(context.relop()) as string;
             var sameType = a == b;
 
-            if (relop == "<" || relop == "<=" || relop == "<=" || relop == ">=") {
+            if (relop == "<" || relop == "<=" || relop == ">" || relop == ">=") {
                 if (sameType) {
-                    if (a == "int" || a == "float") {
+                    if (a == "int" || a == "float") {   
                         return a;
                     } else InsertError(context.relop().Start, $"El operador '{relop}' solo se puede usar con tipos int o float.");
                 }
@@ -541,8 +541,17 @@ namespace Volta.Compiler.CodeAnalysis
 
         #endregion
 
-        public object VisitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context)
-        {
+        public object VisitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context) {
+            var iterator = Visit(context.expr()) as string ?? "none";
+            Visit(context.condition());
+            Visit(context.statement()[0]);
+
+            if (iterator == "int") {
+                if (context.statement().Length > 1)
+                    Visit(context.statement()[1]);
+            } else
+                InsertError(context.expr().Start, $"El iterador debe ser de tipo 'int' pero se obtuvo '{iterator}'.");
+
             VisitChildren(context);
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
             context.statement().ToList().ForEach(statement => {

@@ -22,7 +22,7 @@ statement                       :   designator (BL actPars? BR) SEMICOLON       
                                      | designator (EQUAL expr) SEMICOLON                                                #assignStatementAST
                                      | designator (ADDADD | SUBSUB) SEMICOLON                                           #addsubStatementAST
                                      | IF BL condition BR statement (ELSE statement)?                                   #ifStatementAST
-                                     | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement               #forStatementAST
+                                     | FOR BL expr SEMICOLON condition SEMICOLON statement? BR statement               #forStatementAST
                                      | WHILE BL condition BR statement                                                  #whileStatementAST
                                      | BREAK SEMICOLON                                                                  #breakStatementAST
                                      | switch                                                                           #switchStatementAST
