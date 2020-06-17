@@ -163,12 +163,6 @@ namespace Volta.Compiler.CodeAnalysis
             return null;
         }
 
-        public object VisitAddopAST([NotNull] VoltaParser.AddopASTContext context)
-        {
-            VisitChildren(context); return null;
-            
-        }
-
         public object VisitBlockAST([NotNull] VoltaParser.BlockASTContext context)
         {
             context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
@@ -556,9 +550,6 @@ namespace Volta.Compiler.CodeAnalysis
                 if (list != null)
                     returnedTypes.AddRange(list);
             });
-            return returnedTypes;
-        }
-
             return returnedTypes;
         }
 
@@ -1001,12 +992,33 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context)
         {
-            VisitChildren(context); 
+            Identifier identifier = Visit(context.designator()) as Identifier;
+            if(identifier != null)
+            {
+                if(identifier is VarIdentifier)
+                {
+                    if(identifier.Type != "int")
+                    {
+                        InsertError(context.Start,
+                        "No se puede aplicar la operación a identificadores que no sean de tipo 'int', y el tipo de la variable es " + identifier.Type);
+                    }
+                }
+                else
+                {
+                    InsertError(context.Start,
+                        "No se puede aplicar la operación a identificadores de arreglos, métodos, constantes o clases. Solo variables de tipo int");
+                }
+            }
             return new List<Pair<string, IToken>>(); 
         }
 
         public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context) {
             return "none";
+        }
+
+        public object VisitAddopAST([NotNull] AddopASTContext context)
+        {
+            VisitChildren(context); return null;
         }
     }
 }
