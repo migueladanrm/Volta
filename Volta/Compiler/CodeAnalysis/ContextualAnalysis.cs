@@ -107,12 +107,12 @@ namespace Volta.Compiler.CodeAnalysis
                 {
                     if (methodIdentifier.DefaulMethodParams == null)
                     {
-                        InsertError(context.Start, context.Start.Line, context.Start.Column,
+                        InsertError(context.Start,
                             "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
                     }
                     else if (context.expr().Length != methodIdentifier.DefaulMethodParams.Count)
                     {
-                        InsertError(context.Start, context.Start.Line, context.Start.Column,
+                        InsertError(context.Start,
                             "El método '" + methodIdentifier.Id + "' recibe " + methodIdentifier.DefaulMethodParams.Count + " parámetros, y se recibieron " + context.expr().Length);
                     }
                     else
@@ -507,7 +507,11 @@ namespace Volta.Compiler.CodeAnalysis
         {
             VisitChildren(context);
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
 
             return returnedTypes;
         }
@@ -527,7 +531,11 @@ namespace Volta.Compiler.CodeAnalysis
             if(context.condition() != null)
                 Visit(context.condition());
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
             return returnedTypes;
         }
 
@@ -689,16 +697,61 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context)
         {
-            if(context.ident() != null)
+            var nums = context.NUM();
+            var strings = context.STRING();
+            var chars = context.CHARCONST();
+
+            var trues = context.TRUE();
+            var falses = context.FALSE();
+
+            string type = Visit(context.expr()) as string;
+            if(type != null && types.IndexOf(type) < 4)
             {
-                if(Visit(context.ident()) == null)
+                if(type == "int" || type == "float")
                 {
-                    //Error que no existe el ident
+                    if(nums.Length != context.CASE().Length)
+                    {
+                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
+                    }
+                }
+                else if (type == "char")
+                {
+                    if (chars.Length != context.CASE().Length)
+                    {
+                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
+                    }
+                }
+                else if (type == "string")
+                {
+                    if (strings.Length != context.CASE().Length)
+                    {
+                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
+                    }
+                }
+                else if (type == "bool")
+                {
+                    if (trues.Length + falses.Length != context.CASE().Length)
+                    {
+                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
+                    }
+                }
+                else if (type == "none")
+                {
+                    InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
                 }
             }
+            else
+            {
+                InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
+            }
+            
 
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
             return returnedTypes;
         }
 

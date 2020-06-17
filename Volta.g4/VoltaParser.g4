@@ -68,9 +68,9 @@ relop                           :   EQUALEQUAL                                  
                                     | GREATER                                                                           #greaterRelopAST
                                     | LESS                                                                              #lessRelopAST;
 
-switch                          :   SWITCH BL(ident | NUM | CHARCONST | STRING)BR 
+switch                          :   SWITCH BL(expr)BR 
                                     CURLYBL 
-                                        (CASE (NUM | CHARCONST | STRING) COLON 
+                                        (CASE (NUM | CHARCONST | STRING | (TRUE | FALSE)) COLON 
                                             (statement (BREAK SEMICOLON)?)?
                                         )*
                                         (DEFAULT COLON

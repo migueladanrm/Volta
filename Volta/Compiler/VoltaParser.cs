@@ -2540,9 +2540,18 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode BR() { return GetToken(VoltaParser.BR, 0); }
 		public ITerminalNode CURLYBL() { return GetToken(VoltaParser.CURLYBL, 0); }
 		public ITerminalNode CURLYBR() { return GetToken(VoltaParser.CURLYBR, 0); }
-		public IdentContext ident() {
-			return GetRuleContext<IdentContext>(0);
+		public ExprContext expr() {
+			return GetRuleContext<ExprContext>(0);
 		}
+		public ITerminalNode[] CASE() { return GetTokens(VoltaParser.CASE); }
+		public ITerminalNode CASE(int i) {
+			return GetToken(VoltaParser.CASE, i);
+		}
+		public ITerminalNode[] COLON() { return GetTokens(VoltaParser.COLON); }
+		public ITerminalNode COLON(int i) {
+			return GetToken(VoltaParser.COLON, i);
+		}
+		public ITerminalNode DEFAULT() { return GetToken(VoltaParser.DEFAULT, 0); }
 		public ITerminalNode[] NUM() { return GetTokens(VoltaParser.NUM); }
 		public ITerminalNode NUM(int i) {
 			return GetToken(VoltaParser.NUM, i);
@@ -2555,15 +2564,14 @@ public partial class VoltaParser : Parser {
 		public ITerminalNode STRING(int i) {
 			return GetToken(VoltaParser.STRING, i);
 		}
-		public ITerminalNode[] CASE() { return GetTokens(VoltaParser.CASE); }
-		public ITerminalNode CASE(int i) {
-			return GetToken(VoltaParser.CASE, i);
+		public ITerminalNode[] TRUE() { return GetTokens(VoltaParser.TRUE); }
+		public ITerminalNode TRUE(int i) {
+			return GetToken(VoltaParser.TRUE, i);
 		}
-		public ITerminalNode[] COLON() { return GetTokens(VoltaParser.COLON); }
-		public ITerminalNode COLON(int i) {
-			return GetToken(VoltaParser.COLON, i);
+		public ITerminalNode[] FALSE() { return GetTokens(VoltaParser.FALSE); }
+		public ITerminalNode FALSE(int i) {
+			return GetToken(VoltaParser.FALSE, i);
 		}
-		public ITerminalNode DEFAULT() { return GetToken(VoltaParser.DEFAULT, 0); }
 		public StatementContext[] statement() {
 			return GetRuleContexts<StatementContext>();
 		}
@@ -2605,49 +2613,52 @@ public partial class VoltaParser : Parser {
 			{
 			State = 314; Match(SWITCH);
 			State = 315; Match(BL);
-			State = 320;
-			ErrorHandler.Sync(this);
-			switch (TokenStream.LA(1)) {
-			case IDENT:
-				{
-				State = 316; ident();
-				}
-				break;
-			case NUM:
-				{
-				State = 317; Match(NUM);
-				}
-				break;
-			case CHARCONST:
-				{
-				State = 318; Match(CHARCONST);
-				}
-				break;
-			case STRING:
-				{
-				State = 319; Match(STRING);
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
+			{
+			State = 316; expr();
 			}
-			State = 322; Match(BR);
-			State = 323; Match(CURLYBL);
+			State = 317; Match(BR);
+			State = 318; Match(CURLYBL);
 			State = 336;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==CASE) {
 				{
 				{
-				State = 324; Match(CASE);
-				State = 325;
-				_la = TokenStream.LA(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NUM) | (1L << CHARCONST) | (1L << STRING))) != 0)) ) {
-				ErrorHandler.RecoverInline(this);
-				}
-				else {
-					ErrorHandler.ReportMatch(this);
-				    Consume();
+				State = 319; Match(CASE);
+				State = 324;
+				ErrorHandler.Sync(this);
+				switch (TokenStream.LA(1)) {
+				case NUM:
+					{
+					State = 320; Match(NUM);
+					}
+					break;
+				case CHARCONST:
+					{
+					State = 321; Match(CHARCONST);
+					}
+					break;
+				case STRING:
+					{
+					State = 322; Match(STRING);
+					}
+					break;
+				case TRUE:
+				case FALSE:
+					{
+					State = 323;
+					_la = TokenStream.LA(1);
+					if ( !(_la==TRUE || _la==FALSE) ) {
+					ErrorHandler.RecoverInline(this);
+					}
+					else {
+						ErrorHandler.ReportMatch(this);
+					    Consume();
+					}
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
 				}
 				State = 326; Match(COLON);
 				State = 332;
@@ -2838,8 +2849,8 @@ public partial class VoltaParser : Parser {
 		'\x3', '\x13', '\x3', '\x14', '\x3', '\x14', '\x3', '\x15', '\x3', '\x15', 
 		'\x3', '\x15', '\x3', '\x15', '\x3', '\x15', '\x3', '\x15', '\x5', '\x15', 
 		'\x13B', '\n', '\x15', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', 
-		'\x16', '\x3', '\x16', '\x3', '\x16', '\x5', '\x16', '\x143', '\n', '\x16', 
-		'\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', 
+		'\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x3', 
+		'\x16', '\x3', '\x16', '\x5', '\x16', '\x147', '\n', '\x16', '\x3', '\x16', 
 		'\x3', '\x16', '\x3', '\x16', '\x3', '\x16', '\x5', '\x16', '\x14D', '\n', 
 		'\x16', '\x5', '\x16', '\x14F', '\n', '\x16', '\a', '\x16', '\x151', '\n', 
 		'\x16', '\f', '\x16', '\xE', '\x16', '\x154', '\v', '\x16', '\x3', '\x16', 
@@ -3055,21 +3066,21 @@ public partial class VoltaParser : Parser {
 		'\x137', '\x3', '\x2', '\x2', '\x2', '\x13A', '\x138', '\x3', '\x2', '\x2', 
 		'\x2', '\x13A', '\x139', '\x3', '\x2', '\x2', '\x2', '\x13B', ')', '\x3', 
 		'\x2', '\x2', '\x2', '\x13C', '\x13D', '\a', '.', '\x2', '\x2', '\x13D', 
-		'\x142', '\a', '\b', '\x2', '\x2', '\x13E', '\x143', '\x5', ',', '\x17', 
-		'\x2', '\x13F', '\x143', '\a', '\x34', '\x2', '\x2', '\x140', '\x143', 
-		'\a', '\x35', '\x2', '\x2', '\x141', '\x143', '\a', '\x36', '\x2', '\x2', 
-		'\x142', '\x13E', '\x3', '\x2', '\x2', '\x2', '\x142', '\x13F', '\x3', 
-		'\x2', '\x2', '\x2', '\x142', '\x140', '\x3', '\x2', '\x2', '\x2', '\x142', 
-		'\x141', '\x3', '\x2', '\x2', '\x2', '\x143', '\x144', '\x3', '\x2', '\x2', 
-		'\x2', '\x144', '\x145', '\a', '\t', '\x2', '\x2', '\x145', '\x152', '\a', 
-		'\x19', '\x2', '\x2', '\x146', '\x147', '\a', '/', '\x2', '\x2', '\x147', 
-		'\x148', '\t', '\x2', '\x2', '\x2', '\x148', '\x14E', '\a', '\x1D', '\x2', 
+		'\x13E', '\a', '\b', '\x2', '\x2', '\x13E', '\x13F', '\x5', '\x1C', '\xF', 
+		'\x2', '\x13F', '\x140', '\a', '\t', '\x2', '\x2', '\x140', '\x152', '\a', 
+		'\x19', '\x2', '\x2', '\x141', '\x146', '\a', '/', '\x2', '\x2', '\x142', 
+		'\x147', '\a', '\x34', '\x2', '\x2', '\x143', '\x147', '\a', '\x35', '\x2', 
+		'\x2', '\x144', '\x147', '\a', '\x36', '\x2', '\x2', '\x145', '\x147', 
+		'\t', '\x4', '\x2', '\x2', '\x146', '\x142', '\x3', '\x2', '\x2', '\x2', 
+		'\x146', '\x143', '\x3', '\x2', '\x2', '\x2', '\x146', '\x144', '\x3', 
+		'\x2', '\x2', '\x2', '\x146', '\x145', '\x3', '\x2', '\x2', '\x2', '\x147', 
+		'\x148', '\x3', '\x2', '\x2', '\x2', '\x148', '\x14E', '\a', '\x1D', '\x2', 
 		'\x2', '\x149', '\x14C', '\x5', '\x10', '\t', '\x2', '\x14A', '\x14B', 
 		'\a', '\x30', '\x2', '\x2', '\x14B', '\x14D', '\a', '\n', '\x2', '\x2', 
 		'\x14C', '\x14A', '\x3', '\x2', '\x2', '\x2', '\x14C', '\x14D', '\x3', 
 		'\x2', '\x2', '\x2', '\x14D', '\x14F', '\x3', '\x2', '\x2', '\x2', '\x14E', 
 		'\x149', '\x3', '\x2', '\x2', '\x2', '\x14E', '\x14F', '\x3', '\x2', '\x2', 
-		'\x2', '\x14F', '\x151', '\x3', '\x2', '\x2', '\x2', '\x150', '\x146', 
+		'\x2', '\x14F', '\x151', '\x3', '\x2', '\x2', '\x2', '\x150', '\x141', 
 		'\x3', '\x2', '\x2', '\x2', '\x151', '\x154', '\x3', '\x2', '\x2', '\x2', 
 		'\x152', '\x150', '\x3', '\x2', '\x2', '\x2', '\x152', '\x153', '\x3', 
 		'\x2', '\x2', '\x2', '\x153', '\x15E', '\x3', '\x2', '\x2', '\x2', '\x154', 
@@ -3087,7 +3098,7 @@ public partial class VoltaParser : Parser {
 		'-', '\x3', '\x2', '\x2', '\x2', ')', '\x33', '\x35', '<', 'O', 'Z', '\x61', 
 		'\x66', 'l', 'y', '\x7F', '\x84', '\x9B', '\xA2', '\xA6', '\xB6', '\xC4', 
 		'\xCB', '\xD1', '\xD3', '\xDD', '\xE5', '\xED', '\xF5', '\xFD', '\x106', 
-		'\x10C', '\x10F', '\x11B', '\x122', '\x12B', '\x12D', '\x13A', '\x142', 
+		'\x10C', '\x10F', '\x11B', '\x122', '\x12B', '\x12D', '\x13A', '\x146', 
 		'\x14C', '\x14E', '\x152', '\x15A', '\x15C', '\x15E',
 	};
 
