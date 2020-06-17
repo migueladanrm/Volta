@@ -12,23 +12,21 @@ namespace Volta.Compiler.CodeAnalysis
     class ContextualAnalysis : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
         private IdentificationTable identificationTable;
-        private List<string> types;
+        private readonly List<string> types = new List<string>() {
+            "none",
+            "int",
+            "char",
+            "float",
+            "bool",
+            "string",
+            "int[]",
+            "char[]",
+            "float[]",
+            "bool[]",
+            "string[]"
+        };
 
         public ContextualAnalysis() {
-            types = new List<string>() { 
-                "none",
-                "int",
-                "char",
-                "float",
-                "bool",
-                "string",
-                "int[]",
-                "char[]",
-                "float[]",
-                "bool[]",
-                "string[]"
-            };
-
             identificationTable = new IdentificationTable();
             Errors = new List<VoltaCompilerError>();
 
@@ -63,11 +61,10 @@ namespace Volta.Compiler.CodeAnalysis
         public void InsertError(IToken token, string message)
             => InsertError(token, token.Line, token.Column, message);
 
-        public bool ExistIdent(string id, bool inThisLevel)
-        {
+        public bool ExistIdent(string id, bool inThisLevel) {
             return identificationTable.Find(id, inThisLevel) != null;
         }
-
+        
         #endregion
 
         public object VisitIdentAST([NotNull] VoltaParser.IdentASTContext context)
@@ -246,15 +243,12 @@ namespace Volta.Compiler.CodeAnalysis
             
         }
 
-        public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context)
-        {
-            
+        public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context) {
             return "char";
         }
 
         public object VisitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context)
         {
-            
             VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
             if(ident != null)
             {
@@ -278,20 +272,45 @@ namespace Volta.Compiler.CodeAnalysis
             return null;
         }
 
-        public object VisitCondFactAST([NotNull] VoltaParser.CondFactASTContext context)
-        {
-            VisitChildren(context); return null;
+        #region Conditions
+
+        public object VisitConditionAST([NotNull] ConditionASTContext context) {
+            var relops = new List<List<string>>();
+            context.condTerm().ToList().ForEach(condTerm => relops.Add(Visit(condTerm) as List<string>));
+            return relops;
         }
 
-        public object VisitConditionAST([NotNull] VoltaParser.ConditionASTContext context)
-        {
-            VisitChildren(context); return null;
+        public object VisitCondTermAST([NotNull] CondTermASTContext context) {
+            var relops = new List<string>();
+            context.condFact().ToList().ForEach(condFact => relops.Add(Visit(condFact) as string ?? "none"));
+            return relops;
         }
 
-        public object VisitCondTermAST([NotNull] VoltaParser.CondTermASTContext context)
-        {
-            VisitChildren(context); return null;
+        public object VisitCondFactAST([NotNull] CondFactASTContext context) {
+            var a = Visit(context.expr()[0]) as string;
+            var b = Visit(context.expr()[1]) as string;
+            var relop = Visit(context.relop()) as string;
+            var sameType = a == b;
+
+            if (relop == "<" || relop == "<=" || relop == "<=" || relop == ">=") {
+                if (sameType) {
+                    if (a == "int" || a == "float") {
+                        return a;
+                    } else InsertError(context.relop().Start, $"El operador '{relop}' solo se puede usar con tipos int o float.");
+                }
+            } else if (relop == "==" || relop == "!=") {
+                if (sameType)
+                    return a;
+                else {
+                    InsertError(context.expr()[1].Start,
+                        $"El operador '{relop}' no se puede aplicar a los tipos '{a}' y '{b}'.");
+                }
+            }
+
+            return null;
         }
+
+        #endregion
 
         public object VisitConstDeclAST([NotNull] VoltaParser.ConstDeclASTContext context)
         {
@@ -424,9 +443,6 @@ namespace Volta.Compiler.CodeAnalysis
             return null;
         }
 
-        public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context) {
-            return "=";
-        }
 
         public object VisitExprAST([NotNull] VoltaParser.ExprASTContext context)
         {
@@ -503,6 +519,34 @@ namespace Volta.Compiler.CodeAnalysis
             return context;
         }
 
+        #region Relops
+
+        public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context) {
+            return "==";
+        }
+
+        public object VisitNotEqualRelopAST([NotNull] VoltaParser.NotEqualRelopASTContext context) {
+            return "!=";
+        }
+
+        public object VisitGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context) {
+            return ">=";
+        }
+
+        public object VisitGreaterRelopAST([NotNull] VoltaParser.GreaterRelopASTContext context) {
+            return ">";
+        }
+
+        public object VisitLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context) {
+            return "<=";
+        }
+
+        public object VisitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context) {
+            return "<";
+        }
+
+        #endregion
+
         public object VisitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context)
         {
             VisitChildren(context);
@@ -512,41 +556,20 @@ namespace Volta.Compiler.CodeAnalysis
                 if (list != null)
                     returnedTypes.AddRange(list);
             });
+            return returnedTypes;
+        }
 
             return returnedTypes;
         }
 
-        public object VisitGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context)
-        {
-            VisitChildren(context); return null;
-        }
-
-        public object VisitGreaterRelopAST([NotNull] VoltaParser.GreaterRelopASTContext context)
-        {
-            VisitChildren(context); return null;
-        }
-
-        public object VisitIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context)
-        {
-            if(context.condition() != null)
+        public object VisitIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context) {
+            if (context.condition() != null)
                 Visit(context.condition());
-            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => {
-                var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null)
-                    returnedTypes.AddRange(list);
-            });
+            
+            var returnedTypes = new List<Pair<string, IToken>>();
+            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            
             return returnedTypes;
-        }
-
-        public object VisitLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context)
-        {
-            VisitChildren(context); return null;
-        }
-
-        public object VisitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context)
-        {
-            VisitChildren(context); return null;
         }
 
         public object VisitMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context)
@@ -627,11 +650,6 @@ namespace Volta.Compiler.CodeAnalysis
             InsertError(context.ident().Start, context.ident().Start.Line, context.ident().Start.Column,
                 "No se puede crear una instancia de '" + context.ident().GetText() + "' porque no es un tipo");
             return null;
-        }
-
-        public object VisitNotEqualRelopAST([NotNull] VoltaParser.NotEqualRelopASTContext context)
-        {
-            VisitChildren(context); return null;
         }
 
         public object VisitNumFactorAST([NotNull] VoltaParser.NumFactorASTContext context)
@@ -937,7 +955,7 @@ namespace Volta.Compiler.CodeAnalysis
             var identifier = Visit(context.designator()) as Identifier;
 
             if (identifier != null) {
-                if (identifier is VarIdentifier) {
+                if (identifier is VarIdentifier || identifier is InstanceIdentifier) {
                     var type = Visit(context.expr()) as string;
                     if (identifier.Type.Equals(type))
                         return new List<Pair<string, IToken>>();
@@ -969,8 +987,6 @@ namespace Volta.Compiler.CodeAnalysis
                     } else {
                         InsertError(expr.Start, "Sólo se puede asignar valores a arreglos usando el modificador 'new'.");
                     }
-                } else if (identifier is InstanceIdentifier) {
-
                 } else if (identifier is ConstIdentifier) {
                     InsertError(context.EQUAL().Symbol, context.EQUAL().Symbol.Line, context.EQUAL().Symbol.Column,
                         "No es posible modificar el valor de una constante después de su declaración.");
@@ -989,8 +1005,7 @@ namespace Volta.Compiler.CodeAnalysis
             return new List<Pair<string, IToken>>(); 
         }
 
-        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context)
-        {
+        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context) {
             return "none";
         }
     }

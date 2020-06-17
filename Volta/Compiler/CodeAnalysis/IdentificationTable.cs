@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Volta.Compiler.CodeAnalysis
 {
+    /// <summary>
+    /// Tabla de identificadores.
+    /// </summary>
     public class IdentificationTable
     {
         private int level = -1;
@@ -27,8 +30,7 @@ namespace Volta.Compiler.CodeAnalysis
             return identifiers.FindLast(delegate (Identifier identifier) { return identifier.Id == id; });
         }
 
-        public ClassIdentifier FindClass(string id)
-        {
+        public ClassIdentifier FindClass(string id) {
             return identifiers.Find(identifier => identifier.Id == id && identifier is ClassIdentifier) as ClassIdentifier;
         }
 
