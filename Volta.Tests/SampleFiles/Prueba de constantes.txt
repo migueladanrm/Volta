@@ -1,0 +1,3 @@
+﻿class main const 
+string numero = "string"; {
+} 

@@ -17,7 +17,7 @@ namespace Volta.UI.Controls
             InitializeComponent();
         }
 
-        public void UpdateErrorList(List<VoltaParserError> errors) {
+        public void UpdateErrorList(List<VoltaCompilerError> errors) {
             ErrorListContainer.Children.Clear();
             errors.ForEach(e => ErrorListContainer.Children.Add(new ErrorListItem(e)));
         }

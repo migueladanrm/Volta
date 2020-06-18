@@ -81,12 +81,26 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTypeAST([NotNull] VoltaParser.TypeASTContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Visit a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context);
+	Result VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>addSubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
@@ -207,12 +221,12 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTermAST([NotNull] VoltaParser.TermASTContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callFactorAST</c>
+	/// Visit a parse tree produced by the <c>identOrCallFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context);
+	Result VisitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
@@ -235,12 +249,12 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>bolleanFactorAST</c>
+	/// Visit a parse tree produced by the <c>booleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context);
+	Result VisitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>newFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
@@ -255,6 +269,13 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>nullFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>designatorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.designator"/>.
@@ -324,4 +345,11 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIdentAST([NotNull] VoltaParser.IdentASTContext context);
 }

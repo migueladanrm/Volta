@@ -111,7 +111,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <return>The visitor result.</return>
 	public virtual Result VisitTypeAST([NotNull] VoltaParser.TypeASTContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callORassignStatementAST</c>
+	/// Visit a parse tree produced by the <c>callStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -120,7 +120,29 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitCallORassignStatementAST([NotNull] VoltaParser.CallORassignStatementASTContext context) { return VisitChildren(context); }
+	public virtual Result VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>addSubStatementAST</c>
+	/// labeled alternative in <see cref="VoltaParser.statement"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
@@ -309,7 +331,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <return>The visitor result.</return>
 	public virtual Result VisitTermAST([NotNull] VoltaParser.TermASTContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by the <c>callFactorAST</c>
+	/// Visit a parse tree produced by the <c>identOrCallFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -318,7 +340,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitCallFactorAST([NotNull] VoltaParser.CallFactorASTContext context) { return VisitChildren(context); }
+	public virtual Result VisitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
@@ -353,7 +375,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <return>The visitor result.</return>
 	public virtual Result VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by the <c>bolleanFactorAST</c>
+	/// Visit a parse tree produced by the <c>booleanFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -362,7 +384,7 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitBolleanFactorAST([NotNull] VoltaParser.BolleanFactorASTContext context) { return VisitChildren(context); }
+	public virtual Result VisitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>newFactorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.factor"/>.
@@ -385,6 +407,17 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>nullFactorAST</c>
+	/// labeled alternative in <see cref="VoltaParser.factor"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>designatorAST</c>
 	/// labeled alternative in <see cref="VoltaParser.designator"/>.
@@ -494,4 +527,15 @@ public partial class VoltaParserBaseVisitor<Result> : AbstractParseTreeVisitor<R
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by the <c>identAST</c>
+	/// labeled alternative in <see cref="VoltaParser.ident"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitIdentAST([NotNull] VoltaParser.IdentASTContext context) { return VisitChildren(context); }
 }

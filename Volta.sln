@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta.Desktop", "Volta.Desk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta", "Volta\Volta.csproj", "{444B33F1-8EC5-4522-9191-CA68544E7061}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta.Tests", "Volta.Tests\Volta.Tests.csproj", "{DBDA3EB5-6FC6-4E3D-9269-B86D2643F4BA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Volta.CLI", "Volta.CLI\Volta.CLI.csproj", "{1C5794FF-3103-4143-BF47-B3678FC2BBFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{444B33F1-8EC5-4522-9191-CA68544E7061}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{444B33F1-8EC5-4522-9191-CA68544E7061}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{444B33F1-8EC5-4522-9191-CA68544E7061}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBDA3EB5-6FC6-4E3D-9269-B86D2643F4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBDA3EB5-6FC6-4E3D-9269-B86D2643F4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBDA3EB5-6FC6-4E3D-9269-B86D2643F4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBDA3EB5-6FC6-4E3D-9269-B86D2643F4BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C5794FF-3103-4143-BF47-B3678FC2BBFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C5794FF-3103-4143-BF47-B3678FC2BBFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C5794FF-3103-4143-BF47-B3678FC2BBFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C5794FF-3103-4143-BF47-B3678FC2BBFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

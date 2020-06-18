@@ -24,16 +24,15 @@ namespace Volta.UI.Controls
         public CodeFile CodeFile { get; private set; }
 
         private ITextMarkerService textMarkerService;
-
         private Editor.ToolTipManager.ToolTipService toolTipService;
-        private List<VoltaParserError> errors = new List<VoltaParserError>();
+        private List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
 
         public event Action<Caret> OnEditorCaretChanged;
         public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
         public event Action<CodeFile> OnRequestCloseUnsavedFile;
         public event Action OnRequestTabClose;
 
-        public event Action<List<VoltaParserError>> OnErrorListUpdated;
+        public event Action<List<VoltaCompilerError>> OnErrorListUpdated;
 
         public CodeTab() {
             InitializeComponent();
@@ -55,8 +54,9 @@ namespace Volta.UI.Controls
             TE.Load(CodeFile.Content);
 
             TE.TextArea.Caret.PositionChanged += TextEditorCaret_PositionChanged;
-
             TE.TextChanged += TE_TextChanged;
+
+            TE_TextChanged(TE, null);
         }
 
         private void InitializeTextMarkerService(TextEditor textEditor) {
@@ -82,13 +82,8 @@ namespace Volta.UI.Controls
             var text = textEditor.Text;
             errors = Controller.Check(text);
             Debug.WriteLine("\n");
-            errors.ForEach((VoltaParserError error) => {
-                /*
-                Debug.WriteLine("El error es: ");
-                Debug.WriteLine(error.msg);
-                Debug.WriteLine("En la línea {0} y columna {1}", error.line, error.charPositionInLine);
-                */
-                int offset = textEditor.Document.GetOffset(error.Line, error.CharPositionInLine);
+            errors.ForEach((VoltaCompilerError error) => {
+                int offset = textEditor.Document.GetOffset(error.Line, error.Column);
                 ITextMarker marker = textMarkerService.Create(offset, 0);
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                 marker.MarkerColor = Colors.Red;
@@ -97,7 +92,9 @@ namespace Volta.UI.Controls
             });
 
             OnErrorListUpdated?.Invoke(errors);
-            CodeFile.HasUnsavedChanges = true;
+
+            if (e != null)
+                CodeFile.HasUnsavedChanges = true;
         }
 
         private void TextEditorCaret_PositionChanged(object sender, EventArgs e) {

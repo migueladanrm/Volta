@@ -1,0 +1,8 @@
+﻿class Program int x; {
+
+	 void asignaciones() {
+		x = 15;
+		x = 'c';		// error
+		x = "hola";		// error
+	 }
+}

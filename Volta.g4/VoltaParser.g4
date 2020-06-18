@@ -4,27 +4,29 @@ options {
     tokenVocab = VoltaScanner;
 }
 
-program                         :   CLASS IDENT (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF      #programAST;
+program                         :   CLASS ident (constDecl | varDecl | classDecl)* CURLYBL methodDecl* CURLYBR EOF      #programAST;
 
-constDecl                       :   CONST type IDENT EQUAL ( NUM | CHARCONST | STRING) SEMICOLON                        #constDeclAST;
+constDecl                       :   CONST type ident EQUAL ( NUM | CHARCONST | STRING) SEMICOLON                        #constDeclAST;
 
-varDecl                         :   type IDENT (COMMA IDENT)* SEMICOLON                                                 #varDeclAST;
+varDecl                         :   type ident (COMMA ident)* SEMICOLON                                                 #varDeclAST;
 
-classDecl                       :   CLASS IDENT CURLYBL varDecl CURLYBR                                                 #classDeclAST;
+classDecl                       :   CLASS ident CURLYBL (varDecl)* CURLYBR                                                 #classDeclAST;
 
-methodDecl                      :   (type | VOID) IDENT BL formPars? BR (varDecl)* block                                #methodDeclAST;
+methodDecl                      :   (type | VOID) ident BL formPars? BR (varDecl)* block                                #methodDeclAST;
 
-formPars                        :   type IDENT ((COMMA) type IDENT)*                                                    #formParsAST;
+formPars                        :   type ident ((COMMA) type ident)*                                                    #formParsAST;
 
-type                            :   IDENT (SQUAREBL SQUAREBR)?                                                          #typeAST;
+type                            :   ident (SQUAREBL SQUAREBR)?                                                          #typeAST;
 
-statement                       :   designator (EQUAL expr | BL actPars? BR | ADDADD | SUBSUB) SEMICOLON                #callORassignStatementAST
+statement                       :   designator (BL actPars? BR) SEMICOLON                                               #callStatementAST
+                                     | designator (EQUAL expr) SEMICOLON                                                #assignStatementAST
+                                     | designator (ADDADD | SUBSUB) SEMICOLON                                           #addSubStatementAST
                                      | IF BL condition BR statement (ELSE statement)?                                   #ifStatementAST
-                                     | FOR BL expr SEMICOLON condition? SEMICOLON statement? BR statement               #forStatementAST
+                                     | FOR BL expr SEMICOLON condition SEMICOLON statement? BR statement               #forStatementAST
                                      | WHILE BL condition BR statement                                                  #whileStatementAST
                                      | BREAK SEMICOLON                                                                  #breakStatementAST
                                      | switch                                                                           #switchStatementAST
-                                     | RETURN expr? SEMICOLON                                                       #returnStatementAST
+                                     | RETURN expr? SEMICOLON                                                           #returnStatementAST
                                      | READ BL designator BR SEMICOLON                                                  #readStatementAST
                                      | WRITE BL expr (COMMA NUM)? BR SEMICOLON                                          #writeStatementAST
                                      | block                                                                            #blockStatementAST
@@ -44,15 +46,16 @@ expr                            :   SUB? term (addop term)*                     
 
 term                            :   factor (mulop factor)*                                                              #termAST;
 
-factor                          :   designator (BL actPars? BR)?                                                        #callFactorAST
+factor                          :   designator (BL actPars? BR)?                                                        #identOrCallFactorAST
                                       | NUM                                                                             #numFactorAST
                                       | CHARCONST                                                                       #charConstFactorAST
                                       | STRING                                                                          #stringFactorAST
-                                      | (TRUE|FALSE)                                                                    #bolleanFactorAST
-                                      | NEW IDENT                                                                       #newFactorAST
-                                      | BL expr BR                                                                      #bracketFactorAST;
+                                      | (TRUE|FALSE)                                                                    #booleanFactorAST
+                                      | NEW ident (SQUAREBL expr SQUAREBR)?                                             #newFactorAST
+                                      | BL expr BR                                                                      #bracketFactorAST
+                                      | NULL                                                                            #nullFactorAST;
 
-designator                      :   IDENT (DOT IDENT | SQUAREBL expr SQUAREBR)*                                         #designatorAST;
+designator                      :   ident (DOT ident | SQUAREBL expr SQUAREBR)*                                         #designatorAST;
 
 mulop                           :   MUL | DIV | MDIV                                                                    #mulopAST;
 
@@ -65,13 +68,17 @@ relop                           :   EQUALEQUAL                                  
                                     | GREATER                                                                           #greaterRelopAST
                                     | LESS                                                                              #lessRelopAST;
 
-switch                          :   SWITCH BL(IDENT | NUM | CHARCONST | STRING)BR 
+switch                          :   SWITCH BL(expr)BR 
                                     CURLYBL 
-                                        (CASE (NUM | CHARCONST | STRING) COLON 
+                                        (CASE (NUM | CHARCONST | STRING | (TRUE | FALSE)) COLON 
                                             (statement (BREAK SEMICOLON)?)?
                                         )*
                                         (DEFAULT COLON
                                             (statement (BREAK SEMICOLON)?)?
                                         )?
                                     CURLYBR                                                                             #switchAST;
+
+ident
+locals [ParserRuleContext decl=null]
+                    : IDENT                                                                                             #identAST;
                                 

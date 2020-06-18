@@ -1,29 +1,20 @@
-﻿using Newtonsoft.Json;
-using Serilog;
-using Serilog.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using Volta.Common;
 
 namespace Volta
 {
     public static class VoltaSettings
     {
         private static Dictionary<string, object> __settings;
-        private const string SETTINGS_FILE = "volta.json";
-        private static Logger log;
+        private const string SETTINGS_FILE = "volta.cfg";
 
         static VoltaSettings() {
-            log = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
-            log.Information("Initializing events logger...");
+            __Load();
         }
 
         private static object __Get(string key) {
-            key = __ToCamelCase(key);
-
             if (__settings == null)
                 __Load();
 
@@ -35,8 +26,6 @@ namespace Volta
         }
 
         private static void __Set(string key, object value) {
-            key = __ToCamelCase(key);
-
             if (__settings == null)
                 __Load();
 
@@ -50,37 +39,43 @@ namespace Volta
 
         private static void __Load() {
             if (!File.Exists(SETTINGS_FILE)) {
-                log.Information("Settings file was not found, it will be created.");
+                Console.WriteLine("Settings file was not found, it will be created.");
 
-                File.WriteAllText(SETTINGS_FILE, "{ }");
+                using var emptySettings = SerializationUtils.Serialize(new Dictionary<string, object>()) as MemoryStream;
+                File.WriteAllBytes(SETTINGS_FILE, emptySettings.ToArray());                
 
-                log.Information("Settings file was created.");
+                Console.WriteLine("Settings file was created.");
             }
 
-            log.Information("Loading settings file...");
+            Console.WriteLine("Loading settings file...");
 
-            var tmpSettingsFile = File.ReadAllText(SETTINGS_FILE);
-            __settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(tmpSettingsFile);
+            var tmpSettings = File.ReadAllBytes(SETTINGS_FILE);
+            __settings = SerializationUtils.Deserialize<Dictionary<string, object>>(tmpSettings);
 
-            log.Information("Settings loaded.");
+            Console.WriteLine("Settings loaded.");
         }
 
         private static void __Save() {
             try {
-                var jsonSettings = JsonConvert.SerializeObject(__settings);
-                File.WriteAllBytes(SETTINGS_FILE, Encoding.UTF8.GetBytes(jsonSettings));
+                var serializedSettings = SerializationUtils.Serialize(__settings) as MemoryStream;
+                File.WriteAllBytes(SETTINGS_FILE, serializedSettings.ToArray());
 
-                log.Information("Settings saved.");
+                Console.WriteLine("Settings saved.");
             } catch (Exception e) {
-                log.Error($"An error occured while trying save settings: {e.Message}");
+                Console.WriteLine($"An error occured while trying save settings: {e.Message}");
             }
         }
-
-        private static string __ToCamelCase(string str) => $"{str.Substring(0, 1).ToLower()}{str.Substring(1)}";
 
         public static string LastDirectory {
             get => __Get(nameof(LastDirectory)) as string;
             set => __Set(nameof(LastDirectory), value);
+        }
+
+        public static byte MaxRecentFiles => 10;
+
+        public static List<string> RecentFiles {
+            get => __Get(nameof(RecentFiles)) as List<string>;
+            set => __Set(nameof(RecentFiles), value);
         }
 
     }

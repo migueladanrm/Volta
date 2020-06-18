@@ -12,13 +12,13 @@ namespace Volta.Editor.ToolTipManager
     public class ErrorToolTip : ToolTip
     {
         
-        public ErrorToolTip(VoltaParserError error, TextMarker marker)
+        public ErrorToolTip(VoltaCompilerError error, TextMarker marker)
         {
             this.Error = error;
             this.Marker = marker;
         }
 
-        public VoltaParserError Error { get; set; }
+        public VoltaCompilerError Error { get; set; }
 
         public TextMarker Marker { get; set; }
 

@@ -8,13 +8,13 @@ namespace Volta.UI.Controls
     /// </summary>
     public partial class ErrorListItem : UserControl
     {
-        public VoltaParserError ParserError { get; private set; }
+        public VoltaCompilerError ParserError { get; private set; }
 
         public ErrorListItem() {
             InitializeComponent();
         }
 
-        public ErrorListItem(VoltaParserError error) {
+        public ErrorListItem(VoltaCompilerError error) {
             InitializeComponent();
             DataContext = this;
 
