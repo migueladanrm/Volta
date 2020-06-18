@@ -20,7 +20,7 @@ type                            :   ident (SQUAREBL SQUAREBR)?                  
 
 statement                       :   designator (BL actPars? BR) SEMICOLON                                               #callStatementAST
                                      | designator (EQUAL expr) SEMICOLON                                                #assignStatementAST
-                                     | designator (ADDADD | SUBSUB) SEMICOLON                                           #addsubStatementAST
+                                     | designator (ADDADD | SUBSUB) SEMICOLON                                           #addSubStatementAST
                                      | IF BL condition BR statement (ELSE statement)?                                   #ifStatementAST
                                      | FOR BL expr SEMICOLON condition SEMICOLON statement? BR statement               #forStatementAST
                                      | WHILE BL condition BR statement                                                  #whileStatementAST

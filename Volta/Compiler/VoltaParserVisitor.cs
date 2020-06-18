@@ -95,12 +95,12 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>addsubStatementAST</c>
+	/// Visit a parse tree produced by the <c>addSubStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context);
+	Result VisitAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.

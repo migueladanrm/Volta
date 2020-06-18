@@ -3,12 +3,14 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using static VoltaParser;
 
 namespace Volta.Compiler.CodeAnalysis
 {
+    /// <summary>
+    /// Analizador contextual.
+    /// </summary>
     class ContextualAnalysis : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
         private IdentificationTable identificationTable;
@@ -35,44 +37,35 @@ namespace Volta.Compiler.CodeAnalysis
 
         public List<VoltaCompilerError> Errors { get; private set; }
 
-        #region Auxiliar
+        #region Auxiliar methods
 
-        public void AddDefaultMethods()
-        {
+        public void AddDefaultMethods() {
             // CHR
-
             Identifier chrIdenfifier = new MethodIdentifier("chr", "char", new List<string> { "int" });
             identificationTable.Insert(chrIdenfifier);
 
             // ORD
-
             Identifier ordIdenfifier = new MethodIdentifier("ord", "int", new List<string> { "char" });
             identificationTable.Insert(ordIdenfifier);
 
             // LEN
-
             Identifier lenIdenfifier = new MethodIdentifier("len", "int", new List<string> { "array" });
             identificationTable.Insert(lenIdenfifier);
         }
-        public void InsertError(IToken token, int line, int col, string message) {
-            Errors.Add(new VoltaContextualError(token, line, col, message));
-        }
-
-        public void InsertError(IToken token, string message)
-            => InsertError(token, token.Line, token.Column, message);
 
         public bool ExistIdent(string id, bool inThisLevel) {
             return identificationTable.Find(id, inThisLevel) != null;
         }
-        
+
+        public void InsertError(IToken token, string message)
+            => Errors.Add(new VoltaContextualError(token, token.Line, token.Column, message));
+
         #endregion
 
-        public object VisitIdentAST([NotNull] VoltaParser.IdentASTContext context)
-        {
-            if(context.IDENT() != null)
-            {
+        public object VisitIdentAST([NotNull] IdentASTContext context) {
+            if (context.IDENT() != null) {
                 Identifier identifier = identificationTable.Find(context.IDENT().Symbol.Text, false);
-                if(identifier != null){
+                if (identifier != null) {
                     context.decl = identifier.Declaration;
                 }
                 return context;
@@ -80,187 +73,136 @@ namespace Volta.Compiler.CodeAnalysis
             return null;
         }
 
-        public object VisitActParsAST([NotNull] VoltaParser.ActParsASTContext context)
-        {
-            var callFactor = context.Parent is VoltaParser.IdentOrCallFactorASTContext ? (VoltaParser.IdentOrCallFactorASTContext)context.Parent : null;
-            var callStatement = context.Parent is VoltaParser.CallStatementASTContext ? (VoltaParser.CallStatementASTContext)context.Parent : null;
+        public object VisitActParsAST([NotNull] ActParsASTContext context) {
+            var callFactor = context.Parent is IdentOrCallFactorASTContext ? (IdentOrCallFactorASTContext)context.Parent : null;
+            var callStatement = context.Parent is CallStatementASTContext ? (CallStatementASTContext)context.Parent : null;
 
             MethodIdentifier methodIdentifier = null;
             if (callFactor != null)
                 methodIdentifier = (MethodIdentifier)Visit(callFactor.designator());
             else if (callStatement != null)
                 methodIdentifier = (MethodIdentifier)Visit(callStatement.designator());
-            
-            if(methodIdentifier == null)
-            {
+
+            if (methodIdentifier == null) {
                 return null;
             }
 
-            VoltaParser.FormParsASTContext originalPars = methodIdentifier.FormPars;
+            FormParsASTContext originalPars = methodIdentifier.FormPars;
 
-            if(originalPars == null)
-            {
-                if (methodIdentifier.DefaultMethod)
-                {
-                    if (methodIdentifier.DefaulMethodParams == null)
-                    {
+            if (originalPars == null) {
+                if (methodIdentifier.DefaultMethod) {
+                    if (methodIdentifier.DefaulMethodParams == null) {
                         InsertError(context.Start,
                             "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
-                    }
-                    else if (context.expr().Length != methodIdentifier.DefaulMethodParams.Count)
-                    {
+                    } else if (context.expr().Length != methodIdentifier.DefaulMethodParams.Count) {
                         InsertError(context.Start,
                             "El método '" + methodIdentifier.Id + "' recibe " + methodIdentifier.DefaulMethodParams.Count + " parámetros, y se recibieron " + context.expr().Length);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < methodIdentifier.DefaulMethodParams.Count; i++)
-                        {
+                    } else {
+                        for (int i = 0; i < methodIdentifier.DefaulMethodParams.Count; i++) {
                             string exprType = (string)Visit(context.expr()[i]);
-                            if (exprType == null)
-                            {
+                            if (exprType == null) {
                                 return null;
-                            }
-                            else if (exprType != "none" && ((methodIdentifier.DefaulMethodParams[i] == "array" && !exprType.Contains("[]")) && exprType != methodIdentifier.DefaulMethodParams[i]))
-                            {
-                                InsertError(context.expr()[i].Start, context.expr()[i].Start.Line, context.expr()[i].Start.Column,
-
+                            } else if (exprType != "none" && ((methodIdentifier.DefaulMethodParams[i] == "array" && !exprType.Contains("[]")) && exprType != methodIdentifier.DefaulMethodParams[i])) {
+                                InsertError(context.expr()[i].Start,
                                     $"El tipo de la expresión '{ context.expr()[i].GetText()}' es '" + exprType + "', y se esperaba el tipo '" + methodIdentifier.DefaulMethodParams[i] + "'");
                             }
                         }
                     }
+                } else {
+                    InsertError(context.Start, "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
                 }
-                else
-                {
-                    InsertError(context.Start, context.Start.Line, context.Start.Column, "El método '" + methodIdentifier.Id + "' no recibe parámetros, y se recibieron " + context.expr().Length);
-                }
-            }
-
-            else if(context.expr().Length != originalPars.ident().Length)
-            {
-                InsertError(context.Start, context.Start.Line, context.Start.Column, "El método '" + methodIdentifier.Id + "' recibe " + originalPars.ident().Length + " parámetros, y se recibieron " + context.expr().Length);
-            }
-            else
-            {
-                for (int i = 0; i < originalPars.ident().Length; i++)
-                {
+            } else if (context.expr().Length != originalPars.ident().Length) {
+                InsertError(context.Start, "El método '" + methodIdentifier.Id + "' recibe " + originalPars.ident().Length + " parámetros, y se recibieron " + context.expr().Length);
+            } else {
+                for (int i = 0; i < originalPars.ident().Length; i++) {
                     string exprType = (string)Visit(context.expr()[i]);
-                    if(exprType == null)
-                    {
+                    if (exprType == null) {
                         return null;
-                    }
-                    else if (exprType != "none" && exprType != originalPars.type()[i].GetText())
-                    {
-                        InsertError(context.expr()[i].Start, context.expr()[i].Start.Line, context.expr()[i].Start.Column,
-                            
+                    } else if (exprType != "none" && exprType != originalPars.type()[i].GetText()) {
+                        InsertError(context.expr()[i].Start,
                             $"El tipo de la expresión '{ context.expr()[i].GetText()}' es '" + exprType + "', y se esperaba el tipo '" + originalPars.type()[i].GetText() + "'");
                     }
                 }
             }
-            
-            
+
+
 
             return null;
         }
 
-        public object VisitBlockAST([NotNull] VoltaParser.BlockASTContext context)
-        {
+        public object VisitBlockAST([NotNull] BlockASTContext context) {
             context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
             context.constDecl().ToList().ForEach(constDecl => Visit(constDecl));
-            List<Pair<string, IToken>> returnedTypes= new List<Pair<string, IToken>>();
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
             context.statement().ToList().ForEach(statement => {
                 var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null) 
-                    returnedTypes.AddRange(list); 
-                });
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
             return returnedTypes;
-            
+
         }
 
-        public object VisitBlockStatementAST([NotNull] VoltaParser.BlockStatementASTContext context)
-        {
+        public object VisitBlockStatementAST([NotNull] BlockStatementASTContext context) {
             identificationTable.OpenLevel();
             List<Pair<string, IToken>> returnedTypes = Visit(context.block()) as List<Pair<string, IToken>>;
             identificationTable.CloseLevel();
             return returnedTypes;
         }
 
-        public object VisitBooleanFactorAST([NotNull] VoltaParser.BooleanFactorASTContext context)
-        {
-            //return context.TRUE() != null;
+        public object VisitBooleanFactorAST([NotNull] BooleanFactorASTContext context) {
             return "bool";
         }
 
-        public object VisitBracketFactorAST([NotNull] VoltaParser.BracketFactorASTContext context)
-        {
+        public object VisitBracketFactorAST([NotNull] BracketFactorASTContext context) {
             return Visit(context.expr());
         }
 
-        public object VisitBreakStatementAST([NotNull] VoltaParser.BreakStatementASTContext context)
-        {
-            VisitChildren(context); 
+        public object VisitBreakStatementAST([NotNull] BreakStatementASTContext context) {
+            VisitChildren(context);
             return new List<Pair<string, IToken>>();
         }
 
-        public object VisitIdentOrCallFactorAST([NotNull] VoltaParser.IdentOrCallFactorASTContext context)
-        {
+        public object VisitIdentOrCallFactorAST([NotNull] IdentOrCallFactorASTContext context) {
             Identifier identifier = (Identifier)Visit(context.designator());
-            if (identifier != null && identifier is MethodIdentifier && context.BL() != null)
-            {
+            if (identifier != null && identifier is MethodIdentifier && context.BL() != null) {
                 MethodIdentifier methodId = identifier as MethodIdentifier;
-                if (context.actPars() != null)
-                {
+                if (context.actPars() != null) {
                     Visit(context.actPars());
                     return methodId.Type;
-                }
-                else if (methodId.FormPars != null)
-                {
-                    InsertError(context.BL().Symbol, context.BL().Symbol.Line, context.BL().Symbol.Column,
+                } else if (methodId.FormPars != null) {
+                    InsertError(context.BL().Symbol,
                         "El método '" + methodId.Id + "' recibe " + methodId.FormPars.ident().Length +
                         (methodId.FormPars.ident().Length > 1 ? " parámetros" : " parámetro") + ", y no se recibió ninguno");
                 }
-            }
-            else if(identifier != null)
-            {
+            } else if (identifier != null) {
                 return identifier.Type;
-            }
-            else if(identifier == null)
-            {
+            } else if (identifier == null) {
                 return null;
-            }
-            else
-            {
-                IToken token = context.BL() != null ? context.BL().Symbol : ((VoltaParser.IdentASTContext)((VoltaParser.DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
-                InsertError(token, token.Line, token.Column, "El identificador '" + ((VoltaParser.DesignatorASTContext)context.designator()).ident()[0].GetText() + "' no corresponde a un método");
+            } else {
+                IToken token = context.BL() != null ? context.BL().Symbol : ((IdentASTContext)((DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
+                InsertError(token, "El identificador '" + ((DesignatorASTContext)context.designator()).ident()[0].GetText() + "' no corresponde a un método");
             }
             return null;
-            
+
         }
 
-        public object VisitCharConstFactorAST([NotNull] VoltaParser.CharConstFactorASTContext context) {
+        public object VisitCharConstFactorAST([NotNull] CharConstFactorASTContext context) {
             return "char";
         }
 
-        public object VisitClassDeclAST([NotNull] VoltaParser.ClassDeclASTContext context)
-        {
-            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
-            if(ident != null)
-            {
-                if (!ExistIdent(ident.GetText(), true))
-                {
-                
-                    List<VoltaParser.VarDeclASTContext> varDecls = new List<VoltaParser.VarDeclASTContext>(context.varDecl().ToList().Cast<VoltaParser.VarDeclASTContext>());
-
+        public object VisitClassDeclAST([NotNull] ClassDeclASTContext context) {
+            IdentASTContext ident = (IdentASTContext)Visit(context.ident());
+            if (ident != null) {
+                if (!ExistIdent(ident.GetText(), true)) {
+                    List<VarDeclASTContext> varDecls = new List<VarDeclASTContext>(context.varDecl().ToList().Cast<VarDeclASTContext>());
                     varDecls.ForEach(varDecl => Visit(varDecl));
-
                     ClassIdentifier classIdentifier = new ClassIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), types[0], context, varDecls);
 
                     identificationTable.Insert(classIdentifier);
                     types.Add(ident.GetText());
-                }
-                else
-                {
-                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                } else {
+                    InsertError(ident.IDENT().Symbol, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
                 }
             }
             return null;
@@ -288,7 +230,7 @@ namespace Volta.Compiler.CodeAnalysis
 
             if (relop == "<" || relop == "<=" || relop == ">" || relop == ">=") {
                 if (sameType) {
-                    if (a == "int" || a == "float") {   
+                    if (a == "int" || a == "float") {
                         return a;
                     } else InsertError(context.relop().Start, $"El operador '{relop}' solo se puede usar con tipos int o float.");
                 }
@@ -306,116 +248,91 @@ namespace Volta.Compiler.CodeAnalysis
 
         #endregion
 
-        public object VisitConstDeclAST([NotNull] VoltaParser.ConstDeclASTContext context)
-        {
+        public object VisitConstDeclAST([NotNull] ConstDeclASTContext context) {
             string type = (string)Visit(context.type());
-            if (type != null)
-            {
-                if(type != "int" && type != "char") {
-                    InsertError(context.Start, context.Start.Line, context.Start.Column, 
+            if (type != null) {
+                if (type != "int" && type != "char") {
+                    InsertError(context.Start,
                         "Los tipo para una constante solo pueden ser int o char");
                     return null;
                 }
-                VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext) Visit(context.ident());
-                if (ident != null)
-                {
-                    if (!ExistIdent(ident.IDENT().Symbol.Text, true))
-                    {
+                IdentASTContext ident = (IdentASTContext)Visit(context.ident());
+                if (ident != null) {
+                    if (!ExistIdent(ident.IDENT().Symbol.Text, true)) {
                         Identifier identifier = new ConstIdentifier(ident.IDENT().GetText(), ident.IDENT().Symbol, identificationTable.getLevel(), type, context);
                         identificationTable.Insert(identifier);
 
-                        
 
-                        if ((context.NUM() != null && 
-                                ((context.NUM().GetText().Split('.').Length > 1 && type != "float") || 
-                                (context.NUM().GetText().Split('.').Length == 1 && type != "int"))) 
+
+                        if ((context.NUM() != null &&
+                                ((context.NUM().GetText().Split('.').Length > 1 && type != "float") ||
+                                (context.NUM().GetText().Split('.').Length == 1 && type != "int")))
                             ||
                             (context.STRING() != null && type != "string") ||
-                            (context.CHARCONST() != null && type != "char"))
-                        {
-                            InsertError(context.EQUAL().Symbol, context.EQUAL().Symbol.Line, context.EQUAL().Symbol.Column, "El tipo para la constante " + ident.GetText() + " no coincide con el tipo de " + context.GetText().Split('=').Last());
+                            (context.CHARCONST() != null && type != "char")) {
+                            InsertError(context.EQUAL().Symbol,
+                                "El tipo para la constante " + ident.GetText() + " no coincide con el tipo de " + context.GetText().Split('=').Last());
                         }
-                    }
-                    else
-                    {
-                        InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+                    } else {
+                        InsertError(ident.IDENT().Symbol, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
                     }
                 }
             }
             return null;
         }
 
-        public object VisitDesignatorAST([NotNull] VoltaParser.DesignatorASTContext context)
-        {
-            if (ExistIdent(context.ident()[0].GetText(), false))
-            {
+        public object VisitDesignatorAST([NotNull] DesignatorASTContext context) {
+            if (ExistIdent(context.ident()[0].GetText(), false)) {
                 Identifier identifier = identificationTable.Find(context.ident()[0].GetText(), false);
-                if (context.ident().Length == 1 && context.SQUAREBL().Length == 0 && context.DOT().Length == 0)
-                {
+                if (context.ident().Length == 1 && context.SQUAREBL().Length == 0 && context.DOT().Length == 0) {
                     Visit(context.ident()[0]);
                     return identifier;
-                }
-                else if(identifier is ArrayIdentifier || identifier is InstanceIdentifier)
-                {
+                } else if (identifier is ArrayIdentifier || identifier is InstanceIdentifier) {
                     bool arrayFound = false;
                     bool error = false;
                     Identifier currentIdentifier = identifier;
-                    
+
                     context.GetRuleContexts<ParserRuleContext>().Skip(1).ToList().ForEach(r => {
-                        if (error)
-                        {
+                        if (error) {
                             return;
                         }
 
-                        if (arrayFound)
-                        {
-                            InsertError(r.Start, r.Start.Line, r.Start.Column, "No se puede acceder a arreglos o propiedades de un elemento de un arreglo porque solo son de tipos simples");
+                        if (arrayFound) {
+                            InsertError(r.Start, "No se puede acceder a arreglos o propiedades de un elemento de un arreglo porque solo son de tipos simples");
                             error = true;
                             return;
                         }
-                        if(r is VoltaParser.ExprASTContext)
-                        {
+                        if (r is ExprASTContext) {
                             arrayFound = true;
-                            VoltaParser.ExprASTContext expr = r as VoltaParser.ExprASTContext;
+                            ExprASTContext expr = r as ExprASTContext;
 
                             string type = Visit(expr) as string;
 
-                            if(type == "int")
-                            {
-                                if(!(currentIdentifier is ArrayIdentifier))
-                                {
-                                    InsertError(r.Start, r.Start.Line, r.Start.Column, $"El identificador {currentIdentifier.Id} no es un arreglo");
+                            if (type == "int") {
+                                if (!(currentIdentifier is ArrayIdentifier)) {
+                                    InsertError(r.Start, $"El identificador {currentIdentifier.Id} no es un arreglo");
                                     error = true;
                                     return;
-                                }
-                                else
-                                {
+                                } else {
                                     currentIdentifier = (currentIdentifier as ArrayIdentifier).Identifiers[0];
                                 }
-                            }
-                            else
-                            {
-                                InsertError(expr.Start, expr.Start.Line, expr.Start.Column, "Solo se permiten números enteros cuando se accede a una posición del arreglo");
+                            } else {
+                                InsertError(expr.Start, "Solo se permiten números enteros cuando se accede a una posición del arreglo");
                                 error = true;
                                 return;
                             }
-                        }
-                        else if(r is VoltaParser.IdentASTContext)
-                        {
+                        } else if (r is IdentASTContext) {
 
-                            VoltaParser.IdentASTContext ident = r as VoltaParser.IdentASTContext;
-                            if (currentIdentifier is InstanceIdentifier)
-                            {
+                            IdentASTContext ident = r as IdentASTContext;
+                            if (currentIdentifier is InstanceIdentifier) {
                                 currentIdentifier = (currentIdentifier as InstanceIdentifier).Identifiers.Find(i => ident.GetText() == i.Id);
-                                if(currentIdentifier == null)
-                                {
-                                    InsertError(ident.Start, ident.Start.Line, ident.Start.Column, $"El identificador {ident.IDENT().Symbol.Text} no existe en la instancia");
+                                if (currentIdentifier == null) {
+                                    InsertError(ident.Start, $"El identificador {ident.IDENT().Symbol.Text} no existe en la instancia");
                                     error = true;
                                     return;
                                 }
-                            }
-                            else {
-                                InsertError(ident.Start, ident.Start.Line, ident.Start.Column, $"El identificador {currentIdentifier.Id} no es una instancia de una clase");
+                            } else {
+                                InsertError(ident.Start, $"El identificador {currentIdentifier.Id} no es una instancia de una clase");
                                 error = true;
                                 return;
                             }
@@ -424,72 +341,51 @@ namespace Volta.Compiler.CodeAnalysis
                     });
                     if (!error)
                         return currentIdentifier;
+                } else {
+                    InsertError(context.Start, "No se puede acceder a posiciones o propiedades de un identificador que no es una clase ni un arreglo");
                 }
-                else
-                {
-                    InsertError(context.Start, context.Start.Line, context.Start.Column, "No se puede acceder a posiciones o propiedades de un identificador que no es una clase ni un arreglo");
-                }
-            }
-            else
-            {
-                InsertError(context.ident()[0].Start, context.ident()[0].Start.Line, context.ident()[0].Start.Column, $"El identificador {context.ident()[0].GetText()} no ha sido declarado");
+            } else {
+                InsertError(context.ident()[0].Start, $"El identificador {context.ident()[0].GetText()} no ha sido declarado");
             }
             return null;
         }
 
-
-        public object VisitExprAST([NotNull] VoltaParser.ExprASTContext context)
-        {
-            if(context.term().Length == 1)
-            {
+        public object VisitExprAST([NotNull] ExprASTContext context) {
+            if (context.term().Length == 1) {
                 string type = (string)Visit(context.term()[0]);
-                if(type != "int")
-                {
-                    if(context.SUB() == null)
-                    {
+                if (type != "int") {
+                    if (context.SUB() == null) {
                         return type;
-                    }
-                    else if(type != null)
-                    {
-                        InsertError(context.SUB().Symbol, context.SUB().Symbol.Line, context.SUB().Symbol.Column, "La expresión '" + context.term()[0].GetText() + "'no es un número y no se puede negar");
+                    } else if (type != null) {
+                        InsertError(context.SUB().Symbol, "La expresión '" + context.term()[0].GetText() + "'no es un número y no se puede negar");
                         return null;
                     }
-                }
-                else
-                {
+                } else {
                     return type;
                 }
             }
             return null;
         }
 
-        public object VisitFormParsAST([NotNull] VoltaParser.FormParsASTContext context)
-        {
-            var typesList = new List<VoltaParser.TypeASTContext>(context.type().ToList().Cast<VoltaParser.TypeASTContext>());
-            var idents = new List<VoltaParser.IdentASTContext>(context.ident().ToList().Cast<VoltaParser.IdentASTContext>());
+        public object VisitFormParsAST([NotNull] FormParsASTContext context) {
+            var typesList = new List<TypeASTContext>(context.type().ToList().Cast<TypeASTContext>());
+            var idents = new List<IdentASTContext>(context.ident().ToList().Cast<IdentASTContext>());
 
-            for(int i = 0; i < typesList.Count; i++)
-            {
+            for (int i = 0; i < typesList.Count; i++) {
                 var type = Visit(typesList[i]) as string;
 
-                if(type != null)
-                {
-                    if(!ExistIdent(idents[i].IDENT().Symbol.Text, true)){
-                        if(types.IndexOf(type) > 10)
-                        {
+                if (type != null) {
+                    if (!ExistIdent(idents[i].IDENT().Symbol.Text, true)) {
+                        if (types.IndexOf(type) > 10) {
                             ClassIdentifier classIdentifier = identificationTable.FindClass(type);
                             List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
                             InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
                             identificationTable.Insert(instanceIdentifier);
-                        }
-                        else
-                        {
+                        } else {
                             var ident = idents[i].IDENT();
                             Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null)
-                            {
-                                if (types.IndexOf(type) <= 10)
-                                {
+                            if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null) {
+                                if (types.IndexOf(type) <= 10) {
                                     List<Identifier> identifiers = new List<Identifier>();
                                     identifier.Id = "0";
                                     identifiers.Add(identifier);
@@ -497,16 +393,12 @@ namespace Volta.Compiler.CodeAnalysis
                                     ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
                                     identificationTable.Insert(arrayIdentifier);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 identificationTable.Insert(identifier);
                             }
                         }
-                    }
-                    else
-                    {
-                        InsertError(idents[i].IDENT().Symbol, idents[i].IDENT().Symbol.Line, idents[i].IDENT().Symbol.Column, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
+                    } else {
+                        InsertError(idents[i].IDENT().Symbol, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
                     }
                 }
             }
@@ -515,33 +407,33 @@ namespace Volta.Compiler.CodeAnalysis
 
         #region Relops
 
-        public object VisitEqualEqualRelopAST([NotNull] VoltaParser.EqualEqualRelopASTContext context) {
+        public object VisitEqualEqualRelopAST([NotNull] EqualEqualRelopASTContext context) {
             return "==";
         }
 
-        public object VisitNotEqualRelopAST([NotNull] VoltaParser.NotEqualRelopASTContext context) {
+        public object VisitNotEqualRelopAST([NotNull] NotEqualRelopASTContext context) {
             return "!=";
         }
 
-        public object VisitGreaterEqualRelopAST([NotNull] VoltaParser.GreaterEqualRelopASTContext context) {
+        public object VisitGreaterEqualRelopAST([NotNull] GreaterEqualRelopASTContext context) {
             return ">=";
         }
 
-        public object VisitGreaterRelopAST([NotNull] VoltaParser.GreaterRelopASTContext context) {
+        public object VisitGreaterRelopAST([NotNull] GreaterRelopASTContext context) {
             return ">";
         }
 
-        public object VisitLessEqualRelopAST([NotNull] VoltaParser.LessEqualRelopASTContext context) {
+        public object VisitLessEqualRelopAST([NotNull] LessEqualRelopASTContext context) {
             return "<=";
         }
 
-        public object VisitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context) {
+        public object VisitLessRelopAST([NotNull] LessRelopASTContext context) {
             return "<";
         }
 
         #endregion
 
-        public object VisitForStatementAST([NotNull] VoltaParser.ForStatementASTContext context) {
+        public object VisitForStatementAST([NotNull] ForStatementASTContext context) {
             var iterator = Visit(context.expr()) as string ?? "none";
             Visit(context.condition());
             Visit(context.statement()[0]);
@@ -562,159 +454,131 @@ namespace Volta.Compiler.CodeAnalysis
             return returnedTypes;
         }
 
-        public object VisitIfStatementAST([NotNull] VoltaParser.IfStatementASTContext context) {
+        public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {
             if (context.condition() != null)
                 Visit(context.condition());
-            
+
             var returnedTypes = new List<Pair<string, IToken>>();
             context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
-            
+
             return returnedTypes;
         }
 
-        public object VisitMethodDeclAST([NotNull] VoltaParser.MethodDeclASTContext context)
-        {
+        public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
             string type = "void";
             if (context.type() != null)
-                type = (string) Visit(context.type());
+                type = (string)Visit(context.type());
 
-            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
+            IdentASTContext ident = (IdentASTContext)Visit(context.ident());
 
-            if(ident != null)
-            {
-                if (!ExistIdent(ident.IDENT().Symbol.Text, true)){
+            if (ident != null) {
+                if (!ExistIdent(ident.IDENT().Symbol.Text, true)) {
                     MethodIdentifier identifier = new MethodIdentifier(ident.IDENT().Symbol.Text, ident.IDENT().Symbol, identificationTable.getLevel(), type,
-                            context, (VoltaParser.FormParsASTContext)context.formPars());
+                            context, (FormParsASTContext)context.formPars());
 
                     identificationTable.Insert(identifier);
 
                     identificationTable.OpenLevel(); // Para los parámetros ya existe un scope nuevo
-                    if(context.formPars() != null)
+                    if (context.formPars() != null)
                         Visit(context.formPars()); //Cuando se visitan los parámetros y se encuentra un error, ellos lo reportan
-                    
 
-                    if(context.varDecl() != null)
+
+                    if (context.varDecl() != null)
                         context.varDecl().ToList().ForEach(varDecl => Visit(varDecl));
 
-                    if (context.block() != null)
-                    {
+                    if (context.block() != null) {
                         List<Pair<string, IToken>> returnedTypes = Visit(context.block()) as List<Pair<string, IToken>>;
-                        returnedTypes.ForEach(returned =>
-                        {
-                            if(returned.a != null && (!returned.a.Equals(type) && (type == "void" || returned.a != "none")))
-                            {
-                                InsertError(returned.b, returned.b.Line, returned.b.Column, $"El tipo de retorno del método {identifier.Id} es {type}, pero se retorna {(returned.a == "none"? "null": returned.a)}");
+                        returnedTypes.ForEach(returned => {
+                            if (returned.a != null && (!returned.a.Equals(type) && (type == "void" || returned.a != "none"))) {
+                                InsertError(returned.b, $"El tipo de retorno del método {identifier.Id} es {type}, pero se retorna {(returned.a == "none" ? "null" : returned.a)}");
                             }
                         });
                     }
-                    
+
                     identificationTable.CloseLevel();
-                
-                }
-                else
-                {
-                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
+
+                } else {
+                    InsertError(ident.IDENT().Symbol, "El identificador " + ident.IDENT().Symbol.Text + " ya fue declarado en este scope");
                 }
             }
 
-            
+
             return null;
         }
 
-        public object VisitMulop([NotNull] VoltaParser.MulopContext context)
-        {
+        public object VisitMulop([NotNull] MulopContext context) {
             VisitChildren(context); return null;
         }
 
-        public object VisitNewFactorAST([NotNull] VoltaParser.NewFactorASTContext context)
-        {
-            
-            if (types.Contains(context.ident().GetText()))
-            {
-                if (context.SQUAREBL() != null && context.SQUAREBR() != null)
-                {
-                    if (types.Contains(context.ident().GetText() + "[]"))
-                    {
+        public object VisitNewFactorAST([NotNull] NewFactorASTContext context) {
+
+            if (types.Contains(context.ident().GetText())) {
+                if (context.SQUAREBL() != null && context.SQUAREBR() != null) {
+                    if (types.Contains(context.ident().GetText() + "[]")) {
                         return context.ident().GetText() + "[]";
-                    }
-                    else
-                    {
-                        InsertError(context.ident().Start, context.ident().Start.Line, context.ident().Start.Column,
+                    } else {
+                        InsertError(context.ident().Start,
                             "No se puede crear un arreglo de tipo '" + context.ident().GetText() + "' porque no es un tipo simple");
                     }
-                }
-                else
+                } else
                     return context.ident().GetText();
             }
 
-            InsertError(context.ident().Start, context.ident().Start.Line, context.ident().Start.Column,
+            InsertError(context.ident().Start,
                 "No se puede crear una instancia de '" + context.ident().GetText() + "' porque no es un tipo");
             return null;
         }
 
-        public object VisitNumFactorAST([NotNull] VoltaParser.NumFactorASTContext context)
-        {
+        public object VisitNumFactorAST([NotNull] NumFactorASTContext context) {
             return context.NUM().GetText().Split('.').Length > 1 ? "float" : "int";
         }
 
-        public object VisitProgramAST([NotNull] VoltaParser.ProgramASTContext context)
-        {
+        public object VisitProgramAST([NotNull] ProgramASTContext context) {
             identificationTable.OpenLevel();
-            VisitChildren(context); 
+            VisitChildren(context);
             identificationTable.CloseLevel();
             return null;
         }
 
-        public object VisitReadStatementAST([NotNull] VoltaParser.ReadStatementASTContext context)
-        {
-            VisitChildren(context); 
+        public object VisitReadStatementAST([NotNull] ReadStatementASTContext context) {
+            VisitChildren(context);
             return new List<Pair<string, IToken>>();
         }
 
-        public object VisitReturnStatementAST([NotNull] VoltaParser.ReturnStatementASTContext context)
-        {
+        public object VisitReturnStatementAST([NotNull] ReturnStatementASTContext context) {
             // Revisando que el return se encuentre en una función
             bool inMethod = false;
             RuleContext ctx = context.Parent;
-            while(!(ctx is MethodDeclContext || ctx is ProgramContext))
-            {
+            while (!(ctx is MethodDeclContext || ctx is ProgramContext)) {
                 ctx = ctx.Parent;
-                if(ctx is MethodDeclContext)
-                {
+                if (ctx is MethodDeclContext) {
                     inMethod = true;
                 }
             }
 
-            if (!inMethod)
-            {
-                InsertError(context.Start, context.Start.Line, context.Start.Column, "No se permite utilizar un return fuera de un método");
+            if (!inMethod) {
+                InsertError(context.Start, "No se permite utilizar un return fuera de un método");
             }
 
             // Retorna una lista con el tipo que está retornando
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            if(context.expr() != null)
-            {
+            if (context.expr() != null) {
                 returnedTypes.Add(new Pair<string, IToken>(Visit(context.expr()) as string, context.Start));
-            }
-            else
-            {
+            } else {
                 returnedTypes.Add(new Pair<string, IToken>("void", context.Start));
             }
             return returnedTypes;
         }
 
-        public object VisitSemicolonStatementAST([NotNull] VoltaParser.SemicolonStatementASTContext context)
-        {
+        public object VisitSemicolonStatementAST([NotNull] SemicolonStatementASTContext context) {
             VisitChildren(context); return new List<Pair<string, IToken>>();
         }
 
-        public object VisitStringFactorAST([NotNull] VoltaParser.StringFactorASTContext context)
-        {
+        public object VisitStringFactorAST([NotNull] StringFactorASTContext context) {
             return "string";
         }
 
-        public object VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context)
-        {
+        public object VisitSwitchAST([NotNull] SwitchASTContext context) {
             var nums = context.NUM();
             var strings = context.STRING();
             var chars = context.CHARCONST();
@@ -723,46 +587,30 @@ namespace Volta.Compiler.CodeAnalysis
             var falses = context.FALSE();
 
             string type = Visit(context.expr()) as string;
-            if(type != null && types.IndexOf(type) < 4)
-            {
-                if(type == "int" || type == "float")
-                {
-                    if(nums.Length != context.CASE().Length)
-                    {
+            if (type != null && types.IndexOf(type) < 4) {
+                if (type == "int" || type == "float") {
+                    if (nums.Length != context.CASE().Length) {
                         InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
                     }
-                }
-                else if (type == "char")
-                {
-                    if (chars.Length != context.CASE().Length)
-                    {
+                } else if (type == "char") {
+                    if (chars.Length != context.CASE().Length) {
                         InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
                     }
-                }
-                else if (type == "string")
-                {
-                    if (strings.Length != context.CASE().Length)
-                    {
+                } else if (type == "string") {
+                    if (strings.Length != context.CASE().Length) {
                         InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
                     }
-                }
-                else if (type == "bool")
-                {
-                    if (trues.Length + falses.Length != context.CASE().Length)
-                    {
+                } else if (type == "bool") {
+                    if (trues.Length + falses.Length != context.CASE().Length) {
                         InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
                     }
-                }
-                else if (type == "none")
-                {
+                } else if (type == "none") {
                     InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
                 }
-            }
-            else
-            {
+            } else {
                 InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
             }
-            
+
 
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
             context.statement().ToList().ForEach(statement => {
@@ -773,83 +621,63 @@ namespace Volta.Compiler.CodeAnalysis
             return returnedTypes;
         }
 
-        public object VisitSwitchStatementAST([NotNull] VoltaParser.SwitchStatementASTContext context)
-        {
-            
+        public object VisitSwitchStatementAST([NotNull] SwitchStatementASTContext context) {
+
             return Visit(context.@switch());
         }
 
-        public object VisitTermAST([NotNull] VoltaParser.TermASTContext context)
-        {
-            if (context.factor().Length == 1)
-            {
+        public object VisitTermAST([NotNull] TermASTContext context) {
+            if (context.factor().Length == 1) {
                 return Visit(context.factor()[0]);
-            }
-            else if (context.factor().Length > 1)
-            {
-                bool allInts = context.factor().ToList().All(factor => { 
+            } else if (context.factor().Length > 1) {
+                bool allInts = context.factor().ToList().All(factor => {
                     string type = (string)Visit(factor);
-                    if (type != "int"){
-                        InsertError(factor.Start, factor.Start.Line, factor.Start.Column,
+                    if (type != "int") {
+                        InsertError(factor.Start,
                             $"El factor '{factor.GetText()}' no es un número entero. Solo se permite el uso de '*', '/' o '%' con números enteros");
                     }
                     return type == "int";
                 });
-                return allInts ? "int": null;
+                return allInts ? "int" : null;
             }
             return null;
         }
 
-        public object VisitTypeAST([NotNull] VoltaParser.TypeASTContext context)
-        {
-            VoltaParser.IdentASTContext ident = (VoltaParser.IdentASTContext)Visit(context.ident());
+        public object VisitTypeAST([NotNull] TypeASTContext context) {
+            IdentASTContext ident = (IdentASTContext)Visit(context.ident());
 
-            if (ident != null)
-            {
-                if (types.Contains(ident.GetText()))
-                {
-                    if (context.SQUAREBL() != null)
-                    {
+            if (ident != null) {
+                if (types.Contains(ident.GetText())) {
+                    if (context.SQUAREBL() != null) {
                         if (types.Contains(ident.GetText() + "[]"))
                             return ident.GetText() + "[]";
-                        InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "No se pueden declarar arreglos de tipo" + ident.IDENT().GetText() + " porque no es un tipo simple");
-                    }
-                    else
+                        InsertError(ident.IDENT().Symbol, "No se pueden declarar arreglos de tipo" + ident.IDENT().GetText() + " porque no es un tipo simple");
+                    } else
                         return ident.GetText();
-                }
-                else
-                {
-                    InsertError(ident.IDENT().Symbol, ident.IDENT().Symbol.Line, ident.IDENT().Symbol.Column, "El tipo " + ident.IDENT().GetText() + " no existe");
+                } else {
+                    InsertError(ident.IDENT().Symbol, "El tipo " + ident.IDENT().GetText() + " no existe");
                 }
             }
             return null;
         }
 
-        public List<Identifier> GetIdentifiersFromClass(ClassIdentifier classIdentifier)
-        {
+        public List<Identifier> GetIdentifiersFromClass(ClassIdentifier classIdentifier) {
             List<Identifier> identifiers = new List<Identifier>();
 
-            classIdentifier.VarDecl.ForEach(context =>
-            {
+            classIdentifier.VarDecl.ForEach(context => {
                 string type = (string)Visit(context.type());
-                if (type != null)
-                {
-                    context.ident().ToList().ForEach((VoltaParser.IdentContext identC) =>
-                    {
-                        if (identC.GetText() == "")
-                        {
+                if (type != null) {
+                    context.ident().ToList().ForEach((IdentContext identC) => {
+                        if (identC.GetText() == "") {
                             return;
                         }
-                        ITerminalNode ident = ((VoltaParser.IdentASTContext)identC).IDENT();
-                        if (types.IndexOf(type) > 10)
-                        {
+                        ITerminalNode ident = ((IdentASTContext)identC).IDENT();
+                        if (types.IndexOf(type) > 10) {
                             ClassIdentifier classIdentifier1 = identificationTable.FindClass(type);
                             List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier1);
                             InstanceIdentifier instanceIdentifier = new InstanceIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
                             identifiers.Add(instanceIdentifier);
-                        }
-                        else
-                        {
+                        } else {
                             Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
                             identifiers.Add(identifier);
                         }
@@ -860,37 +688,27 @@ namespace Volta.Compiler.CodeAnalysis
             return identifiers;
         }
 
-        public object VisitVarDeclAST([NotNull] VoltaParser.VarDeclASTContext context)
-        {
-            string type = (string) Visit(context.type());
-            if(type != null)
-            {
-                context.ident().ToList().ForEach((VoltaParser.IdentContext identC) =>
-                {
-                    
-                    if (identC.GetText() == "")
-                    {
+        public object VisitVarDeclAST([NotNull] VarDeclASTContext context) {
+            string type = (string)Visit(context.type());
+            if (type != null) {
+                context.ident().ToList().ForEach((IdentContext identC) => {
+
+                    if (identC.GetText() == "") {
                         return;
                     }
-                    ITerminalNode ident = ((VoltaParser.IdentASTContext) identC).IDENT();
-                    if (ident != null && !ExistIdent(ident.Symbol.Text, true)){
-                        if(types.IndexOf(type) > 10)
-                        {
-                            if((context.type() as VoltaParser.TypeASTContext).SQUAREBL() == null)
-                            {
+                    ITerminalNode ident = ((IdentASTContext)identC).IDENT();
+                    if (ident != null && !ExistIdent(ident.Symbol.Text, true)) {
+                        if (types.IndexOf(type) > 10) {
+                            if ((context.type() as TypeASTContext).SQUAREBL() == null) {
                                 ClassIdentifier classIdentifier = identificationTable.FindClass(type);
                                 List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
                                 InstanceIdentifier instanceIdentifier = new InstanceIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
                                 identificationTable.Insert(instanceIdentifier);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            if ((context.type() as VoltaParser.TypeASTContext).SQUAREBL() != null && (context.type() as VoltaParser.TypeASTContext).SQUAREBR() != null)
-                            {
-                                if(types.IndexOf(type) <= 10)
-                                {
+                            if ((context.type() as TypeASTContext).SQUAREBL() != null && (context.type() as TypeASTContext).SQUAREBR() != null) {
+                                if (types.IndexOf(type) <= 10) {
                                     List<Identifier> identifiers = new List<Identifier>();
                                     identifier.Id = "0";
                                     identifiers.Add(identifier);
@@ -898,60 +716,48 @@ namespace Volta.Compiler.CodeAnalysis
                                     ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
                                     identificationTable.Insert(arrayIdentifier);
                                 }
-                            }
-                            else {
+                            } else {
                                 identificationTable.Insert(identifier);
                             }
                         }
-                        
-                    }
-                    else
-                    {
-                        InsertError(ident.Symbol, ident.Symbol.Line, ident.Symbol.Column, "El identificador " + ident.Symbol.Text + " ya fue declarado en este scope");
+
+                    } else {
+                        InsertError(ident.Symbol, "El identificador " + ident.Symbol.Text + " ya fue declarado en este scope");
                     }
                 });
             }
             return null;
         }
 
-        public object VisitWhileStatementAST([NotNull] VoltaParser.WhileStatementASTContext context)
-        {
+        public object VisitWhileStatementAST([NotNull] WhileStatementASTContext context) {
             Visit(context.condition());
             return Visit(context.statement());
         }
 
-        public object VisitWriteStatementAST([NotNull] VoltaParser.WriteStatementASTContext context)
-        {
-            VisitChildren(context); 
+        public object VisitWriteStatementAST([NotNull] WriteStatementASTContext context) {
+            VisitChildren(context);
             return new List<Pair<string, IToken>>();
         }
 
-        public object VisitCallStatementAST([NotNull] VoltaParser.CallStatementASTContext context)
-        {
-            Identifier identifier = (Identifier) Visit(context.designator());
-            if (identifier != null && identifier is MethodIdentifier)
-            {
-                MethodIdentifier methodId = (MethodIdentifier) identifier;
-                if(context.actPars() != null)
-                {
+        public object VisitCallStatementAST([NotNull] CallStatementASTContext context) {
+            Identifier identifier = (Identifier)Visit(context.designator());
+            if (identifier != null && identifier is MethodIdentifier) {
+                MethodIdentifier methodId = (MethodIdentifier)identifier;
+                if (context.actPars() != null) {
                     Visit(context.actPars());
+                } else if (methodId.FormPars != null) {
+                    InsertError(context.BL().Symbol,
+                        "El método '" + methodId.Id + "' recibe " + methodId.FormPars.ident().Length +
+                        (methodId.FormPars.ident().Length > 1 ? " parámetros" : " parámetro") + ", y no se recibió ninguno");
                 }
-                else if(methodId.FormPars != null)
-                {
-                    InsertError(context.BL().Symbol, context.BL().Symbol.Line, context.BL().Symbol.Column,
-                        "El método '" + methodId.Id + "' recibe " + methodId.FormPars.ident().Length + 
-                        (methodId.FormPars.ident().Length > 1?" parámetros": " parámetro") + ", y no se recibió ninguno");
-                }
-            }
-            else
-            {
-                IToken token = context.BL() != null ? context.BL().Symbol : ((VoltaParser.IdentASTContext)((VoltaParser.DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
-                InsertError(token, token.Line, token.Column, "El identificador " + ((VoltaParser.DesignatorASTContext)context.designator()).ident()[0].GetText() + " no corresponde a un método");   
+            } else {
+                IToken token = context.BL() != null ? context.BL().Symbol : ((IdentASTContext)((DesignatorASTContext)context.designator()).ident()[0]).IDENT().Symbol;
+                InsertError(token, "El identificador " + ((DesignatorASTContext)context.designator()).ident()[0].GetText() + " no corresponde a un método");
             }
             return new List<Pair<string, IToken>>();
         }
 
-        public object VisitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) {
+        public object VisitAssignStatementAST([NotNull] AssignStatementASTContext context) {
             var identifier = Visit(context.designator()) as Identifier;
 
             if (identifier != null) {
@@ -961,7 +767,7 @@ namespace Volta.Compiler.CodeAnalysis
                         return new List<Pair<string, IToken>>();
                     else {
                         var tmpExpr = context.expr();
-                        InsertError(tmpExpr.Start, tmpExpr.Start.Line, tmpExpr.Start.Column,
+                        InsertError(tmpExpr.Start,
                             $"No se puede asignar un valor de tipo '{type}' a una variable de tipo '{identifier.Type}'.");
                     }
                 } else if (identifier is ArrayIdentifier) {
@@ -988,45 +794,38 @@ namespace Volta.Compiler.CodeAnalysis
                         InsertError(expr.Start, "Sólo se puede asignar valores a arreglos usando el modificador 'new'.");
                     }
                 } else if (identifier is ConstIdentifier) {
-                    InsertError(context.EQUAL().Symbol, context.EQUAL().Symbol.Line, context.EQUAL().Symbol.Column,
+                    InsertError(context.EQUAL().Symbol,
                         "No es posible modificar el valor de una constante después de su declaración.");
                 }
             } else {
-                InsertError(context.designator().Start, context.designator().Start.Line, context.designator().Start.Column,
+                InsertError(context.designator().Start,
                     $"La variable '{context.designator()}' no ha sido declarada.");
             }
 
             return new List<Pair<string, IToken>>(); ;
         }
 
-        public object VisitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context)
-        {
+        public object VisitAddSubStatementAST([NotNull] AddSubStatementASTContext context) {
             Identifier identifier = Visit(context.designator()) as Identifier;
-            if(identifier != null)
-            {
-                if(identifier is VarIdentifier)
-                {
-                    if(identifier.Type != "int")
-                    {
+            if (identifier != null) {
+                if (identifier is VarIdentifier) {
+                    if (identifier.Type != "int") {
                         InsertError(context.Start,
                         "No se puede aplicar la operación a identificadores que no sean de tipo 'int', y el tipo de la variable es " + identifier.Type);
                     }
-                }
-                else
-                {
+                } else {
                     InsertError(context.Start,
                         "No se puede aplicar la operación a identificadores de arreglos, métodos, constantes o clases. Solo variables de tipo int");
                 }
             }
-            return new List<Pair<string, IToken>>(); 
+            return new List<Pair<string, IToken>>();
         }
 
-        public object VisitNullFactorAST([NotNull] VoltaParser.NullFactorASTContext context) {
+        public object VisitNullFactorAST([NotNull] NullFactorASTContext context) {
             return "none";
         }
 
-        public object VisitAddopAST([NotNull] AddopASTContext context)
-        {
+        public object VisitAddopAST([NotNull] AddopASTContext context) {
             VisitChildren(context); return null;
         }
     }

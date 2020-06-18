@@ -161,19 +161,19 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by the <c>addsubStatementAST</c>
+	/// Enter a parse tree produced by the <c>addSubStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context) { }
+	public virtual void EnterAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by the <c>addsubStatementAST</c>
+	/// Exit a parse tree produced by the <c>addSubStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context) { }
+	public virtual void ExitAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.

@@ -139,17 +139,17 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitAssignStatementAST([NotNull] VoltaParser.AssignStatementASTContext context);
 	/// <summary>
-	/// Enter a parse tree produced by the <c>addsubStatementAST</c>
+	/// Enter a parse tree produced by the <c>addSubStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context);
+	void EnterAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context);
 	/// <summary>
-	/// Exit a parse tree produced by the <c>addsubStatementAST</c>
+	/// Exit a parse tree produced by the <c>addSubStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitAddsubStatementAST([NotNull] VoltaParser.AddsubStatementASTContext context);
+	void ExitAddSubStatementAST([NotNull] VoltaParser.AddSubStatementASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>ifStatementAST</c>
 	/// labeled alternative in <see cref="VoltaParser.statement"/>.

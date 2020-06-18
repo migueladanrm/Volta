@@ -804,6 +804,28 @@ public partial class VoltaParser : Parser {
 			else return visitor.VisitChildren(this);
 		}
 	}
+	public partial class AddSubStatementASTContext : StatementContext {
+		public DesignatorContext designator() {
+			return GetRuleContext<DesignatorContext>(0);
+		}
+		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
+		public ITerminalNode ADDADD() { return GetToken(VoltaParser.ADDADD, 0); }
+		public ITerminalNode SUBSUB() { return GetToken(VoltaParser.SUBSUB, 0); }
+		public AddSubStatementASTContext(StatementContext context) { CopyFrom(context); }
+		public override void EnterRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.EnterAddSubStatementAST(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IVoltaParserListener typedListener = listener as IVoltaParserListener;
+			if (typedListener != null) typedListener.ExitAddSubStatementAST(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitAddSubStatementAST(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
 	public partial class ForStatementASTContext : StatementContext {
 		public ITerminalNode FOR() { return GetToken(VoltaParser.FOR, 0); }
 		public ITerminalNode BL() { return GetToken(VoltaParser.BL, 0); }
@@ -927,28 +949,6 @@ public partial class VoltaParser : Parser {
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitSwitchStatementAST(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-	public partial class AddsubStatementASTContext : StatementContext {
-		public DesignatorContext designator() {
-			return GetRuleContext<DesignatorContext>(0);
-		}
-		public ITerminalNode SEMICOLON() { return GetToken(VoltaParser.SEMICOLON, 0); }
-		public ITerminalNode ADDADD() { return GetToken(VoltaParser.ADDADD, 0); }
-		public ITerminalNode SUBSUB() { return GetToken(VoltaParser.SUBSUB, 0); }
-		public AddsubStatementASTContext(StatementContext context) { CopyFrom(context); }
-		public override void EnterRule(IParseTreeListener listener) {
-			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.EnterAddsubStatementAST(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IVoltaParserListener typedListener = listener as IVoltaParserListener;
-			if (typedListener != null) typedListener.ExitAddsubStatementAST(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IVoltaParserVisitor<TResult> typedVisitor = visitor as IVoltaParserVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitAddsubStatementAST(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
@@ -1102,7 +1102,7 @@ public partial class VoltaParser : Parser {
 				}
 				break;
 			case 3:
-				_localctx = new AddsubStatementASTContext(_localctx);
+				_localctx = new AddSubStatementASTContext(_localctx);
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 142; designator();
