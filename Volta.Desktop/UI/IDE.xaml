@@ -390,6 +390,10 @@
                         </Button>
 
                         <Separator/>
+                        <ComboBox MinWidth="100">
+                            <ComboBoxItem Content="Delta" IsSelected="True"/>
+                            <ComboBoxItem Content="Nabla"/>
+                        </ComboBox>
                         <Button Click="ToolbarButton_Click" Tag="toolbar.buildrun" ToolTip="Compilar y ejecutar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Play}" Fill="Green"/>
