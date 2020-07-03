@@ -16,7 +16,7 @@ namespace Volta.Compiler.CodeGeneration.Delta
         #region Management
 
         public void AddValue(string key, dynamic value) {
-            data.Add(key, value);
+            //data.Add(key, value);
         }
 
         public bool ExistsValue(string key)

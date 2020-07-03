@@ -352,7 +352,7 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitExprAST([NotNull] ExprASTContext context) {
             if (context.term().Length == 1) {
-                string type = (string)Visit(context.term()[0]);
+                string type = (string)Visit(context.term(0));
                 if (type != "int") {
                     if (context.SUB() == null) {
                         return type;
@@ -364,6 +364,20 @@ namespace Volta.Compiler.CodeAnalysis
                     return type;
                 }
             }
+            else if (context.term().Length > 1)
+            {
+                bool allInts = context.term().ToList().All(term => {
+                    string type = (string)Visit(term);
+                    if (type != "int")
+                    {
+                        InsertError(term.Start,
+                            $"El término '{term.GetText()}' no es un número entero. Solo se permite el uso de '+' o '-' con números enteros");
+                    }
+                    return type == "int";
+                });
+                return allInts ? "int" : null;
+            }
+
             return null;
         }
 
@@ -375,30 +389,43 @@ namespace Volta.Compiler.CodeAnalysis
                 var type = Visit(typesList[i]) as string;
 
                 if (type != null) {
-                    if (!ExistIdent(idents[i].IDENT().Symbol.Text, true)) {
-                        if (types.IndexOf(type) > 10) {
-                            ClassIdentifier classIdentifier = identificationTable.FindClass(type);
-                            List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
-                            InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
-                            identificationTable.Insert(instanceIdentifier);
-                        } else {
-                            var ident = idents[i].IDENT();
-                            Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null) {
-                                if (types.IndexOf(type) <= 10) {
-                                    List<Identifier> identifiers = new List<Identifier>();
-                                    identifier.Id = "0";
-                                    identifiers.Add(identifier);
-                                    identifier.Type = type.Replace("[]", "");
-                                    ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
-                                    identificationTable.Insert(arrayIdentifier);
+                    if (idents[i].IDENT() != null)
+                    {
+                        if (!ExistIdent(idents[i].IDENT().Symbol.Text, true))
+                        {
+                            if (types.IndexOf(type) > 10)
+                            {
+                                ClassIdentifier classIdentifier = identificationTable.FindClass(type);
+                                List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
+                                InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
+                                identificationTable.Insert(instanceIdentifier);
+                            }
+                            else
+                            {
+                                var ident = idents[i].IDENT();
+                                Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
+                                if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null)
+                                {
+                                    if (types.IndexOf(type) <= 10)
+                                    {
+                                        List<Identifier> identifiers = new List<Identifier>();
+                                        identifier.Id = "0";
+                                        identifiers.Add(identifier);
+                                        identifier.Type = type.Replace("[]", "");
+                                        ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
+                                        identificationTable.Insert(arrayIdentifier);
+                                    }
                                 }
-                            } else {
-                                identificationTable.Insert(identifier);
+                                else
+                                {
+                                    identificationTable.Insert(identifier);
+                                }
                             }
                         }
-                    } else {
-                        InsertError(idents[i].IDENT().Symbol, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
+                        else
+                        {
+                            InsertError(idents[i].IDENT().Symbol, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
+                        }
                     }
                 }
             }
@@ -459,7 +486,11 @@ namespace Volta.Compiler.CodeAnalysis
                 Visit(context.condition());
 
             var returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
 
             return returnedTypes;
         }

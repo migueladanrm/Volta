@@ -68,6 +68,6 @@ COMMENT                                 :   (('//'~[\r\n]*[\n\r]) | ('/*'.*?'*/'
 // Fragments & others
 WS                                      :   [ \r\t\n]+ -> skip;
 fragment LETTER                         :   [A-Za-z];
-fragment PRINTABLE_CHAR                 :   (LETTER | [0-9] | [!"#$%&'()*+,\-./:;<=>?@]);
+fragment PRINTABLE_CHAR                 :   (LETTER | [0-9] | [!"#$%&'()*+,\-./:;<=>?@ ]);
 
 

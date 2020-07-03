@@ -11,8 +11,8 @@ namespace Volta.Compiler.CodeGeneration.Delta
             stack = new Stack();
         }
 
-        public void Push(dynamic value)
-            => stack.Push(value);
+        //public void Push(dynamic value)
+        //    => stack.Push(value);
 
         public dynamic Pop()
             => stack.Pop();

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Volta.Compiler.CodeAnalysis;
+using Volta.Compiler.CodeGeneration.Delta;
 
 namespace Volta.Compiler
 {
@@ -39,6 +40,12 @@ namespace Volta.Compiler
             {
                 contextualAnalysis.Visit(tree);
                 errors.AddRange(contextualAnalysis.Errors);
+            }
+
+            if(errors.Count == 0)
+            {
+                var delta = new DeltaVisitor();
+                delta.WritedCode(tree);
             }
 
            
