@@ -22,9 +22,5 @@
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Compiler\CodeGeneration\Nabla\" />
-  </ItemGroup>
-
 
 </Project>
