@@ -462,23 +462,30 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitForStatementAST([NotNull] ForStatementASTContext context) {
             var iterator = Visit(context.expr()) as string ?? "none";
-            Visit(context.condition());
-            Visit(context.statement()[0]);
+            if (context.condition() != null && context.statement(0) != null && context.statement(1) != null)
+            {
+                Visit(context.condition());
+                Visit(context.statement()[0]);
 
-            if (iterator == "int") {
-                if (context.statement().Length > 1)
-                    Visit(context.statement()[1]);
-            } else
-                InsertError(context.expr().Start, $"El iterador debe ser de tipo 'int' pero se obtuvo '{iterator}'.");
+                if (iterator == "int")
+                {
+                    if (context.statement().Length > 1)
+                        Visit(context.statement()[1]);
+                }
+                else
+                    InsertError(context.expr().Start, $"El iterador debe ser de tipo 'int' pero se obtuvo '{iterator}'.");
 
-            VisitChildren(context);
-            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => {
-                var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null)
-                    returnedTypes.AddRange(list);
-            });
-            return returnedTypes;
+                VisitChildren(context);
+                List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+                context.statement().ToList().ForEach(statement =>
+                {
+                    var list = Visit(statement) as List<Pair<string, IToken>>;
+                    if (list != null)
+                        returnedTypes.AddRange(list);
+                });
+                return returnedTypes;
+            }
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {

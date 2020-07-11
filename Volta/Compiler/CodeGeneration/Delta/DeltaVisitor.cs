@@ -276,7 +276,50 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitForStatementAST([NotNull] ForStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            if(context.condition() != null && context.statement(0) != null && context.statement(1) != null)
+            {
+                Visit(context.condition());
+
+                int jumpIfFalse = LineCount;
+                AddLine("JUMP_IF_FALSE");
+
+                int jumpIfNext = LineCount;
+                Visit(context.statement(1));
+                Visit(context.statement(0));
+                Visit(context.condition());
+                AddLine($"JUMP_IF_TRUE {jumpIfNext}");
+
+                SetLineOnRealIndexOf(jumpIfFalse, $"JUMP_IF_FALSE {LineCount}");
+            }
+
+            
+
+
+
+            //Visit(context.condition());
+            //int jumpIfFalsePosition = LineCount;
+            //AddLine("JUMP_IF_FALSE");
+
+            //Visit(context.statement(0));
+
+            //if (context.ELSE() != null)
+            //{
+            //    int jumpAbsolutePosition = LineCount;
+            //    AddLine("JUMP_ABSOLUTE");
+
+            //    SetLineOnRealIndexOf(jumpIfFalsePosition, $"JUMP_IF_FALSE {LineCount}");
+
+            //    Visit(context.statement(1));
+
+            //    SetLineOnRealIndexOf(jumpAbsolutePosition, $"JUMP_ABSOLUTE {LineCount}");
+            //}
+            //else
+            //{
+            //    SetLineOnRealIndexOf(jumpIfFalsePosition, $"JMP_IF_FALSE {LineCount}");
+            //}
+
+            //VisitChildren(context); 
+            return null;
         }
 
         public object VisitGreaterEqualRelopAST([NotNull] GreaterEqualRelopASTContext context)
