@@ -644,6 +644,8 @@ namespace Volta.Compiler.CodeAnalysis
                     }
                 } else if (type == "none") {
                     InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
+                } else {
+                    context.typeString = type;
                 }
             } else {
                 InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");

@@ -71,7 +71,7 @@ namespace Volta.Compiler.CodeGeneration.Delta
             AddLine($"LOAD_{scope} {ident}");
             AddLine("LOAD_CONST 1");
             if (context.ADDADD() != null)
-                AddLine($"BINARY_SUM");
+                AddLine($"BINARY_ADD");
             else
                 AddLine($"BINARY_SUBSTRACT");
             AddLine($"STORE_{scope} {ident}");
@@ -291,34 +291,6 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
                 SetLineOnRealIndexOf(jumpIfFalse, $"JUMP_IF_FALSE {LineCount}");
             }
-
-            
-
-
-
-            //Visit(context.condition());
-            //int jumpIfFalsePosition = LineCount;
-            //AddLine("JUMP_IF_FALSE");
-
-            //Visit(context.statement(0));
-
-            //if (context.ELSE() != null)
-            //{
-            //    int jumpAbsolutePosition = LineCount;
-            //    AddLine("JUMP_ABSOLUTE");
-
-            //    SetLineOnRealIndexOf(jumpIfFalsePosition, $"JUMP_IF_FALSE {LineCount}");
-
-            //    Visit(context.statement(1));
-
-            //    SetLineOnRealIndexOf(jumpAbsolutePosition, $"JUMP_ABSOLUTE {LineCount}");
-            //}
-            //else
-            //{
-            //    SetLineOnRealIndexOf(jumpIfFalsePosition, $"JMP_IF_FALSE {LineCount}");
-            //}
-
-            //VisitChildren(context); 
             return null;
         }
 
@@ -481,12 +453,22 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context)
         {
-            VisitChildren(context); return null;
+            var nums = context.NUM();
+            var strings = context.STRING();
+            var chars = context.CHARCONST();
+
+            var trues = context.TRUE();
+            var falses = context.FALSE();
+
+            
+
+            return null;
         }
 
         public object VisitSwitchStatementAST([NotNull] SwitchStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            VisitChildren(context); 
+            return null;
         }
 
         public object VisitTermAST([NotNull] TermASTContext context)
@@ -545,7 +527,21 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitWhileStatementAST([NotNull] WhileStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            if (context.condition() != null && context.statement() != null)
+            {
+                Visit(context.condition());
+
+                int jumpIfFalse = LineCount;
+                AddLine("JUMP_IF_FALSE");
+
+                int jumpIfNext = LineCount;
+                Visit(context.statement());
+                Visit(context.condition());
+                AddLine($"JUMP_IF_TRUE {jumpIfNext}");
+
+                SetLineOnRealIndexOf(jumpIfFalse, $"JUMP_IF_FALSE {LineCount}");
+            }
+            return null;
         }
 
         public object VisitWriteStatementAST([NotNull] WriteStatementASTContext context)
