@@ -5,13 +5,15 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using static VoltaParser;
+using System.Collections.Generic;
 
 namespace Volta.Compiler.CodeGeneration.Nabla
 {
     public class NablaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
         private ModuleBuilder moduleBuilder;
-        private TypeBuilder typeBuilder;
+        private TypeBuilder rootType;
+        private List<TypeBuilder> childTypes;
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -62,7 +64,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitClassDeclAST([NotNull] ClassDeclASTContext context) {
-            typeBuilder = moduleBuilder.DefineType(Visit(context.ident()) as string);
+            rootType = moduleBuilder.DefineType(Visit(context.ident()) as string);
             context.varDecl().ToList().ForEach(vd => Visit(vd));
 
             throw new NotImplementedException();
@@ -81,7 +83,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitConstDeclAST([NotNull] ConstDeclASTContext context) {
-            var field = typeBuilder.DefineField(Visit(context.ident()) as string,
+            var field = rootType.DefineField(Visit(context.ident()) as string,
                 NablaHelper.ParseType(Visit(context.type()) as string),
                 FieldAttributes.HasDefault);
 
@@ -161,7 +163,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-            throw new NotImplementedException();
+            rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class, typeof(object));
+            VisitChildren(context);
+
+            return null;
         }
 
         public object VisitReadStatementAST([NotNull] ReadStatementASTContext context) {
@@ -200,7 +205,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var varType = Visit(context.type()) as string;
             context.ident().ToList().ForEach(ident => {
                 var identifier = Visit(ident) as string;
-                var field = typeBuilder.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.InitOnly);
+                var field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.InitOnly);
             });
 
             return null;
