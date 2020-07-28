@@ -28,7 +28,7 @@ namespace Volta.Compiler
 
             IParseTree tree = parser.program();
 
-            //Debug.WriteLine(":D");
+            //Debug.WriteLine("Probando el debugger");
             //Debug.WriteLine((tree as ParserRuleContext).ToStringTree(parser));
 
             ContextualAnalysis contextualAnalysis = new ContextualAnalysis();

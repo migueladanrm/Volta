@@ -339,12 +339,25 @@ public interface IVoltaParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="VoltaParser.boolean"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolean([NotNull] VoltaParser.BooleanContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>switchAST</c>
 	/// labeled alternative in <see cref="VoltaParser.switch"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>caseAST</c>
+	/// labeled alternative in <see cref="VoltaParser.case"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCaseAST([NotNull] VoltaParser.CaseASTContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>identAST</c>
 	/// labeled alternative in <see cref="VoltaParser.ident"/>.

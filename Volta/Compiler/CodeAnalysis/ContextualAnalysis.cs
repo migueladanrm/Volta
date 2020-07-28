@@ -617,47 +617,44 @@ namespace Volta.Compiler.CodeAnalysis
         }
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context) {
-            var nums = context.NUM();
-            var strings = context.STRING();
-            var chars = context.CHARCONST();
-
-            var trues = context.TRUE();
-            var falses = context.FALSE();
-
-            string type = Visit(context.expr()) as string;
-            if (type != null && types.IndexOf(type) < 4) {
-                if (type == "int" || type == "float") {
-                    if (nums.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "char") {
-                    if (chars.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "string") {
-                    if (strings.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "bool") {
-                    if (trues.Length + falses.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "none") {
-                    InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
-                } else {
-                    context.typeString = type;
-                }
-            } else {
-                InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
-            }
-
+            var cases = context.@case();
 
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => {
-                var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null)
-                    returnedTypes.AddRange(list);
-            });
+
+            if (context.expr() != null)
+            {
+                string type = Visit(context.expr()) as string;
+                if (type != null && types.IndexOf(type) < 4)
+                {
+                    if (type == "none")
+                    {
+                        InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
+                    }
+                    else
+                    {
+                        cases.ToList().ForEach(@case =>
+                        {
+                            var list = Visit(@case) as List<Pair<string, IToken>>;
+                            if (list != null)
+                                returnedTypes.AddRange(list);
+
+                            var caseType = (@case as CaseASTContext).typeString;
+                            if (caseType != type && (caseType != "num" || (type != "int" && type != "float")))
+                            {
+                                InsertError(@case.Start, $"La expresión en el case debe ser de tipo '{type}'");
+                            }
+
+                        });
+
+                        context.typeString = type;
+                    }
+                }
+                else
+                {
+                    InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
+                }
+            }
+
             return returnedTypes;
         }
 
@@ -867,6 +864,51 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitAddopAST([NotNull] AddopASTContext context) {
             VisitChildren(context); return null;
+        }
+
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+            if(context.TRUE() != null)
+            {
+                context.value = true;
+            }
+            else
+            {
+                context.value = false;
+            }
+            return context.value;
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
+            
+            if(context.NUM() != null)
+            {
+                context.typeString = "num";
+            }
+            else if(context.CHARCONST() != null)
+            {
+                context.typeString = "char";
+            }
+            else if( context.STRING() != null)
+            {
+                context.typeString = "string";
+            }
+            else if(context.boolean() != null)
+            {
+                Visit(context.boolean());
+                context.typeString = "bool";
+            }
+
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            if(context.statement() != null)
+            {
+                var list = Visit(context.statement()) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            }
+
+            return returnedTypes;
         }
     }
 }

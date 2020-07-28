@@ -122,7 +122,8 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitBreakStatementAST([NotNull] BreakStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            AddLine("BREAK");
+            return null;
         }
 
         public object VisitCallStatementAST([NotNull] CallStatementASTContext context)
@@ -422,7 +423,14 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitReadStatementAST([NotNull] ReadStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            AddLine("LOAD_GLOBAL read");
+            AddLine("CALL_FUNCTION 0");
+            var scope = Visit(context.designator()) as string;
+            var name = context.designator().GetText();
+
+            AddLine($"STORE_{scope} {name}");
+
+            return null;
         }
 
         public object VisitReturnStatementAST([NotNull] ReturnStatementASTContext context)
@@ -453,14 +461,26 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context)
         {
-            var nums = context.NUM();
-            var strings = context.STRING();
-            var chars = context.CHARCONST();
+            var cases = context.@case().ToList();
 
-            var trues = context.TRUE();
-            var falses = context.FALSE();
+            int firstLine = LineCount;
 
-            
+            cases.ForEach(@case =>
+            {
+                Visit(context.expr());
+                Visit(@case);
+            });
+
+            int lastLine = LineCount - 1;
+
+            var breaksIndex = CodeLines.Select((s, i) => (s.Split(" ")[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
+
+
+            Debug.WriteLine(breaksIndex);
+            breaksIndex.ToList().ForEach(i =>
+            {
+                SetLineOnRealIndexOf(i, $"JUMP_ABSOLUTE {LineCount}");
+            });
 
             return null;
         }
@@ -549,6 +569,36 @@ namespace Volta.Compiler.CodeGeneration.Delta
             Visit(context.expr());
             AddLine("LOAD_GLOBAL write");
             AddLine("CALL_FUNCTION 1");
+            return null;
+        }
+
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+
+            return context.value ? "true" : "false";
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
+            if(context.typeString != "bool")
+            {
+                var value = context.NUM() ?? context.CHARCONST() ?? context.STRING(); 
+                AddLine($"LOAD_CONST {value.GetText()}");
+            }
+            else
+            {
+                var value = Visit(context.boolean()) as string;
+                AddLine($"LOAD_CONST {value}");
+            }
+
+            AddLine("COMPARE_OP ==");
+            int jumpIfFalsePosition = LineCount;
+            AddLine("JUMP_IF_FALSE");
+            if(context.statement() != null)
+                Visit(context.statement());
+
+            SetLineOnRealIndexOf(jumpIfFalsePosition, $"JUMP_IF_FALSE {LineCount}");
+
             return null;
         }
     }

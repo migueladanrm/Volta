@@ -68,17 +68,24 @@ relop                           :   EQUALEQUAL                                  
                                     | GREATER                                                                           #greaterRelopAST
                                     | LESS                                                                              #lessRelopAST;
 
+boolean
+locals [bool value=false] 
+                            : TRUE | FALSE                                                                                                  #booleanAST;
+
 switch
 locals [string typeString=null]                          
                             :   SWITCH BL(expr)BR 
                                     CURLYBL 
-                                        (CASE (NUM | CHARCONST | STRING | (TRUE | FALSE)) COLON 
-                                            (statement)?
-                                        )*
+                                        (case)*
                                         (DEFAULT COLON
                                             (statement)?
                                         )?
                                     CURLYBR                                                                             #switchAST;
+
+case
+locals [string typeString=null]
+                        : CASE (NUM | CHARCONST | STRING | boolean) COLON 
+                                            (statement)?                                                                #caseAST;
 
 ident
 locals [ParserRuleContext decl=null]

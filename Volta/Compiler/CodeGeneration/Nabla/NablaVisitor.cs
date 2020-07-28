@@ -41,6 +41,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             throw new NotImplementedException();
         }
 
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public object VisitBooleanFactorAST([NotNull] BooleanFactorASTContext context) {
             throw new NotImplementedException();
         }
@@ -54,6 +59,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitCallStatementAST([NotNull] CallStatementASTContext context) {
+            throw new NotImplementedException();
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
             throw new NotImplementedException();
         }
 
