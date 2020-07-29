@@ -26,5 +26,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             nv.Visit(tree);
         }
+
+        public void BuildProgram() {
+            
+        }
     }
 }
