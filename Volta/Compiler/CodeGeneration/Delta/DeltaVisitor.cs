@@ -44,12 +44,18 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public int RealIndexOf(int i)
         {
+#if NETCOREAPP3_1
             return CodeLines.FindIndex(line => line.Split(" ")[0] == i.ToString());
+#else
+            return 0;
+#endif
         }
 
         public void SetLineOnRealIndexOf(int i, string code)
         {
+#if NETCOREAPP3_1
             CodeLines[CodeLines.FindIndex(line => line.Split(" ")[0] == i.ToString())] = $"{i} {code}";
+#endif
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context)
