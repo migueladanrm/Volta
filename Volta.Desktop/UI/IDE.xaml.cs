@@ -281,8 +281,88 @@ namespace Volta.UI
                         PasteCommand.Execute(null);
                         break;
                     case "buildrun":
-                        MCShow("This is a sample!");
-                        break;
+                        {
+                            var currentCodeTab = GetCurrentCodeTab();
+                            if (currentCodeTab.errors.Count == 0)
+                            {
+                                var selected = CompilerSelect.SelectedIndex;
+
+                                MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
+
+                                if(selected == 0)
+                                {
+                                    var tree = currentCodeTab.tree;
+
+                                    var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
+
+                                    var textFile = deltaCode.CreateTempFile();
+
+                                    var exeFile = @".\Minics.exe";
+
+                                    var info = new ProcessStartInfo();
+
+                                    info.FileName = exeFile;
+                                    info.Arguments = $"{textFile}";
+                                    info.RedirectStandardError = true;
+                                    info.RedirectStandardInput = true;
+                                    info.RedirectStandardOutput = true;
+
+                                    info.UseShellExecute = false;
+                                    
+
+                                    
+                                
+                                    try
+                                    {
+                                        using (Process exeProcess = Process.Start(info))
+                                        {
+
+                                            exeProcess.BeginErrorReadLine();
+                                            exeProcess.BeginOutputReadLine();
+
+                                            exeProcess.OutputDataReceived += (a, b) =>
+                                            {
+                                                Debug.WriteLine(b.Data);
+                                            };
+
+                                            exeProcess.ErrorDataReceived += (a, b) =>
+                                            {
+                                                Debug.WriteLine(b.Data);
+                                            };
+
+                                            
+
+
+                                            using (StreamWriter myStreamWriter = exeProcess.StandardInput)
+                                            {
+                                                String inputText;
+                                                Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+
+                                                inputText = "3";
+                                                myStreamWriter.WriteLine(inputText);
+
+                                                myStreamWriter.Close();
+
+                                                exeProcess.WaitForExit();
+                                            }
+                                            
+                                        }
+                                    
+                                    }
+                                    catch (Exception error)
+                                    {
+                                        Debug.WriteLine("ERORROROROROOR");
+                                        Debug.WriteLine(error.Message);// Log error.
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                MCShow("Aún existen errores en el código, debe elminarlos primero");
+                            }
+
+                            break;
+                        }
                     case "close":
                         CloseTabCommand.Execute(null);
                         break;

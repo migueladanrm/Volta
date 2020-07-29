@@ -15,8 +15,43 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private TypeBuilder rootType;
         private List<TypeBuilder> childTypes;
 
+        private MethodBuilder methodBuilder;
+
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
+        }
+
+        public Type GetTypeOf(string typeString)
+        {
+
+            switch(typeString)
+            {
+                case "int":
+                    return typeof(int);
+                case "float":
+                    return typeof(float);
+                case "char":
+                    return typeof(char);
+                case "string":
+                    return typeof(string);
+                case "bool":
+                    return typeof(bool);
+                case "int[]":
+                    return typeof(int[]);
+                case "char[]":
+                    return typeof(char[]);
+                case "float[]":
+                    return typeof(float[]);
+                case "bool[]":
+                    return typeof(bool[]);
+                case "string[]":
+                    return typeof(string[]);
+                default:
+                    {
+                        return childTypes.Find(typeBuilder => typeBuilder.GetType().Name.Equals(typeString)).GetType();
+                    }
+                    
+            }
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context) {
@@ -43,6 +78,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             return null;
         }
 
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public object VisitBooleanFactorAST([NotNull] BooleanFactorASTContext context) {
             return null;
         }
@@ -57,6 +97,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitCallStatementAST([NotNull] CallStatementASTContext context) {
             return null;
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
+            throw new NotImplementedException();
         }
 
         public object VisitCharConstFactorAST([NotNull] CharConstFactorASTContext context) {
@@ -139,6 +184,20 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
+<<<<<<< HEAD
+
+            var name = Visit(context.ident()) as string;
+
+            var typeString = Visit(context.type()) as string;
+
+            var type = GetTypeOf(typeString);
+
+            var paramTypes = Visit(context.formPars()) as Type[];
+
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public, type, paramTypes);
+
+=======
+>>>>>>> dev
             return null;
         }
 

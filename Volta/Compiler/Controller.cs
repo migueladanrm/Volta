@@ -12,7 +12,7 @@ namespace Volta.Compiler
 {
     public class Controller
     {
-        public static List<VoltaCompilerError> Check(string text)
+        public static Tuple<IParseTree, List<VoltaCompilerError>> Check(string text)
         {
             ICharStream charStream = CharStreams.fromstring(text);
             VoltaScanner scanner = new VoltaScanner(charStream);
@@ -28,7 +28,7 @@ namespace Volta.Compiler
 
             IParseTree tree = parser.program();
 
-            //Debug.WriteLine(":D");
+            //Debug.WriteLine("Probando el debugger");
             //Debug.WriteLine((tree as ParserRuleContext).ToStringTree(parser));
 
             ContextualAnalysis contextualAnalysis = new ContextualAnalysis();
@@ -44,15 +44,12 @@ namespace Volta.Compiler
 
             if(errors.Count == 0)
             {
-                var delta = new DeltaVisitor();
-                delta.WritedCode(tree);
+                var delta = new DeltaVisitor(tree);
+                delta.PrintCode();
             }
+     
 
-           
-            
-            
-
-            return errors;
+            return new Tuple<IParseTree, List<VoltaCompilerError>>(tree, errors) ;
         }
     }
 }

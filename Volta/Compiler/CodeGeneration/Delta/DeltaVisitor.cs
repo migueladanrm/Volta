@@ -3,30 +3,79 @@ using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using static VoltaParser;
 
 namespace Volta.Compiler.CodeGeneration.Delta
 {
-    class DeltaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
+    public class DeltaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
+
+
         public List<string> CodeLines { get; set; }
 
         public int LineCount { get; set; }
 
-        public DeltaVisitor()
+        public DeltaVisitor(IParseTree tree)
         {
             CodeLines = new List<string>();
             LineCount = 0;
+
+            Visit(tree);
         }
 
-        public void WritedCode(IParseTree tree)
+        public void PrintCode()
         {
-            Visit(tree);
             CodeLines.ForEach(line =>
             {
                 Debug.WriteLine(line);
             });
+        }
+
+        public List<string> GetCode()
+        {
+            return CodeLines;
+        }
+
+        public string CreateTempFile()
+        {
+            var directoryName = @".\temp";
+
+            
+
+            var fileName = @".\temp\running.VMCS";
+
+            try
+            {
+                if(!Directory.Exists(directoryName))
+                    Directory.CreateDirectory(@".\temp");
+
+
+                // Check if file already exists. If yes, delete it.     
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+
+                // Create a new file     
+                using (FileStream fs = File.Create(fileName))
+                {
+                    // Add some text to file   
+                    CodeLines.ForEach(line => {
+                        var lineBytes = new UTF8Encoding(true).GetBytes(line + "\n");
+                        fs.Write(lineBytes, 0, lineBytes.Length);
+                    });
+                    
+                }
+            }
+            catch (Exception Ex)
+            {
+                Console.WriteLine(Ex.ToString());
+            }
+
+            return fileName;
         }
 
         
@@ -128,7 +177,8 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitBreakStatementAST([NotNull] BreakStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            AddLine("BREAK");
+            return null;
         }
 
         public object VisitCallStatementAST([NotNull] CallStatementASTContext context)
@@ -428,7 +478,14 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitReadStatementAST([NotNull] ReadStatementASTContext context)
         {
-            VisitChildren(context); return null;
+            AddLine("LOAD_GLOBAL read");
+            AddLine("CALL_FUNCTION 0");
+            var scope = Visit(context.designator()) as string;
+            var name = context.designator().GetText();
+
+            AddLine($"STORE_{scope} {name}");
+
+            return null;
         }
 
         public object VisitReturnStatementAST([NotNull] ReturnStatementASTContext context)
@@ -459,14 +516,31 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context)
         {
-            var nums = context.NUM();
-            var strings = context.STRING();
-            var chars = context.CHARCONST();
+            var cases = context.@case().ToList();
 
-            var trues = context.TRUE();
-            var falses = context.FALSE();
+            int firstLine = LineCount;
+
+            cases.ForEach(@case =>
+            {
+                Visit(context.expr());
+                Visit(@case);
+            });
+
+            if(context.statement() != null)
+            {
+                Visit(context.statement());
+            }
+
+            int lastLine = LineCount - 1;
+
+            var breaksIndex = CodeLines.Select((s, i) => (s.Split(" ")[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
+
 
             
+            breaksIndex.ToList().ForEach(i =>
+            {
+                SetLineOnRealIndexOf(i, $"JUMP_ABSOLUTE {LineCount}");
+            });
 
             return null;
         }
@@ -555,6 +629,36 @@ namespace Volta.Compiler.CodeGeneration.Delta
             Visit(context.expr());
             AddLine("LOAD_GLOBAL write");
             AddLine("CALL_FUNCTION 1");
+            return null;
+        }
+
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+
+            return context.value ? "true" : "false";
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
+            if(context.typeString != "bool")
+            {
+                var value = context.NUM() ?? context.CHARCONST() ?? context.STRING(); 
+                AddLine($"LOAD_CONST {value.GetText()}");
+            }
+            else
+            {
+                var value = Visit(context.boolean()) as string;
+                AddLine($"LOAD_CONST {value}");
+            }
+
+            AddLine("COMPARE_OP ==");
+            int jumpIfFalsePosition = LineCount;
+            AddLine("JUMP_IF_FALSE");
+            if(context.statement() != null)
+                Visit(context.statement());
+
+            SetLineOnRealIndexOf(jumpIfFalsePosition, $"JUMP_IF_FALSE {LineCount}");
+
             return null;
         }
     }

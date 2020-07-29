@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿using Antlr4.Runtime.Tree;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.AddIn;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.SharpDevelop.Editor;
@@ -25,7 +26,10 @@ namespace Volta.UI.Controls
 
         private ITextMarkerService textMarkerService;
         private Editor.ToolTipManager.ToolTipService toolTipService;
-        private List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
+
+
+        public List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
+        public IParseTree tree = null;
 
         public event Action<Caret> OnEditorCaretChanged;
         public event Func<CodeFile, CodeFile> OnRequestSaveNewFile;
@@ -80,7 +84,10 @@ namespace Volta.UI.Controls
 
             var textEditor = sender as TextEditor;
             var text = textEditor.Text;
-            errors = Controller.Check(text);
+            var tuple = Controller.Check(text);
+            errors = tuple.Item2;
+            tree = tuple.Item1;
+
             Debug.WriteLine("\n");
             errors.ForEach((VoltaCompilerError error) => {
                 int offset = textEditor.Document.GetOffset(error.Line, error.Column);

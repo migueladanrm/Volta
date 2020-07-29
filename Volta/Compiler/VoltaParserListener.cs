@@ -557,6 +557,16 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="VoltaParser.boolean"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBoolean([NotNull] VoltaParser.BooleanContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="VoltaParser.boolean"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBoolean([NotNull] VoltaParser.BooleanContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>switchAST</c>
 	/// labeled alternative in <see cref="VoltaParser.switch"/>.
 	/// </summary>
@@ -568,6 +578,18 @@ public interface IVoltaParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitSwitchAST([NotNull] VoltaParser.SwitchASTContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>caseAST</c>
+	/// labeled alternative in <see cref="VoltaParser.case"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCaseAST([NotNull] VoltaParser.CaseASTContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>caseAST</c>
+	/// labeled alternative in <see cref="VoltaParser.case"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCaseAST([NotNull] VoltaParser.CaseASTContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>identAST</c>
 	/// labeled alternative in <see cref="VoltaParser.ident"/>.
