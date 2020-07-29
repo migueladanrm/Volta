@@ -163,8 +163,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-            rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class, typeof(object));
-            VisitChildren(context);
+            rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class | TypeAttributes.Public);
+            //VisitChildren(context);
+
+            rootType.CreateType();
 
             return null;
         }
