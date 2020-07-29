@@ -193,7 +193,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             var paramTypes = Visit(context.formPars()) as Type[];
 
-            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public, type, paramTypes )
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public, type, paramTypes);
+
+            return null;
         }
 
         public object VisitMulop([NotNull] MulopContext context) {
