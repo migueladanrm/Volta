@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Volta.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"C:\\Users\\Walter Benavides\\Desktop\\PruebasVolta\\metodosNabla.cs\""
+    }
+  }
+}

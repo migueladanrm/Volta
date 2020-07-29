@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 
 namespace Volta.Compiler.CodeGeneration.Nabla
 {
@@ -14,11 +15,17 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private NablaVisitor nv;
 
         public NablaAssembler(Stream code, string name = null) {
+
+            AppDomain currentDom = Thread.GetDomain();
+
             an = new AssemblyName(name ?? Guid.NewGuid().ToString());
 #if NET48
-            ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
+            ab = currentDom.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
+            Console.WriteLine("Assembly Builder");
+            Console.WriteLine(ab.FullName);
 #endif
             mb = ab.DefineDynamicModule(an.Name);
+            Console.WriteLine("Module Builder");
             nv = new NablaVisitor(ref mb);
 
             var lexer = new VoltaScanner(CharStreams.fromStream(code));

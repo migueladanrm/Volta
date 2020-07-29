@@ -93,18 +93,12 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public int RealIndexOf(int i)
         {
-#if NETCOREAPP3_1
-            return CodeLines.FindIndex(line => line.Split(" ")[0] == i.ToString());
-#else
-            return 0;
-#endif
+            return CodeLines.FindIndex(line => line.Split(' ')[0] == i.ToString());
         }
 
         public void SetLineOnRealIndexOf(int i, string code)
         {
-#if NETCOREAPP3_1
-            CodeLines[CodeLines.FindIndex(line => line.Split(" ")[0] == i.ToString())] = $"{i} {code}";
-#endif
+            CodeLines[CodeLines.FindIndex(line => line.Split(' ')[0] == i.ToString())] = $"{i} {code}";
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context)
@@ -533,7 +527,7 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
             int lastLine = LineCount - 1;
 
-            var breaksIndex = CodeLines.Select((s, i) => (s.Split(" ")[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
+            var breaksIndex = CodeLines.Select((s, i) => (s.Split(' ')[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
 
 
             

@@ -17,6 +17,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         private MethodBuilder methodBuilder;
 
+        private ILGenerator emitter = null;
+
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
         }
@@ -26,6 +28,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             switch(typeString)
             {
+                case "none":
+                    return typeof(string);
+                case "void":
+                    return typeof(void);
                 case "int":
                     return typeof(int);
                 case "float":
@@ -148,6 +154,27 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitFormParsAST([NotNull] FormParsASTContext context) {
+
+            var types = new Type[context.type().Length];
+
+            
+            for (int i = 0; i < context.type().Length; i++)
+            {
+                var typeString = context.type(i).GetText();
+                var type = GetTypeOf(typeString);
+
+                types[i] = type;
+            }
+
+            methodBuilder.SetParameters(types);
+
+            for (int i = 0; i < context.ident().Length; i++)
+            {
+                var paramName = context.ident(i).GetText();
+
+                methodBuilder.DefineParameter(i, ParameterAttributes.None, paramName);
+            }
+
             return null;
         }
 
@@ -184,20 +211,36 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
-<<<<<<< HEAD
-
+            
             var name = Visit(context.ident()) as string;
 
-            var typeString = Visit(context.type()) as string;
+            var typeString = "void";
+            if(context.type() != null)
+                typeString=Visit(context.type()) as string;
 
+            
             var type = GetTypeOf(typeString);
 
-            var paramTypes = Visit(context.formPars()) as Type[];
 
-            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public, type, paramTypes);
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public);
 
-=======
->>>>>>> dev
+            
+            methodBuilder.SetReturnType(type);
+
+            
+            Visit(context.formPars());
+            
+
+            
+            var baseEmitter = emitter;
+
+            
+            emitter = methodBuilder.GetILGenerator();
+
+            Visit(context.block());
+
+            emitter = baseEmitter;
+            
             return null;
         }
 
