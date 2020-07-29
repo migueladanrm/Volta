@@ -20,12 +20,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             an = new AssemblyName(name ?? Guid.NewGuid().ToString());
 #if NET48
-            ab = currentDom.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
-            Console.WriteLine("Assembly Builder");
-            Console.WriteLine(ab.FullName);
+            ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
+            mb = ab.DefineDynamicModule(an.Name,$"{an.Name}.exe");
 #endif
-            mb = ab.DefineDynamicModule(an.Name);
-            Console.WriteLine("Module Builder");
             nv = new NablaVisitor(ref mb);
 
             var lexer = new VoltaScanner(CharStreams.fromStream(code));
