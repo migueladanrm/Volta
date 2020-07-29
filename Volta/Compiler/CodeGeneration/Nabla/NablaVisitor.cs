@@ -15,8 +15,43 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private TypeBuilder rootType;
         private List<TypeBuilder> childTypes;
 
+        private MethodBuilder methodBuilder;
+
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
+        }
+
+        public Type GetTypeOf(string typeString)
+        {
+
+            switch(typeString)
+            {
+                case "int":
+                    return typeof(int);
+                case "float":
+                    return typeof(float);
+                case "char":
+                    return typeof(char);
+                case "string":
+                    return typeof(string);
+                case "bool":
+                    return typeof(bool);
+                case "int[]":
+                    return typeof(int[]);
+                case "char[]":
+                    return typeof(char[]);
+                case "float[]":
+                    return typeof(float[]);
+                case "bool[]":
+                    return typeof(bool[]);
+                case "string[]":
+                    return typeof(string[]);
+                default:
+                    {
+                        return childTypes.Find(typeBuilder => typeBuilder.GetType().Name.Equals(typeString)).GetType();
+                    }
+                    
+            }
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context) {
@@ -149,7 +184,16 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
-            throw new NotImplementedException();
+
+            var name = Visit(context.ident()) as string;
+
+            var typeString = Visit(context.type()) as string;
+
+            var type = GetTypeOf(typeString);
+
+            var paramTypes = Visit(context.formPars()) as Type[];
+
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public, type, paramTypes )
         }
 
         public object VisitMulop([NotNull] MulopContext context) {

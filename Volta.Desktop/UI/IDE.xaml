@@ -390,7 +390,7 @@
                         </Button>
 
                         <Separator/>
-                        <ComboBox MinWidth="100">
+                        <ComboBox MinWidth="100"  x:Name="CompilerSelect">
                             <ComboBoxItem Content="Delta" IsSelected="True"/>
                             <ComboBoxItem Content="Nabla"/>
                         </ComboBox>

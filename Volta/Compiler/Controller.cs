@@ -12,7 +12,7 @@ namespace Volta.Compiler
 {
     public class Controller
     {
-        public static List<VoltaCompilerError> Check(string text)
+        public static Tuple<IParseTree, List<VoltaCompilerError>> Check(string text)
         {
             ICharStream charStream = CharStreams.fromstring(text);
             VoltaScanner scanner = new VoltaScanner(charStream);
@@ -47,12 +47,9 @@ namespace Volta.Compiler
                 var delta = new DeltaVisitor(tree);
                 delta.PrintCode();
             }
+     
 
-           
-            
-            
-
-            return errors;
+            return new Tuple<IParseTree, List<VoltaCompilerError>>(tree, errors) ;
         }
     }
 }

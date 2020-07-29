@@ -22,5 +22,11 @@
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Minics">
+      <HintPath>..\..\Volta.VMCS\bin\Debug\Minics.exe</HintPath>
+    </Reference>
+  </ItemGroup>
+
 
 </Project>

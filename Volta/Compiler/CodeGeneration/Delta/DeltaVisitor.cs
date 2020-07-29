@@ -3,13 +3,17 @@ using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using static VoltaParser;
 
 namespace Volta.Compiler.CodeGeneration.Delta
 {
-    class DeltaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
+    public class DeltaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
+
+
         public List<string> CodeLines { get; set; }
 
         public int LineCount { get; set; }
@@ -30,9 +34,48 @@ namespace Volta.Compiler.CodeGeneration.Delta
             });
         }
 
-        public List<string> GetCode(IParseTree tree)
+        public List<string> GetCode()
         {
             return CodeLines;
+        }
+
+        public string CreateTempFile()
+        {
+            var directoryName = @".\temp";
+
+            
+
+            var fileName = @".\temp\running.VMCS";
+
+            try
+            {
+                if(!Directory.Exists(directoryName))
+                    Directory.CreateDirectory(@".\temp");
+
+
+                // Check if file already exists. If yes, delete it.     
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+
+                // Create a new file     
+                using (FileStream fs = File.Create(fileName))
+                {
+                    // Add some text to file   
+                    CodeLines.ForEach(line => {
+                        var lineBytes = new UTF8Encoding(true).GetBytes(line + "\n");
+                        fs.Write(lineBytes, 0, lineBytes.Length);
+                    });
+                    
+                }
+            }
+            catch (Exception Ex)
+            {
+                Console.WriteLine(Ex.ToString());
+            }
+
+            return fileName;
         }
 
         
