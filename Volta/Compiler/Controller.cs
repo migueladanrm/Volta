@@ -44,8 +44,8 @@ namespace Volta.Compiler
 
             if(errors.Count == 0)
             {
-                var delta = new DeltaVisitor();
-                delta.WritedCode(tree);
+                var delta = new DeltaVisitor(tree);
+                delta.PrintCode();
             }
 
            

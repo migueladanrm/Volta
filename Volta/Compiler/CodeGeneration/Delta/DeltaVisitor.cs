@@ -14,19 +14,25 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
         public int LineCount { get; set; }
 
-        public DeltaVisitor()
+        public DeltaVisitor(IParseTree tree)
         {
             CodeLines = new List<string>();
             LineCount = 0;
+
+            Visit(tree);
         }
 
-        public void WritedCode(IParseTree tree)
+        public void PrintCode()
         {
-            Visit(tree);
             CodeLines.ForEach(line =>
             {
                 Debug.WriteLine(line);
             });
+        }
+
+        public List<string> GetCode(IParseTree tree)
+        {
+            return CodeLines;
         }
 
         
@@ -471,12 +477,17 @@ namespace Volta.Compiler.CodeGeneration.Delta
                 Visit(@case);
             });
 
+            if(context.statement() != null)
+            {
+                Visit(context.statement());
+            }
+
             int lastLine = LineCount - 1;
 
             var breaksIndex = CodeLines.Select((s, i) => (s.Split(" ")[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
 
 
-            Debug.WriteLine(breaksIndex);
+            
             breaksIndex.ToList().ForEach(i =>
             {
                 SetLineOnRealIndexOf(i, $"JUMP_ABSOLUTE {LineCount}");
