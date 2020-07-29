@@ -13,9 +13,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private ModuleBuilder mb;
         private NablaVisitor nv;
 
-        public NablaAssembler(Stream code) {
-            an = new AssemblyName(Guid.NewGuid().ToString());
-            ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
+        public NablaAssembler(Stream code, string name = null) {
+            an = new AssemblyName(name ?? Guid.NewGuid().ToString());
+#if NET48
+            ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
+#endif
             mb = ab.DefineDynamicModule(an.Name);
             nv = new NablaVisitor(ref mb);
 
@@ -27,8 +29,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             nv.Visit(tree);
         }
 
+#if NET48
         public void BuildProgram() {
-            
+            ab.Save($"{an.Name}.exe");
         }
+#endif
     }
 }
