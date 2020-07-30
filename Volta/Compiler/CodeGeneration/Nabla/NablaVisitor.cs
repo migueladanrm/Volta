@@ -208,9 +208,32 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitConstDeclAST([NotNull] ConstDeclASTContext context) {
-            var field = rootType.DefineField(Visit(context.ident()) as string,
-                NablaHelper.ParseType(Visit(context.type()) as string),
-                FieldAttributes.HasDefault);
+            var type = Visit(context.type()) as string;
+            FieldBuilder field;
+
+            if (tmpType != null)
+                field = tmpType.DefineField(Visit(context.ident()) as string,
+                    NablaHelper.ParseType(type), FieldAttributes.HasDefault);
+            else
+                field = rootType.DefineField(Visit(context.ident()) as string,
+                NablaHelper.ParseType(type), FieldAttributes.HasDefault);
+
+            switch (type) {
+                case "char":
+                    emitter.Emit(OpCodes.Ldc_I4_S, char.Parse(context.CHARCONST().GetText()));
+                    break;
+                case "int":
+                    emitter.Emit(OpCodes.Ldc_I4, int.Parse(context.NUM().GetText()));
+                    break;
+                case "float":
+                    emitter.Emit(OpCodes.Ldind_R4, float.Parse(context.CHARCONST().GetText()));
+                    break;
+                case "bool":
+                    // no está en el parser.
+                    break;
+            }
+
+            emitter.Emit(OpCodes.Ldfld, field);
 
             return null;
         }
