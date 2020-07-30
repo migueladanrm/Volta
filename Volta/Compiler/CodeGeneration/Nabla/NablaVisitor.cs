@@ -18,11 +18,14 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         private MethodBuilder methodBuilder;
 
+
         private ILGenerator emitter = null;
 
         private int scope = 0;
 
         private List<(int scope, LocalBuilder localBuilder)> localVariables;
+
+        private TypeBuilder tmpType = null;
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -136,8 +139,14 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitClassDeclAST([NotNull] ClassDeclASTContext context) {
-            rootType = moduleBuilder.DefineType(Visit(context.ident()) as string);
+            tmpType = rootType.DefineNestedType(context.ident().GetText(),
+                TypeAttributes.Class | TypeAttributes.NestedPublic,
+                typeof(object));
             context.varDecl().ToList().ForEach(vd => Visit(vd));
+
+            tmpType.CreateType();
+
+            tmpType = null;
 
             return null;
         }
@@ -308,7 +317,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
-            
+
             var name = Visit(context.ident()) as string;
 
             var typeString = "void";
@@ -318,10 +327,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             
             var type = GetTypeOf(typeString);
 
-            if(name == "Main")
-            {
-
-            }
 
             methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
 
@@ -447,7 +452,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var varType = Visit(context.type()) as string;
             context.ident().ToList().ForEach(ident => {
                 var identifier = Visit(ident) as string;
-                var field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.InitOnly);
+                FieldBuilder field;
+                if (tmpType != null)
+                    field = tmpType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
+                else
+                    field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
             });
 
             return null;
