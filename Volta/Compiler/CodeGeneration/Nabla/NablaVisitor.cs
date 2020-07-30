@@ -211,12 +211,17 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var type = Visit(context.type()) as string;
             FieldBuilder field;
 
+            ConstructorBuilder rootConstructor=null;
+
             if (tmpType != null)
                 field = tmpType.DefineField(Visit(context.ident()) as string,
                     NablaHelper.ParseType(type), FieldAttributes.HasDefault);
-            else
+            else {
+                rootConstructor = rootType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
+                emitter = rootConstructor.GetILGenerator();
                 field = rootType.DefineField(Visit(context.ident()) as string,
-                NablaHelper.ParseType(type), FieldAttributes.HasDefault);
+                    NablaHelper.ParseType(type), FieldAttributes.HasDefault);
+            }
 
             switch (type) {
                 case "char":
@@ -234,6 +239,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
 
             emitter.Emit(OpCodes.Ldfld, field);
+
+            if (rootConstructor != null) {
+                emitter.Emit(OpCodes.Ret);
+                //rootConstructor.crea
+            }
 
             return null;
         }
