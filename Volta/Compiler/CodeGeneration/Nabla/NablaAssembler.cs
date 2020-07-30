@@ -34,6 +34,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             contextualAnalysis.Visit(tree);
 
             nv.Visit(tree);
+#if NET48
+            ab.SetEntryPoint(nv.mainMethod);
+#endif
         }
 
 #if NET48

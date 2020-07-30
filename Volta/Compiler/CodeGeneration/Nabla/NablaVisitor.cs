@@ -27,6 +27,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         private TypeBuilder tmpType = null;
 
+        public MethodBuilder mainMethod;
+
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
         }
@@ -328,23 +330,29 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var type = GetTypeOf(typeString);
 
 
-            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static, type, null);
+
+
+            methodBuilder.InitLocals = true;
 
             
-            methodBuilder.SetReturnType(type);
-
-            
-            Visit(context.formPars());
+            if(context.formPars() != null)
+                Visit(context.formPars());
             
 
             
             var baseEmitter = emitter;
 
-            
             emitter = methodBuilder.GetILGenerator();
 
             Visit(context.block());
 
+            if(name == "Main")
+            {
+                mainMethod = methodBuilder;
+                emitter.Emit(OpCodes.Ret);
+            }
+            
             emitter = baseEmitter;
             
             return null;
@@ -386,8 +394,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
             rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class | TypeAttributes.Public);
             VisitChildren(context);
-
             rootType.CreateType();
+
 
             return null;
         }
@@ -401,6 +409,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitReturnStatementAST([NotNull] ReturnStatementASTContext context) {
+            if(context.expr() != null)
+            {
+                Visit(context.expr());
+            }
+            emitter.Emit(OpCodes.Ret);
             return null;
         }
 
