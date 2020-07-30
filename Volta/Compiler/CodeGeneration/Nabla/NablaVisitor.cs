@@ -13,7 +13,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
     public class NablaVisitor : AbstractParseTreeVisitor<object>, IVoltaParserVisitor<object>
     {
         private ModuleBuilder moduleBuilder;
-        private TypeBuilder rootType;
+        public TypeBuilder rootType;
         private List<TypeBuilder> childTypes;
 
         private MethodBuilder methodBuilder;
@@ -23,9 +23,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         private int scope = 0;
 
-        private List<(int scope, LocalBuilder localBuilder)> localVariables;
+        private List<(string name, LocalBuilder localBuilder)> localVariables = new List<(string name, LocalBuilder localBuilder)>();
+
+        private List<MethodInfo> methods = new List<MethodInfo>();
+        private List<FieldInfo> fields = new List<FieldInfo>();
+        private List<(string type, ParameterBuilder pb)> currentParameters = new List<(string type, ParameterBuilder pb)>();
 
         private TypeBuilder tmpType = null;
+
+        public MethodBuilder mainMethod;
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -68,7 +74,33 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
         }
 
+        public MethodInfo GetMethod(string name)
+        {
+            return methods.Find(method => method.Name.Equals(name));
+        }
+
+        public FieldInfo GetField(string name)
+        {
+            return fields.Find(field => field.Name.Equals(name));
+        }
+
+        public (string type, ParameterBuilder pb) GetParameter(string name)
+        {
+            return currentParameters.Find(param => param.pb.Name.Equals(name));
+        }
+
+        public LocalVariableInfo GetLocal(string name)
+        {
+            return localVariables.FindLast(local => local.name.Equals(name)).localBuilder;
+        }
+
+        public object GetFirstVariable(string name)
+        {
+            return GetLocal(name) as object ?? GetParameter(name) as object ?? GetField(name) as object;
+        }
+
         public object VisitActParsAST([NotNull] ActParsASTContext context) {
+
             context.expr().ToList().ForEach(expr => Visit(expr));
             return null;
         }
@@ -86,7 +118,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitBlockAST([NotNull] BlockASTContext context) {
-            scope++;
             emitter.BeginScope();
             VisitChildren(context);
             emitter.EndScope();
@@ -95,7 +126,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitBlockStatementAST([NotNull] BlockStatementASTContext context) {
             Visit(context.block());
-
             
             return null;
         }
@@ -121,7 +151,21 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             return null;
         }
 
-        public object VisitCallStatementAST([NotNull] CallStatementASTContext context) {
+        public object VisitCallStatementAST([NotNull] CallStatementASTContext context)
+        {
+            var tuple = (Tuple<object, object>) Visit(context.designator());
+
+            var methodInfo = tuple.Item2 as MethodInfo;
+            var typeString = tuple.Item1 as string;
+
+            if (context.actPars() != null)
+                Visit(context.actPars());
+
+            emitter.Emit(OpCodes.Call, methodInfo);
+
+            if (!typeString.Equals("void")){
+                emitter.Emit(OpCodes.Pop);
+            }
             return null;
         }
 
@@ -173,52 +217,72 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitDesignatorAST([NotNull] DesignatorASTContext context) {
             ParserRuleContext decl = context.ident(0).decl;
+
+           
+
             if (decl is MethodDeclASTContext)
             {
-                
-                var method = rootType.GetMethod(Visit(context.ident(0)) as string);
 
-                emitter.EmitCall(OpCodes.Call, method, null);
+                var methodName = Visit(context.ident(0)) as string;
 
-                var typeString = Visit((decl as MethodDeclASTContext).type());
+                var method = GetMethod(methodName);
 
-                return typeString;
+                var typeString = "void";
+                if((decl as MethodDeclASTContext).type() != null)
+                    typeString = Visit((decl as MethodDeclASTContext).type()) as string;
+
+                return new Tuple<object, object>(typeString, method);
+
             }
             else if (decl.Parent is ProgramASTContext)
             {
-                if(decl is ConstDeclASTContext)
+                if (decl is ConstDeclASTContext)
                 {
-                    var field = rootType.GetField(Visit(context.ident(0)) as string);
-
-                    emitter.Emit(OpCodes.Ldfld, field);
+                    var field = GetField(Visit(context.ident(0)) as string);
 
                     var typeString = Visit((decl as ConstDeclASTContext).type());
 
-                    return typeString;
+                    return new Tuple<object, object>(typeString, field);
                 }
                 else if(decl is VarDeclASTContext)
                 {
-                    var field = rootType.GetField(Visit(context.ident(0)) as string);
-
-                    emitter.Emit(OpCodes.Ldfld, field);
+                    //Si fueran de un clase interna
+                    var field = GetField(Visit(context.ident(0)) as string);
 
                     var typeString = Visit((decl as VarDeclASTContext).type()) as string;
 
-                    if (typeString.Contains("[]")){
-                        Visit(context.expr(0));
-                        emitter.Emit(OpCodes.Ldelem);
-
-                        
-                    }
-
-                    return typeString;
+                    return new Tuple<object, object>(typeString, field);
                 }
             }
             else
             {
-                //Variables locales
-                
-                
+                if (decl is ConstDeclASTContext)
+                {
+                    var field = GetFirstVariable(Visit(context.ident(0)) as string);
+
+                    var typeString = Visit((decl as ConstDeclASTContext).type());
+
+                    return new Tuple<object, object>(typeString, field);
+                }
+                else if(decl is VarDeclASTContext)
+                {
+                    //Si fueran de algún tipo clase
+                    var field = GetFirstVariable(Visit(context.ident(0)) as string);
+
+                    var typeString = Visit((decl as VarDeclASTContext).type()) as string;
+
+                    return new Tuple<object, object>(typeString, field);
+                }
+                else
+                {
+                    var field = GetParameter(Visit(context.ident(0)) as string);
+
+                    var typeString = (field.type);
+
+                    return new Tuple<object, object>(typeString, field.pb);
+                }
+
+
             }
             return null;
         }
@@ -268,7 +332,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 var paramName = context.ident(i).GetText();
 
-                methodBuilder.DefineParameter(i + 1, ParameterAttributes.None, paramName);
+                currentParameters.Add((context.type(i).GetText(), methodBuilder.DefineParameter(i + 1, ParameterAttributes.None, paramName)));
+                
             }
 
             return null;
@@ -296,12 +361,45 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 Visit(context.actPars());
             }
-
-            var typeString = Visit(context.designator()) as string;
-
             
 
-            return typeString;
+            var tuple = (Tuple<object, object>) Visit(context.designator());
+
+            if(tuple.Item2 is MethodInfo)
+            {
+                var methodInfo = tuple.Item2 as MethodInfo;
+
+                emitter.Emit(OpCodes.Call, methodInfo);
+            }
+            else if(tuple.Item2 is FieldInfo)
+            {
+                var fieldInfo = tuple.Item2 as FieldInfo;
+
+                emitter.Emit(OpCodes.Ldfld, fieldInfo);
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+
+                    emitter.Emit(OpCodes.Ldelem);
+                }
+            }
+            else if(tuple.Item2 is ParameterBuilder)
+            {
+                var paramInfo = tuple.Item2 as ParameterBuilder;
+
+                emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+                
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Ldelem);
+                }
+            }
+
+            return tuple.Item1;
         }
 
         public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {
@@ -318,6 +416,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitMethodDeclAST([NotNull] MethodDeclASTContext context) {
 
+
             var name = Visit(context.ident()) as string;
 
             var typeString = "void";
@@ -328,23 +427,40 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var type = GetTypeOf(typeString);
 
 
-            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig, type, null);
 
-            
-            methodBuilder.SetReturnType(type);
 
-            
-            Visit(context.formPars());
+            methodBuilder.InitLocals = true;
+
+
+            currentParameters = new List<(string type, ParameterBuilder pb)>();
+            if(context.formPars() != null)
+                Visit(context.formPars());
             
 
             
             var baseEmitter = emitter;
 
             
+
             emitter = methodBuilder.GetILGenerator();
 
             Visit(context.block());
 
+            if(name == "Main" || typeString == "void")
+            {
+                emitter.Emit(OpCodes.Ret);
+            }
+
+            if(name == "Main")
+            {
+                mainMethod = methodBuilder;
+            }
+            else
+            {
+                methods.Add(methodBuilder);
+            }
+            
             emitter = baseEmitter;
             
             return null;
@@ -384,11 +500,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-            rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class | TypeAttributes.Public);
+
+            rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Public | TypeAttributes.Class);
             VisitChildren(context);
-
-            rootType.CreateType();
-
             return null;
         }
 
@@ -396,11 +510,16 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             MethodInfo read = typeof(Console).GetMethod(
                          "ReadLine");
 
-            emitter.EmitCall(OpCodes.Call, read, null);
+            emitter.Emit(OpCodes.Call, read);
             return null;
         }
 
         public object VisitReturnStatementAST([NotNull] ReturnStatementASTContext context) {
+            if(context.expr() != null)
+            {
+                Visit(context.expr());
+            }
+            emitter.Emit(OpCodes.Ret);
             return null;
         }
 
@@ -470,11 +589,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             var type = Visit(context.expr()) as string;
 
-            MethodInfo writeMI1 = typeof(Console).GetMethod(
+            MethodInfo write = typeof(Console).GetMethod(
                          "WriteLine",
                          new Type[] { GetTypeOf(type) });
 
-            emitter.EmitCall(OpCodes.Call, writeMI1, null);
+            emitter.Emit(OpCodes.Call, write);
 
             return null;
         }
