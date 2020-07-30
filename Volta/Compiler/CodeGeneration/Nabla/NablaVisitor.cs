@@ -17,7 +17,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         private MethodBuilder methodBuilder;
 
-        private TypeBuilder tmpType;
+        private TypeBuilder tmpType = null;
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -117,6 +117,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             context.varDecl().ToList().ForEach(vd => Visit(vd));
 
             tmpType.CreateType();
+
+            tmpType = null;
+
             return null;
         }
 
@@ -268,7 +271,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var varType = Visit(context.type()) as string;
             context.ident().ToList().ForEach(ident => {
                 var identifier = Visit(ident) as string;
-                var field = tmpType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
+                FieldBuilder field;
+                if (tmpType != null)
+                    field = tmpType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
+                else
+                    field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
             });
 
             return null;
