@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using Volta.Compiler.CodeAnalysis;
 
 namespace Volta.Compiler.CodeGeneration.Nabla
 {
@@ -29,6 +30,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var tokens = new CommonTokenStream(lexer);
             var parser = new VoltaParser(tokens);
             var tree = parser.program();
+            var contextualAnalysis = new ContextualAnalysis();
+            contextualAnalysis.Visit(tree);
 
             nv.Visit(tree);
         }

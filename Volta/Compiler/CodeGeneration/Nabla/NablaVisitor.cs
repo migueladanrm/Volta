@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private MethodBuilder methodBuilder;
 
         private ILGenerator emitter = null;
+
+        private int scope = 0;
+
+        private List<(int scope, LocalBuilder localBuilder)> localVariables;
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -61,6 +66,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context) {
+            context.expr().ToList().ForEach(expr => Visit(expr));
             return null;
         }
 
@@ -77,10 +83,17 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitBlockAST([NotNull] BlockASTContext context) {
+            scope++;
+            emitter.BeginScope();
+            VisitChildren(context);
+            emitter.EndScope();
             return null;
         }
 
         public object VisitBlockStatementAST([NotNull] BlockStatementASTContext context) {
+            Visit(context.block());
+
+            
             return null;
         }
 
@@ -90,11 +103,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitBooleanFactorAST([NotNull] BooleanFactorASTContext context) {
-            return null;
+            if (context.TRUE() != null)
+                emitter.Emit(OpCodes.Ldc_I4_1);
+            else
+                emitter.Emit(OpCodes.Ldc_I4_0);
+            return "bool";
         }
 
         public object VisitBracketFactorAST([NotNull] BracketFactorASTContext context) {
-            return null;
+            return Visit(context.expr());
         }
 
         public object VisitBreakStatementAST([NotNull] BreakStatementASTContext context) {
@@ -111,7 +128,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitCharConstFactorAST([NotNull] CharConstFactorASTContext context) {
-            return null;
+            var charInt = Convert.ToInt32(context.CHARCONST().GetText().ToCharArray()[1]);
+
+            emitter.Emit(OpCodes.Ldc_I4, charInt);
+
+            return "char";
         }
 
         public object VisitClassDeclAST([NotNull] ClassDeclASTContext context) {
@@ -142,6 +163,54 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitDesignatorAST([NotNull] DesignatorASTContext context) {
+            ParserRuleContext decl = context.ident(0).decl;
+            if (decl is MethodDeclASTContext)
+            {
+                
+                var method = rootType.GetMethod(Visit(context.ident(0)) as string);
+
+                emitter.EmitCall(OpCodes.Call, method, null);
+
+                var typeString = Visit((decl as MethodDeclASTContext).type());
+
+                return typeString;
+            }
+            else if (decl.Parent is ProgramASTContext)
+            {
+                if(decl is ConstDeclASTContext)
+                {
+                    var field = rootType.GetField(Visit(context.ident(0)) as string);
+
+                    emitter.Emit(OpCodes.Ldfld, field);
+
+                    var typeString = Visit((decl as ConstDeclASTContext).type());
+
+                    return typeString;
+                }
+                else if(decl is VarDeclASTContext)
+                {
+                    var field = rootType.GetField(Visit(context.ident(0)) as string);
+
+                    emitter.Emit(OpCodes.Ldfld, field);
+
+                    var typeString = Visit((decl as VarDeclASTContext).type()) as string;
+
+                    if (typeString.Contains("[]")){
+                        Visit(context.expr(0));
+                        emitter.Emit(OpCodes.Ldelem);
+
+                        
+                    }
+
+                    return typeString;
+                }
+            }
+            else
+            {
+                //Variables locales
+                
+                
+            }
             return null;
         }
 
@@ -150,7 +219,25 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitExprAST([NotNull] ExprASTContext context) {
-            return null;
+            var typeString = Visit(context.term(0)) as string;
+            if (context.addop().Length != 0)
+            {
+                for(int i = 1; i < context.term().Length; i++)
+                {
+                    Visit(context.term(i));
+
+                    if (context.addop(i - 1).GetText() == "+")
+                        emitter.Emit(OpCodes.Add);
+                    else
+                        emitter.Emit(OpCodes.Sub);
+                }
+                return "int";
+            }
+            else
+            {
+                return typeString;
+            }
+            
         }
 
         public object VisitFormParsAST([NotNull] FormParsASTContext context) {
@@ -172,7 +259,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 var paramName = context.ident(i).GetText();
 
-                methodBuilder.DefineParameter(i, ParameterAttributes.None, paramName);
+                methodBuilder.DefineParameter(i + 1, ParameterAttributes.None, paramName);
             }
 
             return null;
@@ -195,7 +282,17 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitIdentOrCallFactorAST([NotNull] IdentOrCallFactorASTContext context) {
-            return null;
+
+            if(context.actPars() != null)
+            {
+                Visit(context.actPars());
+            }
+
+            var typeString = Visit(context.designator()) as string;
+
+            
+
+            return typeString;
         }
 
         public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {
@@ -221,8 +318,12 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             
             var type = GetTypeOf(typeString);
 
+            if(name == "Main")
+            {
 
-            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public);
+            }
+
+            methodBuilder = rootType.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
 
             
             methodBuilder.SetReturnType(type);
@@ -249,6 +350,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitNewFactorAST([NotNull] NewFactorASTContext context) {
+            var typeString = Visit(context.ident()) as string;
+            if(context.SQUAREBL() != null)
+            {
+                Visit(context.expr());
+                emitter.Emit(OpCodes.Newarr, GetTypeOf(typeString));
+            }
+            
             return null;
         }
 
@@ -261,12 +369,18 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitNumFactorAST([NotNull] NumFactorASTContext context) {
-            return null;
+            if(context.NUM().GetText().Split('.').Length > 1)
+            {
+                emitter.Emit(OpCodes.Ldc_R4, float.Parse(context.NUM().GetText(), System.Globalization.CultureInfo.InvariantCulture));
+                return "float";
+            }
+            emitter.Emit(OpCodes.Ldc_I4, Int32.Parse(context.NUM().GetText()));
+            return "int";
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
             rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Class | TypeAttributes.Public);
-            //VisitChildren(context);
+            VisitChildren(context);
 
             rootType.CreateType();
 
@@ -274,6 +388,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitReadStatementAST([NotNull] ReadStatementASTContext context) {
+            MethodInfo read = typeof(Console).GetMethod(
+                         "ReadLine");
+
+            emitter.EmitCall(OpCodes.Call, read, null);
             return null;
         }
 
@@ -286,7 +404,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitStringFactorAST([NotNull] StringFactorASTContext context) {
-            return null;
+            emitter.Emit(OpCodes.Ldstr, context.GetText().Substring(1, context.GetText().Length - 2));
+            return "string";
         }
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context) {
@@ -298,7 +417,26 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitTermAST([NotNull] TermASTContext context) {
-            return null;
+            var typeString = Visit(context.factor(0)) as string;
+
+            if (context.mulop().Length > 0)
+            {
+                for (int i = 1; i < context.factor().Length; i++)
+                {
+                    Visit(context.factor(i));
+
+                    if (context.mulop(i - 1).GetText() == "*")
+                        emitter.Emit(OpCodes.Mul);
+                    else if (context.mulop(i - 1).GetText() == "/")
+                        emitter.Emit(OpCodes.Div);
+                }
+
+                return "num";
+            }
+            else
+            {
+                return typeString;
+            }
         }
 
         public object VisitTypeAST([NotNull] TypeASTContext context) {
@@ -320,6 +458,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitWriteStatementAST([NotNull] WriteStatementASTContext context) {
+
+            var type = Visit(context.expr()) as string;
+
+            MethodInfo writeMI1 = typeof(Console).GetMethod(
+                         "WriteLine",
+                         new Type[] { GetTypeOf(type) });
+
+            emitter.EmitCall(OpCodes.Call, writeMI1, null);
+
             return null;
         }
     }
