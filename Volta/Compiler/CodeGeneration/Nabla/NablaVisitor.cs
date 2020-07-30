@@ -100,8 +100,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitActParsAST([NotNull] ActParsASTContext context) {
-            Console.WriteLine(context.GetText());
-            Console.WriteLine("VISITA LOS ARGUMENTOS");
+
             context.expr().ToList().ForEach(expr => Visit(expr));
             return null;
         }
@@ -119,18 +118,14 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitBlockAST([NotNull] BlockASTContext context) {
-            scope++;
             emitter.BeginScope();
             VisitChildren(context);
             emitter.EndScope();
-            scope--;
             return null;
         }
 
         public object VisitBlockStatementAST([NotNull] BlockStatementASTContext context) {
-            Console.WriteLine("Bloque");
             Visit(context.block());
-
             
             return null;
         }
@@ -171,10 +166,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             if (!typeString.Equals("void")){
                 emitter.Emit(OpCodes.Pop);
             }
-
-
-
-
             return null;
         }
 
@@ -227,11 +218,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         public object VisitDesignatorAST([NotNull] DesignatorASTContext context) {
             ParserRuleContext decl = context.ident(0).decl;
 
-            Console.WriteLine(decl.GetType());
+           
 
             if (decl is MethodDeclASTContext)
             {
-                Console.WriteLine("Entra a buscar entre los méotods");
 
                 var methodName = Visit(context.ident(0)) as string;
 
@@ -246,7 +236,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else if (decl.Parent is ProgramASTContext)
             {
-                Console.WriteLine("Entra a buscar entre las globales");
                 if (decl is ConstDeclASTContext)
                 {
                     var field = GetField(Visit(context.ident(0)) as string);
@@ -267,7 +256,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else
             {
-                Console.WriteLine("Entra a buscar entre las locales");
                 if (decl is ConstDeclASTContext)
                 {
                     var field = GetFirstVariable(Visit(context.ident(0)) as string);
@@ -281,10 +269,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     //Si fueran de algún tipo clase
                     var field = GetFirstVariable(Visit(context.ident(0)) as string);
 
-                    Console.WriteLine(field.ToString());
-
-                    Console.WriteLine((decl as VarDeclASTContext).type().GetText());
-                    Console.ReadLine();
                     var typeString = Visit((decl as VarDeclASTContext).type()) as string;
 
                     return new Tuple<object, object>(typeString, field);
@@ -375,7 +359,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             if(context.actPars() != null)
             {
-                Console.WriteLine("VISITA");
                 Visit(context.actPars());
             }
             
@@ -406,7 +389,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 var paramInfo = tuple.Item2 as ParameterBuilder;
 
-                Console.WriteLine(paramInfo.Position);
                 emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
                 
                 if ((tuple.Item1 as string).Contains("[]"))
@@ -436,7 +418,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
 
             var name = Visit(context.ident()) as string;
-            Console.WriteLine($"Method {name}");
 
             var typeString = "void";
             if(context.type() != null)
@@ -464,10 +445,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             emitter = methodBuilder.GetILGenerator();
 
-            Console.WriteLine("Antes del los parámetros");
-
-
-            Console.WriteLine("Antes del bloque");
             Visit(context.block());
 
             if(name == "Main" || typeString == "void")
@@ -523,7 +500,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-            Console.WriteLine("Program");
+
             rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Public | TypeAttributes.Class);
             VisitChildren(context);
             return null;
