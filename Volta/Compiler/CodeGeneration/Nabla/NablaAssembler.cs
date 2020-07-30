@@ -15,10 +15,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private ModuleBuilder mb;
         private NablaVisitor nv;
 
+        private Type type;
+
         public NablaAssembler(Stream code, string name = null) {
-
-            AppDomain currentDom = Thread.GetDomain();
-
+            AppDomain domain = Thread.GetDomain();
             an = new AssemblyName(name ?? Guid.NewGuid().ToString());
 #if NET48
             ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
@@ -30,10 +30,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var tokens = new CommonTokenStream(lexer);
             var parser = new VoltaParser(tokens);
             var tree = parser.program();
+            Console.WriteLine("Holis");
             var contextualAnalysis = new ContextualAnalysis();
             contextualAnalysis.Visit(tree);
 
             nv.Visit(tree);
+
+            type = nv.rootType.CreateType();
 #if NET48
             ab.SetEntryPoint(nv.mainMethod);
 #endif
@@ -42,6 +45,17 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 #if NET48
         public void BuildProgram() {
             ab.Save($"{an.Name}.exe");
+
+            
+            
+            object ptInstance = Activator.CreateInstance(type);
+
+
+            type.InvokeMember("Main", BindingFlags.InvokeMethod, null, ptInstance, new object[] { });
+
+            Console.WriteLine("Holis");
+
+            Console.ReadKey();
         }
 #endif
     }
