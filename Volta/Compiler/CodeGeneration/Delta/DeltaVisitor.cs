@@ -533,7 +533,7 @@ namespace Volta.Compiler.CodeGeneration.Delta
 
             int lastLine = LineCount - 1;
 
-            var breaksIndex = CodeLines.Select((s, i) => (s.Split(" ")[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
+            var breaksIndex = CodeLines.Select((s, i) => (s.Split(' ')[1].Equals("BREAK") && i >= firstLine && i <= lastLine)? i : -1).Where(i => i != -1);
 
 
             
