@@ -110,10 +110,174 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitAddSubStatementAST([NotNull] AddSubStatementASTContext context) {
+            
+            var opCode = OpCodes.Add;
+
+            if(context.SUBSUB() != null)
+            {
+                opCode = OpCodes.Sub;
+            }
+
+            var tuple = (Tuple<object, object>)Visit(context.designator());
+
+            var typeString = tuple.Item1 as string;
+
+            var baseType = GetTypeOf(typeString.Replace("[]", ""));
+
+            if (tuple.Item2 is FieldInfo)
+            {
+                var fieldInfo = tuple.Item2 as FieldInfo;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldfld, fieldInfo); //Lee el arreglo
+                    Visit((context.designator() as DesignatorASTContext).expr(0)); // Lee el index
+
+                    emitter.Emit(OpCodes.Ldfld, fieldInfo); // Lee el arreglo
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0)); // Lee el index
+
+                    emitter.Emit(OpCodes.Ldelem, baseType); // Obtiene el elemento
+                    emitter.Emit(OpCodes.Ldc_I4_1); // Lee 1
+                    emitter.Emit(opCode); // Guarda en la pila la suma o resta del 1
+
+                    emitter.Emit(OpCodes.Ldelem, baseType); // Guarda, usando la primera leída del arreglo y el index, el valor de la suma o resta de 1
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+                    emitter.Emit(OpCodes.Ldc_I4_1);
+                    emitter.Emit(opCode);
+
+                    emitter.Emit(OpCodes.Stfld, fieldInfo);
+                }
+            }
+            else if (tuple.Item2 is ParameterBuilder)
+            {
+                var paramInfo = tuple.Item2 as ParameterBuilder;
+
+
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+
+                    emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+
+                    emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Ldelem, baseType); // Obtiene el elemento
+                    emitter.Emit(OpCodes.Ldc_I4_1); // Lee 1
+                    emitter.Emit(opCode); // Guarda en la pila la suma o resta del 1
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+                    emitter.Emit(OpCodes.Ldc_I4_1);
+                    emitter.Emit(opCode);
+
+                    emitter.Emit(OpCodes.Starg, paramInfo.Position - 1);
+                }
+            }
+            else if (tuple.Item2 is LocalBuilder)
+            {
+                var localBuilder = tuple.Item2 as LocalBuilder;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Ldelem, baseType); // Obtiene el elemento
+                    emitter.Emit(OpCodes.Ldc_I4_1); // Lee 1
+                    emitter.Emit(opCode); // Guarda en la pila la suma o resta del 1
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+                    emitter.Emit(OpCodes.Ldc_I4_1);
+                    emitter.Emit(opCode);
+
+                    emitter.Emit(OpCodes.Stloc, localBuilder.LocalIndex);
+                }
+            }
             return null;
         }
 
         public object VisitAssignStatementAST([NotNull] AssignStatementASTContext context) {
+            
+
+            var tuple = (Tuple<object, object>)Visit(context.designator());
+
+            var typeString = tuple.Item1 as string;
+
+            var baseType = GetTypeOf(typeString.Replace("[]", ""));
+
+            if (tuple.Item2 is FieldInfo)
+            {
+                var fieldInfo = tuple.Item2 as FieldInfo;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Stfld, fieldInfo);
+                }
+            }
+            else if (tuple.Item2 is ParameterBuilder)
+            {
+                var paramInfo = tuple.Item2 as ParameterBuilder;
+
+
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    Visit(context.expr());
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Starg, paramInfo.Position - 1);
+                }
+            }
+            else if (tuple.Item2 is LocalBuilder)
+            {
+                var localBuilder = tuple.Item2 as LocalBuilder;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Stloc, localBuilder.LocalIndex);
+                }
+            }
             return null;
         }
 
@@ -196,14 +360,67 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitCondFactAST([NotNull] CondFactASTContext context) {
+            var relop = context.relop().GetText();
+            if (relop.Equals(">=") || relop.Equals("<="))
+            {
+                Visit(context.expr(1));
+                Visit(context.expr(0));
+                relop = relop.Equals(">=") ? "<" : relop.Equals("<=") ? ">" : relop;  
+            }
+            else
+            {
+                Visit(context.expr(0));
+                Visit(context.expr(1));
+            }
+
+
+            OpCode opCode;
+            switch (context.relop().GetText())
+            {
+                case "<":
+                    opCode = OpCodes.Clt;
+                    break;
+                case ">":
+                    opCode = OpCodes.Cgt;
+                    break;
+                default:
+                    opCode = OpCodes.Ceq;
+                    break;
+            }
+
+            emitter.Emit(opCode);
+
+            if (relop == "!=")
+            {
+                emitter.Emit(OpCodes.Ldc_I4_1);
+                emitter.Emit(OpCodes.Sub);
+                emitter.Emit(OpCodes.Neg);
+
+            }
             return null;
         }
 
         public object VisitConditionAST([NotNull] ConditionASTContext context) {
+            Visit(context.condTerm(0));
+
+            for (int i = 1; i < context.condTerm().Length; i++)
+            {
+                Visit(context.condTerm(i));
+
+                emitter.Emit(OpCodes.Or);
+            }
             return null;
         }
 
         public object VisitCondTermAST([NotNull] CondTermASTContext context) {
+            Visit(context.condFact(0));
+
+            for (int i = 1; i < context.condFact().Length; i++)
+            {
+                Visit(context.condFact(i));
+
+                emitter.Emit(OpCodes.And);
+            }
             return null;
         }
 
@@ -236,55 +453,51 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else if (decl.Parent is ProgramASTContext)
             {
+                var field = GetField(Visit(context.ident(0)) as string);
+
+                string typeString;
                 if (decl is ConstDeclASTContext)
                 {
-                    var field = GetField(Visit(context.ident(0)) as string);
+                    typeString = Visit((decl as ConstDeclASTContext).type()) as string;
 
-                    var typeString = Visit((decl as ConstDeclASTContext).type());
-
-                    return new Tuple<object, object>(typeString, field);
-                }
-                else if(decl is VarDeclASTContext)
-                {
-                    //Si fueran de un clase interna
-                    var field = GetField(Visit(context.ident(0)) as string);
-
-                    var typeString = Visit((decl as VarDeclASTContext).type()) as string;
-
-                    return new Tuple<object, object>(typeString, field);
-                }
-            }
-            else
-            {
-                if (decl is ConstDeclASTContext)
-                {
-                    var field = GetFirstVariable(Visit(context.ident(0)) as string);
-
-                    var typeString = Visit((decl as ConstDeclASTContext).type());
-
-                    return new Tuple<object, object>(typeString, field);
-                }
-                else if(decl is VarDeclASTContext)
-                {
-                    //Si fueran de algún tipo clase
-                    var field = GetFirstVariable(Visit(context.ident(0)) as string);
-
-                    var typeString = Visit((decl as VarDeclASTContext).type()) as string;
-
-                    return new Tuple<object, object>(typeString, field);
                 }
                 else
                 {
-                    var field = GetParameter(Visit(context.ident(0)) as string);
+                    //Falta revisión de instancias
+                    typeString = Visit((decl as VarDeclASTContext).type()) as string;
 
-                    var typeString = (field.type);
+                }
+                return new Tuple<object, object>(typeString, field);
+            }
+            else
+            {
+                object field = GetFirstVariable(Visit(context.ident(0)) as string);
 
-                    return new Tuple<object, object>(typeString, field.pb);
+                string typeString;
+                if(!(decl is FormParsASTContext)){
+
+                    if (decl is ConstDeclASTContext)
+                    {
+                        typeString = Visit((decl as ConstDeclASTContext).type()) as string;
+
+                    }
+                    else
+                    {
+                        //Falta revisión de instancias
+
+                        typeString = Visit((decl as VarDeclASTContext).type()) as string;
+                    }
+
+                    return new Tuple<object, object>(typeString, (((string name, LocalBuilder localBuilder))field).localBuilder);
+                }
+                else
+                {
+                    typeString = (((string type, ParameterBuilder pb)) field).type;
+
+                    return new Tuple<object, object>(typeString, (((string type, ParameterBuilder pb))field).pb);
                 }
 
-
             }
-            return null;
         }
 
         public object VisitEqualEqualRelopAST([NotNull] EqualEqualRelopASTContext context) {
@@ -340,6 +553,25 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitForStatementAST([NotNull] ForStatementASTContext context) {
+            if (context.condition() != null && context.statement(0) != null && context.statement(1) != null)
+            {
+                Visit(context.condition());
+
+                var labelToBegin = emitter.DefineLabel();
+                var labelToEnd = emitter.DefineLabel();
+
+                emitter.Emit(OpCodes.Brfalse, labelToEnd);
+
+                emitter.MarkLabel(labelToBegin);
+
+                Visit(context.statement(1));
+                Visit(context.statement(0));
+                Visit(context.condition());
+
+                emitter.Emit(OpCodes.Brtrue, labelToBegin);
+
+                emitter.MarkLabel(labelToEnd);
+            }
             return null;
         }
 
@@ -357,16 +589,18 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitIdentOrCallFactorAST([NotNull] IdentOrCallFactorASTContext context) {
 
-            if(context.actPars() != null)
-            {
-                Visit(context.actPars());
-            }
-            
-
             var tuple = (Tuple<object, object>) Visit(context.designator());
 
-            if(tuple.Item2 is MethodInfo)
+            var typeString = tuple.Item1 as string;
+
+            var baseType = GetTypeOf(typeString.Replace("[]", ""));
+
+            if (tuple.Item2 is MethodInfo)
             {
+                if (context.actPars() != null)
+                {
+                    Visit(context.actPars());
+                }
                 var methodInfo = tuple.Item2 as MethodInfo;
 
                 emitter.Emit(OpCodes.Call, methodInfo);
@@ -382,7 +616,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
 
-                    emitter.Emit(OpCodes.Ldelem);
+                    emitter.Emit(OpCodes.Ldelem, baseType);
                 }
             }
             else if(tuple.Item2 is ParameterBuilder)
@@ -395,7 +629,20 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 {
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
-                    emitter.Emit(OpCodes.Ldelem);
+                    emitter.Emit(OpCodes.Ldelem, baseType);
+                }
+            }
+            else if(tuple.Item2 is LocalBuilder)
+            {
+                var localBuilder = tuple.Item2 as LocalBuilder;
+
+                emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Ldelem, baseType);
                 }
             }
 
@@ -403,6 +650,30 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {
+
+            Visit(context.condition());
+            var toElseLabel = emitter.DefineLabel();
+            emitter.Emit(OpCodes.Brfalse, toElseLabel);
+
+            Visit(context.statement(0));
+
+            if (context.ELSE() != null)
+            {
+                var toEndLabel = emitter.DefineLabel();
+
+                emitter.Emit(OpCodes.Br, toEndLabel);
+
+                emitter.MarkLabel(toElseLabel);
+
+                Visit(context.statement(1));
+
+                emitter.MarkLabel(toEndLabel);
+            }
+            else
+            {
+                emitter.MarkLabel(toElseLabel);
+            }
+
             return null;
         }
 
@@ -476,6 +747,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 Visit(context.expr());
                 emitter.Emit(OpCodes.Newarr, GetTypeOf(typeString));
+                var index = emitter.DeclareLocal(GetTypeOf(typeString+ "[]")).LocalIndex;
+                emitter.Emit(OpCodes.Stloc, index);
+                emitter.Emit(OpCodes.Ldloc, index);
             }
             
             return null;
@@ -511,6 +785,67 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                          "ReadLine");
 
             emitter.Emit(OpCodes.Call, read);
+
+            var tuple = (Tuple<object, object>)Visit(context.designator());
+
+            var typeString = tuple.Item1 as string;
+
+            var baseType = GetTypeOf(typeString.Replace("[]", ""));
+
+            if (tuple.Item2 is FieldInfo)
+            {
+                var fieldInfo = tuple.Item2 as FieldInfo;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Stfld, fieldInfo);
+                }
+            }
+            else if (tuple.Item2 is ParameterBuilder)
+            {
+                var paramInfo = tuple.Item2 as ParameterBuilder;
+
+                
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldarg, paramInfo.Position - 1);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Starg, paramInfo.Position - 1);
+                }
+            }
+            else if (tuple.Item2 is LocalBuilder)
+            {
+                var localBuilder = tuple.Item2 as LocalBuilder;
+
+                if ((tuple.Item1 as string).Contains("[]"))
+                {
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+
+                    Visit((context.designator() as DesignatorASTContext).expr(0));
+
+                    emitter.Emit(OpCodes.Stelem, baseType);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Stloc, localBuilder.LocalIndex);
+                }
+            }
             return null;
         }
 
@@ -582,6 +917,23 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitWhileStatementAST([NotNull] WhileStatementASTContext context) {
+            if (context.condition() != null && context.statement() != null)
+            {
+                Visit(context.condition());
+
+                var labelToBegin = emitter.DefineLabel();
+                var labelToEnd = emitter.DefineLabel();
+
+                emitter.Emit(OpCodes.Brfalse, labelToEnd);
+
+                emitter.MarkLabel(labelToBegin);
+                Visit(context.statement());
+                Visit(context.condition());
+
+                emitter.Emit(OpCodes.Brtrue, labelToBegin);
+
+                emitter.MarkLabel(labelToEnd);
+            }
             return null;
         }
 
@@ -591,7 +943,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             MethodInfo write = typeof(Console).GetMethod(
                          "WriteLine",
-                         new Type[] { GetTypeOf(type) });
+                         new Type[] { GetTypeOf(type.Replace("[]", "")) });
 
             emitter.Emit(OpCodes.Call, write);
 

@@ -49,11 +49,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             object ptInstance = Activator.CreateInstance(type);
 
-            type.InvokeMember("Main", BindingFlags.InvokeMethod, null, ptInstance, new object[] { });
+                type.InvokeMember("Main", BindingFlags.InvokeMethod, null, ptInstance, new object[] { });
 
-            Console.WriteLine("Termina el .exe \n");
+            Console.WriteLine("\nTermina el .exe");
 
-            Console.ReadKey();
+            Console.Read();
         }
 #endif
     }
