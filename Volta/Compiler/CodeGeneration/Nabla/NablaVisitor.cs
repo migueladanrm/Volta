@@ -499,6 +499,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 case "bool":
                     // no está en el parser.
                     break;
+                case "string":
+                    emitter.Emit(OpCodes.Ldstr, context.STRING().GetText().Replace("\"", ""));
+                    break;
             }
 
             if (local != null) {
