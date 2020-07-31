@@ -32,6 +32,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private TypeBuilder tmpType = null;
 
         public MethodBuilder mainMethod;
+        ConstructorBuilder rootConstructor = null;
+
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -463,41 +465,48 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitConstDeclAST([NotNull] ConstDeclASTContext context) {
             var type = Visit(context.type()) as string;
-            FieldBuilder field;
+            var name = Visit(context.ident()) as string;
+            FieldBuilder field = null;
+            LocalBuilder local = null;
 
-            ConstructorBuilder rootConstructor=null;
+            if (context.Parent is ProgramASTContext) {
+                if (rootConstructor == null) {
+                    rootConstructor = rootType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
+                    emitter = rootConstructor.GetILGenerator();
+                    emitter.Emit(OpCodes.Ldarg_0);
+                    emitter.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0]));
+                }
+                emitter.Emit(OpCodes.Ldarg_0);
 
-            if (tmpType != null)
-                field = tmpType.DefineField(Visit(context.ident()) as string,
-                    NablaHelper.ParseType(type), FieldAttributes.HasDefault);
-            else {
-                rootConstructor = rootType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
-                emitter = rootConstructor.GetILGenerator();
-                field = rootType.DefineField(Visit(context.ident()) as string,
-                    NablaHelper.ParseType(type), FieldAttributes.HasDefault);
+                field = rootType.DefineField(name,
+                    NablaHelper.ParseType(type), FieldAttributes.HasDefault | FieldAttributes.Static);
+            } else {
+                local = emitter.DeclareLocal(NablaHelper.ParseType(type));
+                localVariables.Add((name, local));
             }
 
             switch (type) {
                 case "char":
-                    emitter.Emit(OpCodes.Ldc_I4_S, char.Parse(context.CHARCONST().GetText()));
+                    var c = context.CHARCONST().GetText().Replace("\'", "").ToCharArray().First();
+                    emitter.Emit(OpCodes.Ldc_I4_S, c);
                     break;
                 case "int":
                     emitter.Emit(OpCodes.Ldc_I4, int.Parse(context.NUM().GetText()));
                     break;
                 case "float":
-                    emitter.Emit(OpCodes.Ldind_R4, float.Parse(context.CHARCONST().GetText()));
+                    emitter.Emit(OpCodes.Ldc_R4, float.Parse(context.NUM().GetText()));
                     break;
                 case "bool":
                     // no está en el parser.
                     break;
             }
 
-            emitter.Emit(OpCodes.Ldfld, field);
-
-            if (rootConstructor != null) {
-                emitter.Emit(OpCodes.Ret);
-                //rootConstructor.crea
+            if (local != null) {
+                emitter.Emit(OpCodes.Stloc, local);
             }
+
+            if (field != null)
+                emitter.Emit(OpCodes.Stfld, field);
 
             return null;
         }
@@ -851,9 +860,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-
             rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Public | TypeAttributes.Class);
-            VisitChildren(context);
+
+            context.varDecl().ToList().ForEach(varD => Visit(varD));
+            context.constDecl().ToList().ForEach(constD => Visit(constD));
+            emitter.Emit(OpCodes.Ret);
+
+            context.classDecl().ToList().ForEach(classD => Visit(classD));
+            context.methodDecl().ToList().ForEach(methodD => Visit(methodD));
+
             return null;
         }
 
