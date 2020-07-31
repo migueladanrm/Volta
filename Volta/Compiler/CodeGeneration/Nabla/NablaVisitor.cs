@@ -14,7 +14,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
     {
         private ModuleBuilder moduleBuilder;
         public TypeBuilder rootType;
-        private List<TypeBuilder> childTypes;
 
         private MethodBuilder methodBuilder;
 
@@ -28,6 +27,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private List<MethodInfo> methods = new List<MethodInfo>();
         private List<FieldInfo> fields = new List<FieldInfo>();
         private List<(string type, ParameterBuilder pb)> currentParameters = new List<(string type, ParameterBuilder pb)>();
+        private List<Type> childTypes = new List<Type>();
 
         private TypeBuilder tmpType = null;
 
@@ -68,7 +68,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     return typeof(string[]);
                 default:
                     {
-                        return childTypes.Find(typeBuilder => typeBuilder.GetType().Name.Equals(typeString)).GetType();
+                        return childTypes.Find(type => type.GetType().Name.Equals(typeString));
                     }
                     
             }
@@ -232,11 +232,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
+                    Visit(context.expr());
 
                     emitter.Emit(OpCodes.Stelem, baseType);
                 }
                 else
                 {
+                    Visit(context.expr());
                     emitter.Emit(OpCodes.Stfld, fieldInfo);
                 }
             }
@@ -258,11 +260,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 }
                 else
                 {
+                    Visit(context.expr());
                     emitter.Emit(OpCodes.Starg, paramInfo.Position - 1);
                 }
             }
             else if (tuple.Item2 is LocalBuilder)
             {
+                Console.WriteLine("LocalBuilder");
                 var localBuilder = tuple.Item2 as LocalBuilder;
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
@@ -271,10 +275,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
+                    Visit(context.expr());
+
                     emitter.Emit(OpCodes.Stelem, baseType);
                 }
                 else
                 {
+                    Visit(context.expr());
                     emitter.Emit(OpCodes.Stloc, localBuilder.LocalIndex);
                 }
             }
@@ -282,9 +289,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitBlockAST([NotNull] BlockASTContext context) {
+            var currentVariables = new List<(string name, LocalBuilder localBuilder)>(localVariables);
             emitter.BeginScope();
             VisitChildren(context);
             emitter.EndScope();
+            localVariables = currentVariables;
             return null;
         }
 
@@ -378,7 +387,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 typeof(object));
             context.varDecl().ToList().ForEach(vd => Visit(vd));
 
-            tmpType.CreateType();
+            childTypes.Add(tmpType.CreateType());
+
+            
 
             tmpType = null;
 
@@ -514,7 +525,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                         typeString = Visit((decl as VarDeclASTContext).type()) as string;
                     }
 
-                    return new Tuple<object, object>(typeString, (((string name, LocalBuilder localBuilder))field).localBuilder);
+                    return new Tuple<object, object>(typeString, field);
                 }
                 else
                 {
@@ -981,15 +992,37 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitVarDeclAST([NotNull] VarDeclASTContext context) {
+
             var varType = Visit(context.type()) as string;
-            context.ident().ToList().ForEach(ident => {
-                var identifier = Visit(ident) as string;
-                FieldBuilder field;
-                if (tmpType != null)
-                    field = tmpType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
-                else
-                    field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
-            });
+
+            if (context.Parent is ClassDeclASTContext || context.Parent is ProgramASTContext)
+            {
+                context.ident().ToList().ForEach(ident => {
+                    var identifier = Visit(ident) as string;
+                    FieldBuilder field;
+                    if (tmpType != null)
+                    {
+                        field = tmpType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
+                    }
+                    else
+                    {
+                        field = rootType.DefineField(identifier, NablaHelper.ParseType(varType), FieldAttributes.Public);
+                        fields.Add(field);
+                    }
+                });
+            }
+            else
+            {
+                Console.WriteLine(varType);
+                context.ident().ToList().ForEach(ident => {
+                    var identifier = Visit(ident) as string;
+                    var localBuilder = emitter.DeclareLocal(GetTypeOf(varType));
+
+                    localVariables.Add((identifier, localBuilder));
+                });
+            }
+
+            
 
             return null;
         }
