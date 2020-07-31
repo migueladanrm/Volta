@@ -288,6 +288,7 @@ namespace Volta.Compiler.CodeAnalysis
                     Visit(context.ident()[0]);
                     return identifier;
                 } else if (identifier is ArrayIdentifier || identifier is InstanceIdentifier) {
+                    Visit(context.ident()[0]);
                     bool arrayFound = false;
                     bool error = false;
                     Identifier currentIdentifier = identifier;
