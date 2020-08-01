@@ -46,8 +46,10 @@ namespace Volta.UI
         public ICommand CloseTabCommand => new DelegateCommand((x) => {
             GetCurrentCodeTab()?.Close();
 
-            if (TC.Items.Count < 1)
+            if (TC.Items.Count < 1) {
                 ChangeViewMode(false);
+                ContainerBottomWindows.Visibility = Visibility.Collapsed;
+            }
         });
 
         public ICommand HideSecondaryLayoutCommand => new DelegateCommand((x) => {
@@ -171,8 +173,14 @@ namespace Volta.UI
             LayoutSecondary.Visibility = Visibility.Collapsed;
             //LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
+            ContainerBottomWindows.Visibility = Visibility.Collapsed;
+
             WErrorList.Visibility = Visibility.Collapsed;
             WErrorList.RequestHide += EditorWindow_OnRequestHide;
+
+            WOutput.Visibility = Visibility.Visible;
+            WOutput.RequestHide += EditorWindow_OnRequestHide;
+            
             EditorSB.Visibility = Visibility.Collapsed;
             EditorSB.RequestTab += EditorSB_OnRequestTab;
             Toolbar.Visibility = Visibility.Collapsed;
@@ -183,21 +191,27 @@ namespace Volta.UI
         }
 
         private void EditorSB_OnRequestTab(string tabId) {
+            ContainerBottomWindows.Visibility = Visibility.Visible;
+
+            foreach(UIElement w in ContainerBottomWindows.Children) {
+                w.Visibility = Visibility.Collapsed;
+            }
+
             switch (tabId) {
                 case EditorStatusBar.TAB_CONSOLE:
                     break;
                 case EditorStatusBar.TAB_ERRORLIST:
-                    AlternateErrorList();
+                    AlternateEditorWindowVisiblity(WErrorList);
                     break;
                 case EditorStatusBar.TAB_OUTPUT:
+                    AlternateEditorWindowVisiblity(WOutput);
                     break;
             }
         }
 
         private void EditorWindow_OnRequestHide(object sender) {
-            if(sender == WErrorList) {
-                AlternateErrorList();
-            }
+            AlternateEditorWindowVisiblity(sender as UIElement);
+            ContainerBottomWindows.Visibility = Visibility.Collapsed;
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
@@ -376,6 +390,11 @@ namespace Volta.UI
             } catch (Exception ex) {
                 Debug.Fail(ex.Message);
             }
+        }
+
+        private void AlternateEditorWindowVisiblity(UIElement element) {
+            element.Visibility = WErrorList.Visibility == Visibility.Collapsed
+                ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void AlternateErrorList() {
