@@ -31,9 +31,7 @@ namespace Volta.UI.Controls
             try {
                 var tag = (sender as FrameworkElement).Tag.ToString();
                 RequestTab?.Invoke(tag);
-            } catch {
-
-            }
+            } catch { }
         }
 
         public void UpdateErrorsCount(List<VoltaCompilerError> errorList) {

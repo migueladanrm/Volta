@@ -67,6 +67,11 @@
                         MouseLeftButtonDown="Btn_MouseLeftButtonDown">
                     <TextBlock Text="Salida" Foreground="Gray"/>
                 </Border>
+
+                <Border x:Name="TabConsole" Tag="tab.console" Style="{StaticResource StatusBarTab}"
+                        MouseLeftButtonDown="Btn_MouseLeftButtonDown">
+                    <TextBlock Text="Consola" Foreground="Gray"/>
+                </Border>
             </StackPanel>
         </Grid>
     </Border>

@@ -271,9 +271,10 @@
                 </controls:MessageCard>
                 <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
 
-                <Grid x:Name="ContainerBottomWindows" Grid.Row="1" MinHeight="200">
+                <Grid x:Name="ContainerBottomWindows" Grid.Row="1" MinHeight="200" MaxHeight="250">
                     <controls:ErrorList x:Name="WErrorList"/>
                     <controls:OutputConsole x:Name="WOutput"/>
+                    <controls:ProgramConsole x:Name="WConsole"/>
                 </Grid>
                 <controls:EditorStatusBar x:Name="EditorSB" Grid.Row="2"/>
 

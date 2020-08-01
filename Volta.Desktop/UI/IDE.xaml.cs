@@ -178,6 +178,9 @@ namespace Volta.UI
             WErrorList.Visibility = Visibility.Collapsed;
             WErrorList.RequestHide += EditorWindow_OnRequestHide;
 
+            WConsole.Visibility = Visibility.Collapsed;
+            WConsole.RequestHide += EditorWindow_OnRequestHide;
+
             WOutput.Visibility = Visibility.Visible;
             WOutput.RequestHide += EditorWindow_OnRequestHide;
             
@@ -199,6 +202,7 @@ namespace Volta.UI
 
             switch (tabId) {
                 case EditorStatusBar.TAB_CONSOLE:
+                    AlternateEditorWindowVisiblity(WConsole);
                     break;
                 case EditorStatusBar.TAB_ERRORLIST:
                     AlternateEditorWindowVisiblity(WErrorList);
