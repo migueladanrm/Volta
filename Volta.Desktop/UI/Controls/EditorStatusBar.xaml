@@ -8,16 +8,32 @@
              d:DesignHeight="24" d:DesignWidth="800">
 
     <UserControl.Resources>
-        <Style x:Key="StatusBarButton" TargetType="{x:Type Border}">
+        <Style x:Key="Style.StatusBar.Default" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="WhiteSmoke"/>
+        </Style>
+        
+        <Style x:Key="StatusBarTab" TargetType="{x:Type Border}">
             <Setter Property="Background">
                 <Setter.Value>
                     <SolidColorBrush Color="Gray" Opacity="0"/>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Padding" Value="5,0"/>
+            <Style.Triggers>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="StatusBarTab.Opened" BasedOn="{StaticResource StatusBarTab}" TargetType="{x:Type Border}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <Border x:Name="LayoutRoot" Background="WhiteSmoke" BorderBrush="#FFC8C8C8" Grid.Row="1" Padding="10,0">
+    <Border x:Name="LayoutRoot" BorderBrush="#FFC8C8C8" Grid.Row="1" Padding="10,0"
+            Style="{StaticResource Style.StatusBar.Default}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="1" Direction="90" Opacity="0.25" ShadowDepth="1"/>
         </Border.Effect>
@@ -39,12 +55,16 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
-                <Border x:Name="BtnErrorList" Style="{StaticResource StatusBarButton}" Padding="5,0" Tag="errorlist"
+                <Border x:Name="BtnErrorList" Style="{StaticResource StatusBarTab}" Tag="tab.errorlist"
                         MouseLeftButtonDown="Btn_MouseLeftButtonDown">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource Vector.Error}" Margin="0,5" Stretch="Uniform" Fill="#FFC8C8C8"/>
                         <TextBlock x:Name="TxtErrorCount" Foreground="Gray" Margin="5,0,0,0" Text="0 errores"/>
                     </StackPanel>
+                </Border>
+
+                <Border x:Name="TabOutputConsole" Tag="tab.output" Style="{StaticResource StatusBarTab}">
+                    <TextBlock Text="Salida" Foreground="Gray"/>
                 </Border>
             </StackPanel>
         </Grid>

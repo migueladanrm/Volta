@@ -16,10 +16,16 @@ namespace Volta.UI.Controls
     /// <summary>
     /// Interaction logic for OutputConsole.xaml
     /// </summary>
-    public partial class OutputConsole : UserControl
+    public partial class OutputConsole : UserControl, IDEWindow
     {
         public OutputConsole() {
             InitializeComponent();
+        }
+
+        public event Action<object> RequestHide;
+
+        private void BtnClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            RequestHide?.Invoke(this);
         }
     }
 }

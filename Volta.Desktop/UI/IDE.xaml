@@ -270,8 +270,8 @@
                     </controls:MessageCard.Effect>
                 </controls:MessageCard>
                 <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
-                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" MinHeight="200"/>
-                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
+                <controls:ErrorList x:Name="WErrorList" Grid.Row="1" MinHeight="200"/>
+                <controls:EditorStatusBar x:Name="EditorSB" Grid.Row="2"/>
 
                 <Grid x:Name="WC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32,32,0,0">
                     <Grid.Resources>

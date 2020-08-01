@@ -1,16 +1,9 @@
 ﻿using ICSharpCode.AvalonEdit.Editing;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Volta.Compiler;
 
 namespace Volta.UI.Controls
@@ -20,8 +13,11 @@ namespace Volta.UI.Controls
     /// </summary>
     public partial class EditorStatusBar : UserControl
     {
+        internal const string TAB_ERRORLIST = "tab.errorlist";
+        internal const string TAB_OUTPUT = "tab.output";
+        internal const string TAB_CONSOLE = "tab.console";
 
-        public event Action RequestErrorList;
+        public event Action<string> RequestTab;
 
         public EditorStatusBar() {
             InitializeComponent();
@@ -34,11 +30,7 @@ namespace Volta.UI.Controls
         private void Btn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
             try {
                 var tag = (sender as FrameworkElement).Tag.ToString();
-                switch (tag) {
-                    case "errorlist":
-                        RequestErrorList?.Invoke();
-                        break;
-                }
+                RequestTab?.Invoke(tag);
             } catch {
 
             }
