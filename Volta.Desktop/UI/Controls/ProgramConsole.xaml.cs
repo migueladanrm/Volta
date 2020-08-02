@@ -16,12 +16,12 @@ namespace Volta.UI.Controls
     /// <summary>
     /// Interaction logic for ProgramConsole.xaml
     /// </summary>
-    public partial class ProgramConsole : UserControl,IDEWindow
+    public partial class ProgramConsole : UserControl, IDEWindow
     {
         public ProgramConsole() {
             InitializeComponent();
 
-            Console.StartProcess("cmd", string.Empty);
+            ConsoleControl.StartProcess("cmd", string.Empty);
         }
 
         public event Action<object> RequestHide;
@@ -32,7 +32,7 @@ namespace Volta.UI.Controls
 
 
         public void ExecuteProgram(string path, string args = null) {
-            Console.StartProcess(path, args);
+            ConsoleControl.WriteInput($"{path} {args}", Color.FromRgb(0, 0, 0), true);
         }
     }
 }

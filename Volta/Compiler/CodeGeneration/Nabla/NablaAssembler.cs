@@ -55,6 +55,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             Console.WriteLine("Generando ejecutable...");
             ab.Save(outputFile.Name);
 
+            if (outputFile.Exists)
+                File.Delete(outputFile.FullName);
+
             File.Move(outputFile.Name, outputFile.FullName);
 
             Console.WriteLine("Ejecutable generado correctamente.");

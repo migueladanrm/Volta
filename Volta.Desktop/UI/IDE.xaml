@@ -399,6 +399,13 @@
                             <ComboBoxItem Content="Delta" IsSelected="True"/>
                             <ComboBoxItem Content="Nabla"/>
                         </ComboBox>
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.build" ToolTip="Compilar">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource Vector.Hammer}" Fill="Green"/>
+                                <TextBlock Text="Compilar" Margin="3,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
                         <Button Click="ToolbarButton_Click" Tag="toolbar.buildrun" ToolTip="Compilar y ejecutar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Play}" Fill="Green"/>

@@ -29,7 +29,7 @@
 
             <Grid Grid.Row="1">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <cc:ConsoleControl x:Name="Console"/>
+                    <cc:ConsoleControl x:Name="ConsoleControl" FontSize="14"/>
                 </ScrollViewer>
             </Grid>
         </Grid>

@@ -108,7 +108,7 @@ namespace Volta.UI
         public ICommand CopyCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Copy());
         public ICommand PasteCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Paste());
 
-        public ICommand BuildRunCommand => new DelegateCommand((_) => {
+        public ICommand BuildRunCommand => new DelegateCommand((runAfterBuild) => {
             // 0 -> Delta
             // 1 -> Nabla
 
@@ -176,7 +176,9 @@ namespace Volta.UI
                 var cf = GetCurrentCodeTab().CodeFile;
                 if (cf.FilePath != null) {
                     // must replace with relative path.
-                    var psi = new ProcessStartInfo(@"C:\Source\Volta\bin\debug\net48\volta.exe", $"-i {cf.FilePath}") {
+                    var input = cf.FilePath;
+                    var output = input.Substring(0, input.LastIndexOf('.')) + ".exe";
+                    var psi = new ProcessStartInfo(@"C:\Source\Volta\bin\debug\net48\volta.exe", $"-i {input} -o {output}") {
                         RedirectStandardError = true,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
@@ -192,7 +194,12 @@ namespace Volta.UI
                     process.Exited += (sender, e) => {
                         var exitCode = process.ExitCode;
                         if (exitCode == 0) {
-
+                            if ((bool)runAfterBuild) {
+                                Dispatcher.Invoke(() => {
+                                    EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
+                                    WConsole.ExecuteProgram(output);
+                                });
+                            }
                         } else {
 
                         }
@@ -417,10 +424,12 @@ namespace Volta.UI
                     case "paste":
                         PasteCommand.Execute(null);
                         break;
-                    case "buildrun":
-                        BuildRunCommand.Execute(null);
+                    case "build":
+                        BuildRunCommand.Execute(false);
                         break;
-
+                    case "buildrun":
+                        BuildRunCommand.Execute(true);
+                        break;
                     case "close":
                         CloseTabCommand.Execute(null);
                         break;
