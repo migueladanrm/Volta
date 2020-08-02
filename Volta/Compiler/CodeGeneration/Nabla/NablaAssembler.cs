@@ -53,7 +53,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             Console.WriteLine("\nTermina el .exe");
 
-            Console.Read();
+            //Console.Read();
         }
 #endif
     }

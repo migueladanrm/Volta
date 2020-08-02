@@ -28,7 +28,7 @@ namespace Volta.UI.Controls
         private Editor.ToolTipManager.ToolTipService toolTipService;
 
 
-        public List<VoltaCompilerError> errors = new List<VoltaCompilerError>();
+        public List<VoltaCompilerError> Errors = new List<VoltaCompilerError>();
         public IParseTree tree = null;
 
         public event Action<Caret> OnEditorCaretChanged;
@@ -85,11 +85,11 @@ namespace Volta.UI.Controls
             var textEditor = sender as TextEditor;
             var text = textEditor.Text;
             var tuple = Controller.Check(text);
-            errors = tuple.Item2;
+            Errors = tuple.Item2;
             tree = tuple.Item1;
 
             Debug.WriteLine("\n");
-            errors.ForEach((VoltaCompilerError error) => {
+            Errors.ForEach((VoltaCompilerError error) => {
                 int offset = textEditor.Document.GetOffset(error.Line, error.Column);
                 ITextMarker marker = textMarkerService.Create(offset, 0);
                 marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
@@ -98,7 +98,7 @@ namespace Volta.UI.Controls
                 toolTipService.CreateErrorToolTip(error, marker as TextMarker);
             });
 
-            OnErrorListUpdated?.Invoke(errors);
+            OnErrorListUpdated?.Invoke(Errors);
 
             if (e != null)
                 CodeFile.HasUnsavedChanges = true;
@@ -156,7 +156,7 @@ namespace Volta.UI.Controls
 
         public new void Focus() {
             OnEditorCaretChanged?.Invoke(TE.TextArea.Caret);
-            OnErrorListUpdated?.Invoke(errors);
+            OnErrorListUpdated?.Invoke(Errors);
         }
     }
 }

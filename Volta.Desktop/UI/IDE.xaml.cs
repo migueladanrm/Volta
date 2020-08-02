@@ -35,7 +35,7 @@ namespace Volta.UI
 
             if (args.Contains("--test")) {
                 NewFileCommand.Execute(null);
-                AlternateErrorListCommand.Execute(null);
+                //AlternateErrorListCommand.Execute(null);
             }
         }
 
@@ -107,6 +107,46 @@ namespace Volta.UI
         public ICommand CutCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Cut());
         public ICommand CopyCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Copy());
         public ICommand PasteCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Paste());
+
+        public ICommand BuildRunCommand => new DelegateCommand((_) => {
+            // 0 -> Delta
+            // 1 -> Nabla
+
+            WOutput.Clear();
+            EditorSB_OnRequestTab(EditorStatusBar.TAB_OUTPUT);
+
+            if (CompilerSelect.SelectedIndex == 0) {
+
+            } else {
+                var cf = GetCurrentCodeTab().CodeFile;
+                if (cf.FilePath != null) {
+                    // must replace with relative path.
+                    var psi = new ProcessStartInfo(@"C:\Source\Volta\bin\debug\net48\volta.exe", $"-i {cf.FilePath}") {
+                        RedirectStandardError = true,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    var process = Process.Start(psi);
+                    process.EnableRaisingEvents = true;
+                    process.BeginErrorReadLine();
+                    process.BeginOutputReadLine();
+
+                    process.Exited += (sender, e) => {
+                        Debug.WriteLine($"Exit code: {process.ExitCode}");
+                    };
+                    process.ErrorDataReceived += (sender, e) => {
+                        WOutput.AddLine(e.Data);
+                    };
+                    process.OutputDataReceived += (sender, e) => {
+                        WOutput.AddLine(e.Data);
+                    };
+
+                } else GetCurrentCodeTab().Save();
+            }
+        });
 
         #endregion
 
@@ -317,74 +357,77 @@ namespace Volta.UI
                         PasteCommand.Execute(null);
                         break;
                     case "buildrun": {
-                            var currentCodeTab = GetCurrentCodeTab();
-                            if (currentCodeTab.errors.Count == 0) {
-                                var selected = CompilerSelect.SelectedIndex;
+                            if (CompilerSelect.SelectedIndex == 0) {
+                                var currentCodeTab = GetCurrentCodeTab();
+                                if (currentCodeTab.Errors.Count == 0) {
+                                    var selected = CompilerSelect.SelectedIndex;
 
-                                MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
+                                    MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
 
-                                if (selected == 0) {
-                                    var tree = currentCodeTab.tree;
+                                    if (selected == 0) {
+                                        var tree = currentCodeTab.tree;
 
-                                    var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
+                                        var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
 
-                                    var textFile = deltaCode.CreateTempFile();
+                                        var textFile = deltaCode.CreateTempFile();
 
-                                    var exeFile = @".\Minics.exe";
+                                        var exeFile = @".\Minics.exe";
 
-                                    var info = new ProcessStartInfo();
+                                        var info = new ProcessStartInfo();
 
-                                    info.FileName = exeFile;
-                                    info.Arguments = $"{textFile}";
-                                    info.RedirectStandardError = true;
-                                    info.RedirectStandardInput = true;
-                                    info.RedirectStandardOutput = true;
+                                        info.FileName = exeFile;
+                                        info.Arguments = $"{textFile}";
+                                        info.RedirectStandardError = true;
+                                        info.RedirectStandardInput = true;
+                                        info.RedirectStandardOutput = true;
 
-                                    info.UseShellExecute = false;
-
-
-
-
-                                    try {
-                                        using (Process exeProcess = Process.Start(info)) {
-
-                                            exeProcess.BeginErrorReadLine();
-                                            exeProcess.BeginOutputReadLine();
-
-                                            exeProcess.OutputDataReceived += (a, b) => {
-                                                Debug.WriteLine(b.Data);
-                                            };
-
-                                            exeProcess.ErrorDataReceived += (a, b) => {
-                                                Debug.WriteLine(b.Data);
-                                            };
+                                        info.UseShellExecute = false;
 
 
 
 
-                                            using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
-                                                String inputText;
-                                                Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+                                        try {
+                                            using (Process exeProcess = Process.Start(info)) {
 
-                                                inputText = "3";
-                                                myStreamWriter.WriteLine(inputText);
+                                                exeProcess.BeginErrorReadLine();
+                                                exeProcess.BeginOutputReadLine();
 
-                                                myStreamWriter.Close();
+                                                exeProcess.OutputDataReceived += (a, b) => {
+                                                    Debug.WriteLine(b.Data);
+                                                };
 
-                                                exeProcess.WaitForExit();
+                                                exeProcess.ErrorDataReceived += (a, b) => {
+                                                    Debug.WriteLine(b.Data);
+                                                };
+
+
+
+
+                                                using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
+                                                    String inputText;
+                                                    Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+
+                                                    inputText = "3";
+                                                    myStreamWriter.WriteLine(inputText);
+
+                                                    myStreamWriter.Close();
+
+                                                    exeProcess.WaitForExit();
+                                                }
+
                                             }
 
+                                        } catch (Exception error) {
+                                            Debug.WriteLine("ERORROROROROOR");
+                                            Debug.WriteLine(error.Message);// Log error.
                                         }
-
-                                    } catch (Exception error) {
-                                        Debug.WriteLine("ERORROROROROOR");
-                                        Debug.WriteLine(error.Message);// Log error.
                                     }
+                                } else {
+                                    MCShow("Aún existen errores en el código, debe elminarlos primero");
                                 }
-                            } else {
-                                MCShow("Aún existen errores en el código, debe elminarlos primero");
+                            }else {
+                                BuildRunCommand.Execute(null);
                             }
-
                             break;
                         }
                     case "close":

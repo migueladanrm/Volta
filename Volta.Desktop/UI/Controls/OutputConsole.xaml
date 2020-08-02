@@ -27,7 +27,7 @@
             </Border>
 
             <Grid Grid.Row="1">
-                <TextBox FontFamily="Consolas" FontSize="14"  AcceptsReturn="True" Padding="5"
+                <TextBox x:Name="TbxOutput" FontFamily="Consolas" FontSize="14" AcceptsReturn="True" Padding="5" IsReadOnly="True" VerticalScrollBarVisibility="Auto"
                          Text="Initializing build tasks...&#x0a;Build finished.&#x0a;Running: volta -i src.cs"
                          />
                 <!--<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Template="{StaticResource Style.ScrollViewer.Default}">
