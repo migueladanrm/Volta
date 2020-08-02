@@ -144,7 +144,7 @@ namespace Volta.UI
                         if ((bool)runAfterBuild) {
                             Dispatcher.Invoke(() => {
                                 EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
-                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", $"\"outputFile\"");
+                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", $"\"{outputFile}\"");
                             });
                         }
 
@@ -307,7 +307,7 @@ namespace Volta.UI
 
             WOutput.Visibility = Visibility.Visible;
             WOutput.RequestHide += EditorWindow_OnRequestHide;
-            
+
             EditorSB.Visibility = Visibility.Collapsed;
             EditorSB.RequestTab += EditorSB_OnRequestTab;
             Toolbar.Visibility = Visibility.Collapsed;
@@ -320,7 +320,7 @@ namespace Volta.UI
         private void EditorSB_OnRequestTab(string tabId) {
             ContainerBottomWindows.Visibility = Visibility.Visible;
 
-            foreach(UIElement w in ContainerBottomWindows.Children) {
+            foreach (UIElement w in ContainerBottomWindows.Children) {
                 w.Visibility = Visibility.Collapsed;
             }
 
