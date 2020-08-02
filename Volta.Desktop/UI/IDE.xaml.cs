@@ -116,7 +116,62 @@ namespace Volta.UI
             EditorSB_OnRequestTab(EditorStatusBar.TAB_OUTPUT);
 
             if (CompilerSelect.SelectedIndex == 0) {
+                var currentCodeTab = GetCurrentCodeTab();
 
+                if (currentCodeTab.Errors.Count == 0) {
+                    var selected = CompilerSelect.SelectedIndex;
+
+                    MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
+
+                    if (selected == 0) {
+                        var tree = currentCodeTab.tree;
+                        var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
+                        var textFile = deltaCode.CreateTempFile();
+                        var exeFile = @".\Minics.exe";
+
+                        var info = new ProcessStartInfo {
+                            FileName = exeFile,
+                            Arguments = $"{textFile}",
+                            RedirectStandardError = true,
+                            RedirectStandardInput = true,
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false
+                        };
+
+                        try {
+                            using (Process exeProcess = Process.Start(info)) {
+
+                                exeProcess.BeginErrorReadLine();
+                                exeProcess.BeginOutputReadLine();
+
+                                exeProcess.OutputDataReceived += (a, b) => {
+                                    Debug.WriteLine(b.Data);
+                                };
+
+                                exeProcess.ErrorDataReceived += (a, b) => {
+                                    Debug.WriteLine(b.Data);
+                                };
+
+                                using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
+                                    String inputText;
+                                    Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+
+                                    inputText = "3";
+                                    myStreamWriter.WriteLine(inputText);
+
+                                    myStreamWriter.Close();
+
+                                    exeProcess.WaitForExit();
+                                }
+                            }
+                        } catch (Exception error) {
+                            Debug.WriteLine("ERORROROROROOR");
+                            Debug.WriteLine(error.Message);// Log error.
+                        }
+                    }
+                } else {
+                    MCShow("Aún existen errores en el código, debe elminarlos primero");
+                }
             } else {
                 var cf = GetCurrentCodeTab().CodeFile;
                 if (cf.FilePath != null) {
@@ -135,6 +190,12 @@ namespace Volta.UI
                     process.BeginOutputReadLine();
 
                     process.Exited += (sender, e) => {
+                        var exitCode = process.ExitCode;
+                        if (exitCode == 0) {
+
+                        } else {
+
+                        }
                         Debug.WriteLine($"Exit code: {process.ExitCode}");
                     };
                     process.ErrorDataReceived += (sender, e) => {
@@ -356,80 +417,10 @@ namespace Volta.UI
                     case "paste":
                         PasteCommand.Execute(null);
                         break;
-                    case "buildrun": {
-                            if (CompilerSelect.SelectedIndex == 0) {
-                                var currentCodeTab = GetCurrentCodeTab();
-                                if (currentCodeTab.Errors.Count == 0) {
-                                    var selected = CompilerSelect.SelectedIndex;
+                    case "buildrun":
+                        BuildRunCommand.Execute(null);
+                        break;
 
-                                    MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
-
-                                    if (selected == 0) {
-                                        var tree = currentCodeTab.tree;
-
-                                        var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
-
-                                        var textFile = deltaCode.CreateTempFile();
-
-                                        var exeFile = @".\Minics.exe";
-
-                                        var info = new ProcessStartInfo();
-
-                                        info.FileName = exeFile;
-                                        info.Arguments = $"{textFile}";
-                                        info.RedirectStandardError = true;
-                                        info.RedirectStandardInput = true;
-                                        info.RedirectStandardOutput = true;
-
-                                        info.UseShellExecute = false;
-
-
-
-
-                                        try {
-                                            using (Process exeProcess = Process.Start(info)) {
-
-                                                exeProcess.BeginErrorReadLine();
-                                                exeProcess.BeginOutputReadLine();
-
-                                                exeProcess.OutputDataReceived += (a, b) => {
-                                                    Debug.WriteLine(b.Data);
-                                                };
-
-                                                exeProcess.ErrorDataReceived += (a, b) => {
-                                                    Debug.WriteLine(b.Data);
-                                                };
-
-
-
-
-                                                using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
-                                                    String inputText;
-                                                    Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
-
-                                                    inputText = "3";
-                                                    myStreamWriter.WriteLine(inputText);
-
-                                                    myStreamWriter.Close();
-
-                                                    exeProcess.WaitForExit();
-                                                }
-
-                                            }
-
-                                        } catch (Exception error) {
-                                            Debug.WriteLine("ERORROROROROOR");
-                                            Debug.WriteLine(error.Message);// Log error.
-                                        }
-                                    }
-                                } else {
-                                    MCShow("Aún existen errores en el código, debe elminarlos primero");
-                                }
-                            }else {
-                                BuildRunCommand.Execute(null);
-                            }
-                            break;
-                        }
                     case "close":
                         CloseTabCommand.Execute(null);
                         break;
