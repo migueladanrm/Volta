@@ -42,13 +42,6 @@ namespace Volta.Compiler
                 errors.AddRange(contextualAnalysis.Errors);
             }
 
-            if(errors.Count == 0)
-            {
-                var delta = new DeltaVisitor(tree);
-                delta.PrintCode();
-            }
-     
-
             return new Tuple<IParseTree, List<VoltaCompilerError>>(tree, errors) ;
         }
     }

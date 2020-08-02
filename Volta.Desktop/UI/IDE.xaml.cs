@@ -121,7 +121,7 @@ namespace Volta.UI
             if (CompilerSelect.SelectedIndex == 0) {
                 var currentCodeTab = GetCurrentCodeTab();
 
-                //if (currentCodeTab.Errors.Count == 0) {
+                if (currentCodeTab.Errors.Count == 0) {
                     var selected = CompilerSelect.SelectedIndex;
 
                     MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
@@ -144,7 +144,7 @@ namespace Volta.UI
                         if ((bool)runAfterBuild) {
                             Dispatcher.Invoke(() => {
                                 EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
-                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", outputFile);
+                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", $"\"outputFile\"");
                             });
                         }
 
@@ -189,13 +189,13 @@ namespace Volta.UI
                         //    Debug.WriteLine(error.Message);// Log error.
                         //}
                     }
-                //} else {
-                //    MCShow("Aún existen errores en el código, debe elminarlos primero");
-                //}
+                } else {
+                    MCShow("Aún existen errores en el código, debe elminarlos primero");
+                }
             } else {
                 var input = cf.FilePath;
                 var output = input.Substring(0, input.LastIndexOf('.')) + ".exe";
-                var psi = new ProcessStartInfo(@".\compilers\volta.exe", $"-i {input} -o {output}") {
+                var psi = new ProcessStartInfo(@".\compilers\volta.exe", $"-i \"{input}\" -o \"{output}\"") {
                     RedirectStandardError = true,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
@@ -214,7 +214,7 @@ namespace Volta.UI
                         if ((bool)runAfterBuild) {
                             Dispatcher.Invoke(() => {
                                 EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
-                                WConsole.ExecuteProgram(output);
+                                WConsole.ExecuteProgram($"\"output\"");
                             });
                         }
                     } else {
