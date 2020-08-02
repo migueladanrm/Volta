@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,7 +25,6 @@ namespace Volta.UI
             InitializeComponent();
 
             DataContext = this;
-
             Defaults();
         }
 
@@ -109,8 +109,11 @@ namespace Volta.UI
         public ICommand PasteCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Paste());
 
         public ICommand BuildRunCommand => new DelegateCommand((runAfterBuild) => {
-            // 0 -> Delta
-            // 1 -> Nabla
+            var cf = GetCurrentCodeTab().CodeFile;
+            if (cf.FilePath == null) {
+                GetCurrentCodeTab().Save();
+                return;
+            }
 
             WOutput.Clear();
             EditorSB_OnRequestTab(EditorStatusBar.TAB_OUTPUT);
@@ -118,101 +121,114 @@ namespace Volta.UI
             if (CompilerSelect.SelectedIndex == 0) {
                 var currentCodeTab = GetCurrentCodeTab();
 
-                if (currentCodeTab.Errors.Count == 0) {
+                //if (currentCodeTab.Errors.Count == 0) {
                     var selected = CompilerSelect.SelectedIndex;
 
                     MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
 
                     if (selected == 0) {
+                        WOutput.AddLine("Compilando (Delta)...");
                         var tree = currentCodeTab.tree;
-                        var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
-                        var textFile = deltaCode.CreateTempFile();
-                        var exeFile = @".\Minics.exe";
+                        var delta = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
 
-                        var info = new ProcessStartInfo {
-                            FileName = exeFile,
-                            Arguments = $"{textFile}",
-                            RedirectStandardError = true,
-                            RedirectStandardInput = true,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false
-                        };
+                        var sb = new StringBuilder();
+                        delta.GetCode().ForEach(line => sb.Append($"{line}\n"));
 
-                        try {
-                            using (Process exeProcess = Process.Start(info)) {
+                        var outputFile = cf.FilePath.Substring(0, cf.FilePath.LastIndexOf('.'));
+                        outputFile += ".mcs";
 
-                                exeProcess.BeginErrorReadLine();
-                                exeProcess.BeginOutputReadLine();
+                        File.WriteAllText(outputFile, sb.ToString());
 
-                                exeProcess.OutputDataReceived += (a, b) => {
-                                    Debug.WriteLine(b.Data);
-                                };
+                        WOutput.AddLine($"{cf.FilePath} -> {outputFile}\nCompilación finalizada.");
 
-                                exeProcess.ErrorDataReceived += (a, b) => {
-                                    Debug.WriteLine(b.Data);
-                                };
-
-                                using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
-                                    String inputText;
-                                    Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
-
-                                    inputText = "3";
-                                    myStreamWriter.WriteLine(inputText);
-
-                                    myStreamWriter.Close();
-
-                                    exeProcess.WaitForExit();
-                                }
-                            }
-                        } catch (Exception error) {
-                            Debug.WriteLine("ERORROROROROOR");
-                            Debug.WriteLine(error.Message);// Log error.
+                        if ((bool)runAfterBuild) {
+                            Dispatcher.Invoke(() => {
+                                EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
+                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", outputFile);
+                            });
                         }
+
+                        //var textFile = delta.CreateTempFile();
+                        //var exeFile = @".\compilers\Minics.exe";
+
+                        //var info = new ProcessStartInfo {
+                        //    FileName = exeFile,
+                        //    Arguments = $"{textFile}",
+                        //    RedirectStandardError = true,
+                        //    RedirectStandardInput = true,
+                        //    RedirectStandardOutput = true,
+                        //    UseShellExecute = false,
+                        //    CreateNoWindow=true
+                        //};
+
+                        //try {
+                        //    using Process exeProcess = Process.Start(info);
+                        //    exeProcess.BeginErrorReadLine();
+                        //    exeProcess.BeginOutputReadLine();
+
+                        //    exeProcess.ErrorDataReceived += (sender, e) => {
+                        //        WOutput.AddLine(e.Data);
+                        //    };
+                        //    exeProcess.OutputDataReceived += (sender, e) => {
+                        //        WOutput.AddLine(e.Data);
+                        //    };
+
+                        //    using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
+                        //        String inputText;
+                        //        Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+
+                        //        inputText = "3";
+                        //        myStreamWriter.WriteLine(inputText);
+
+                        //        myStreamWriter.Close();
+
+                        //        exeProcess.WaitForExit();
+                        //    }
+                        //} catch (Exception error) {
+                        //    Debug.WriteLine("ERORROROROROOR");
+                        //    Debug.WriteLine(error.Message);// Log error.
+                        //}
                     }
-                } else {
-                    MCShow("Aún existen errores en el código, debe elminarlos primero");
-                }
+                //} else {
+                //    MCShow("Aún existen errores en el código, debe elminarlos primero");
+                //}
             } else {
-                var cf = GetCurrentCodeTab().CodeFile;
-                if (cf.FilePath != null) {
-                    // must replace with relative path.
-                    var input = cf.FilePath;
-                    var output = input.Substring(0, input.LastIndexOf('.')) + ".exe";
-                    var psi = new ProcessStartInfo(@"C:\Source\Volta\bin\debug\net48\volta.exe", $"-i {input} -o {output}") {
-                        RedirectStandardError = true,
-                        RedirectStandardInput = true,
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
+                var input = cf.FilePath;
+                var output = input.Substring(0, input.LastIndexOf('.')) + ".exe";
+                var psi = new ProcessStartInfo(@".\compilers\volta.exe", $"-i {input} -o {output}") {
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
 
-                    var process = Process.Start(psi);
-                    process.EnableRaisingEvents = true;
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
+                var process = Process.Start(psi);
+                process.EnableRaisingEvents = true;
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
 
-                    process.Exited += (sender, e) => {
-                        var exitCode = process.ExitCode;
-                        if (exitCode == 0) {
-                            if ((bool)runAfterBuild) {
-                                Dispatcher.Invoke(() => {
-                                    EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
-                                    WConsole.ExecuteProgram(output);
-                                });
-                            }
-                        } else {
-
+                process.Exited += (sender, e) => {
+                    var exitCode = process.ExitCode;
+                    if (exitCode == 0) {
+                        if ((bool)runAfterBuild) {
+                            Dispatcher.Invoke(() => {
+                                EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
+                                WConsole.ExecuteProgram(output);
+                            });
                         }
-                        Debug.WriteLine($"Exit code: {process.ExitCode}");
-                    };
-                    process.ErrorDataReceived += (sender, e) => {
-                        WOutput.AddLine(e.Data);
-                    };
-                    process.OutputDataReceived += (sender, e) => {
-                        WOutput.AddLine(e.Data);
-                    };
+                    } else {
+                        MessageBox.Show("Hay errores de compilación.", "Compilación fallida", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    }
+                    Debug.WriteLine($"Exit code: {process.ExitCode}");
+                };
+                process.ErrorDataReceived += (sender, e) => {
+                    WOutput.AddLine(e.Data);
+                };
+                process.OutputDataReceived += (sender, e) => {
+                    WOutput.AddLine(e.Data);
+                };
 
-                } else GetCurrentCodeTab().Save();
             }
         });
 
