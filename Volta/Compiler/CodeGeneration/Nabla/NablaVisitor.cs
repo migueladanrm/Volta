@@ -134,10 +134,10 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
                 {
-                    emitter.Emit(OpCodes.Ldfld, fieldInfo); //Lee el arreglo
+                    emitter.Emit(OpCodes.Ldsfld, fieldInfo); //Lee el arreglo
                     Visit((context.designator() as DesignatorASTContext).expr(0)); // Lee el index
 
-                    emitter.Emit(OpCodes.Ldfld, fieldInfo); // Lee el arreglo
+                    emitter.Emit(OpCodes.Ldsfld, fieldInfo); // Lee el arreglo
 
                     Visit((context.designator() as DesignatorASTContext).expr(0)); // Lee el index
 
@@ -149,7 +149,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 }
                 else
                 {
-                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+                    emitter.Emit(OpCodes.Ldsfld, fieldInfo);
                     emitter.Emit(OpCodes.Ldc_I4_1);
                     emitter.Emit(opCode);
 
@@ -232,7 +232,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
                 {
-                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+                    emitter.Emit(OpCodes.Ldsfld, fieldInfo);
 
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
@@ -485,6 +485,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                 field = rootType.DefineField(name,
                     NablaHelper.ParseType(type), FieldAttributes.HasDefault | FieldAttributes.Static);
+
+                fields.Add(field);
             } else {
                 local = emitter.DeclareLocal(NablaHelper.ParseType(type));
                 localVariables.Add((name, local));
@@ -522,8 +524,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         public object VisitDesignatorAST([NotNull] DesignatorASTContext context) {
             ParserRuleContext decl = context.ident(0).decl;
 
-           
 
+            Console.WriteLine(decl.GetType());
             if (decl is MethodDeclASTContext)
             {
 
@@ -675,6 +677,33 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitIdentOrCallFactorAST([NotNull] IdentOrCallFactorASTContext context) {
 
+            if(context.designator().GetText().Equals("chr"))
+            {
+                Visit(context.actPars());
+
+                emitter.Emit(OpCodes.Ldc_I4, 48);
+                emitter.Emit(OpCodes.Add);
+
+                return "char";
+            }
+            else if (context.designator().GetText().Equals("ord"))
+            {
+                Visit(context.actPars());
+
+                emitter.Emit(OpCodes.Ldc_I4, 48);
+                emitter.Emit(OpCodes.Sub);
+
+                return "int";
+            }
+            else if (context.designator().GetText().Equals("len"))
+            {
+                Visit(context.actPars());
+
+                emitter.Emit(OpCodes.Ldlen);
+
+                return "int";
+            }
+
             var tuple = (Tuple<object, object>) Visit(context.designator());
 
             var typeString = tuple.Item1 as string;
@@ -694,8 +723,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             else if(tuple.Item2 is FieldInfo)
             {
                 var fieldInfo = tuple.Item2 as FieldInfo;
+                Console.WriteLine(fieldInfo.Name);
                 
-                emitter.Emit(OpCodes.Ldfld, fieldInfo);
+                emitter.Emit(OpCodes.Ldsfld, fieldInfo);
 
                 Console.WriteLine("Pasa por el field");
 
@@ -709,15 +739,9 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                     var methodInfo = ((Func<object, object>)typeField.GetValue).Method;
 
-                    Console.WriteLine("METHOD");
-
                     emitter.Emit(OpCodes.Callvirt, methodInfo);
 
-                    Console.WriteLine("METHODDDDDD");
-
                     typeString = typeField.FieldType.Name;
-
-                    Console.WriteLine(typeString);
                 }
 
 
@@ -768,8 +792,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     typeString = typeField.FieldType.Name;
                     typeString = typeString == "Int32" ? "int" : typeString;
                     typeString = "object";
-                    
-                    Console.WriteLine("METHOD");
 
 
                     emitter.Emit(OpCodes.Ldobj, typeField);
@@ -780,10 +802,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                     //emitter.Emit(OpCodes.Castclass, GetTypeOf(typeString));
 
-                    Console.WriteLine("METHODDDDDD");
-
-
-                    Console.WriteLine(typeString);
                 }
                 else
                 {
@@ -907,12 +925,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else
             {
-                Console.WriteLine("HOLIS");
                 Type type = GetTypeOf(typeString);
 
                 //Console.WriteLine(type.GetFields());
 
-                Console.WriteLine(Activator.CreateInstance(type).GetType());
+                //Console.WriteLine(Activator.CreateInstance(type).GetType());
 
                 //emitter.Emit(OpCodes.Initobj, type);
                 emitter.Emit(OpCodes.Newobj, type.GetConstructors()[0]);
@@ -946,7 +963,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
             context.varDecl().ToList().ForEach(varD => Visit(varD));
             context.constDecl().ToList().ForEach(constD => Visit(constD));
-            emitter.Emit(OpCodes.Ret);
+            if(emitter != null)
+                emitter.Emit(OpCodes.Ret);
 
             context.classDecl().ToList().ForEach(classD => Visit(classD));
             context.methodDecl().ToList().ForEach(methodD => Visit(methodD));
@@ -972,7 +990,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
                 {
-                    emitter.Emit(OpCodes.Ldfld, fieldInfo);
+                    emitter.Emit(OpCodes.Ldsfld, fieldInfo);
 
                     Visit((context.designator() as DesignatorASTContext).expr(0));
 
@@ -981,7 +999,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 }
                 else
                 {
-                    emitter.Emit(OpCodes.Stfld, fieldInfo);
+                    emitter.Emit(OpCodes.Stsfld, fieldInfo);
                 }
             }
             else if (tuple.Item2 is ParameterBuilder)
@@ -1146,11 +1164,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 context.ident().ToList().ForEach(ident => {
                     var identifier = Visit(ident) as string;
                     var type = GetTypeOf(varType);
-
-                    
-                    Console.WriteLine("Nombre y nombre del tipo");
-                    Console.WriteLine(varType);
-                    Console.WriteLine(type.GetFields().ToString());
+   
                     var localBuilder = emitter.DeclareLocal(type);
 
                     localVariables.Add((identifier, localBuilder));
@@ -1186,8 +1200,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         public object VisitWriteStatementAST([NotNull] WriteStatementASTContext context) {
 
             var type = Visit(context.expr()) as string;
-
-            Console.WriteLine(type);
 
             MethodInfo write = typeof(Console).GetMethod(
                          "WriteLine",
