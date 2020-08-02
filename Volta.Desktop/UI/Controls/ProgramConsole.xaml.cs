@@ -30,5 +30,9 @@ namespace Volta.UI.Controls
             RequestHide?.Invoke(this);
         }
 
+
+        public void ExecuteProgram(string path, string args = null) {
+            Console.StartProcess(path, args);
+        }
     }
 }

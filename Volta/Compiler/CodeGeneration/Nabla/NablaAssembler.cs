@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
 using Volta.Compiler.CodeAnalysis;
 
 namespace Volta.Compiler.CodeGeneration.Nabla
@@ -15,13 +14,13 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private ModuleBuilder mb;
         private NablaVisitor nv;
 
-        private Type type;
-
         public NablaAssembler(Stream code, string name = null) {
+            Console.WriteLine("Cargando código en memoria...");
+
             an = new AssemblyName(name ?? Guid.NewGuid().ToString());
 #if NET48
             ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
-            mb = ab.DefineDynamicModule(an.Name,$"{an.Name}.exe");
+            mb = ab.DefineDynamicModule(an.Name, $"{an.Name}.exe");
 #endif
             nv = new NablaVisitor(ref mb);
 
@@ -29,32 +28,38 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var tokens = new CommonTokenStream(lexer);
             var parser = new VoltaParser(tokens);
             var tree = parser.program();
-
             var contextualAnalysis = new ContextualAnalysis();
             contextualAnalysis.Visit(tree);
 
+            Console.WriteLine("Ensamblando código...");
+
             nv.Visit(tree);
 
-            type = nv.rootType.CreateType();
+            nv.rootType.CreateType();
 #if NET48
             ab.SetEntryPoint(nv.mainMethod);
 #endif
+
+            Console.WriteLine("Código ensamblado correctamente.");
         }
 
 #if NET48
-        public void BuildProgram() {
-            ab.Save($"{an.Name}.exe");
+        public void BuildProgram(string output) {
+            if (!output.EndsWith(".exe"))
+                output += ".exe";
 
-            Console.WriteLine("Comienza el .exe \n");
+            var outputFile = new FileInfo(output);
+            if (!Directory.Exists(outputFile.DirectoryName))
+                Directory.CreateDirectory(outputFile.DirectoryName);
 
-            object ptInstance = Activator.CreateInstance(type);
+            Console.WriteLine("Generando ejecutable...");
+            ab.Save(outputFile.Name);
 
-                type.InvokeMember("Main", BindingFlags.InvokeMethod, null, ptInstance, new object[] { });
+            File.Move(outputFile.Name, outputFile.FullName);
 
-            Console.WriteLine("\nTermina el .exe");
-
-            //Console.Read();
+            Console.WriteLine("Ejecutable generado correctamente.");
         }
 #endif
+
     }
 }
