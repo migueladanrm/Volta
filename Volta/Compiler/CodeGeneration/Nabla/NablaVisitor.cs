@@ -32,6 +32,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         private TypeBuilder tmpType = null;
 
         public MethodBuilder mainMethod;
+        ConstructorBuilder rootConstructor = null;
+
 
         public NablaVisitor(ref ModuleBuilder moduleBuilder) {
             this.moduleBuilder = moduleBuilder;
@@ -467,9 +469,52 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitConstDeclAST([NotNull] ConstDeclASTContext context) {
-            var field = rootType.DefineField(Visit(context.ident()) as string,
-                NablaHelper.ParseType(Visit(context.type()) as string),
-                FieldAttributes.HasDefault);
+            var type = Visit(context.type()) as string;
+            var name = Visit(context.ident()) as string;
+            FieldBuilder field = null;
+            LocalBuilder local = null;
+
+            if (context.Parent is ProgramASTContext) {
+                if (rootConstructor == null) {
+                    rootConstructor = rootType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
+                    emitter = rootConstructor.GetILGenerator();
+                    emitter.Emit(OpCodes.Ldarg_0);
+                    emitter.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0]));
+                }
+                emitter.Emit(OpCodes.Ldarg_0);
+
+                field = rootType.DefineField(name,
+                    NablaHelper.ParseType(type), FieldAttributes.HasDefault | FieldAttributes.Static);
+            } else {
+                local = emitter.DeclareLocal(NablaHelper.ParseType(type));
+                localVariables.Add((name, local));
+            }
+
+            switch (type) {
+                case "char":
+                    var c = context.CHARCONST().GetText().Replace("\'", "").ToCharArray().First();
+                    emitter.Emit(OpCodes.Ldc_I4_S, c);
+                    break;
+                case "int":
+                    emitter.Emit(OpCodes.Ldc_I4, int.Parse(context.NUM().GetText()));
+                    break;
+                case "float":
+                    emitter.Emit(OpCodes.Ldc_R4, float.Parse(context.NUM().GetText()));
+                    break;
+                case "bool":
+                    // no está en el parser.
+                    break;
+                case "string":
+                    emitter.Emit(OpCodes.Ldstr, context.STRING().GetText().Replace("\"", ""));
+                    break;
+            }
+
+            if (local != null) {
+                emitter.Emit(OpCodes.Stloc, local);
+            }
+
+            if (field != null)
+                emitter.Emit(OpCodes.Stfld, field);
 
             return null;
         }
@@ -897,9 +942,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitProgramAST([NotNull] ProgramASTContext context) {
-
             rootType = moduleBuilder.DefineType(context.ident().GetText(), TypeAttributes.Public | TypeAttributes.Class);
-            VisitChildren(context);
+
+            context.varDecl().ToList().ForEach(varD => Visit(varD));
+            context.constDecl().ToList().ForEach(constD => Visit(constD));
+            emitter.Emit(OpCodes.Ret);
+
+            context.classDecl().ToList().ForEach(classD => Visit(classD));
+            context.methodDecl().ToList().ForEach(methodD => Visit(methodD));
+
             return null;
         }
 
