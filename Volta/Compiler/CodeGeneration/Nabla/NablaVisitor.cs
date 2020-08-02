@@ -66,9 +66,11 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     return typeof(bool[]);
                 case "string[]":
                     return typeof(string[]);
+                case "object":
+                    return typeof(object);
                 default:
                     {
-                        return childTypes.Find(type => type.GetType().Name.Equals(typeString));
+                        return childTypes.Find(type => type.Name.Equals(typeString));
                     }
                     
             }
@@ -266,7 +268,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else if (tuple.Item2 is LocalBuilder)
             {
-                Console.WriteLine("LocalBuilder");
                 var localBuilder = tuple.Item2 as LocalBuilder;
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
@@ -382,12 +383,16 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitClassDeclAST([NotNull] ClassDeclASTContext context) {
-            tmpType = rootType.DefineNestedType(context.ident().GetText(),
-                TypeAttributes.Class | TypeAttributes.NestedPublic,
+            tmpType = moduleBuilder.DefineType(context.ident().GetText(),
+                TypeAttributes.Class | TypeAttributes.Public |
+                TypeAttributes.AutoClass | TypeAttributes.BeforeFieldInit | 
+                TypeAttributes.AnsiClass | TypeAttributes.Sealed, 
                 typeof(object));
             context.varDecl().ToList().ForEach(vd => Visit(vd));
 
-            childTypes.Add(tmpType.CreateType());
+            var type = tmpType.CreateType();
+
+            childTypes.Add(type);
 
             
 
@@ -500,7 +505,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 }
                 else
                 {
-                    //Falta revisión de instancias
                     typeString = Visit((decl as VarDeclASTContext).type()) as string;
 
                 }
@@ -645,8 +649,32 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             else if(tuple.Item2 is FieldInfo)
             {
                 var fieldInfo = tuple.Item2 as FieldInfo;
-
+                
                 emitter.Emit(OpCodes.Ldfld, fieldInfo);
+
+                Console.WriteLine("Pasa por el field");
+
+                if ((context.designator() as DesignatorASTContext).ident().Length > 1)
+                {
+
+                    var fieldName = (context.designator() as DesignatorASTContext).ident(1).GetText();
+
+
+                    var typeField = fieldInfo.FieldType.GetField(fieldName);
+
+                    var methodInfo = ((Func<object, object>)typeField.GetValue).Method;
+
+                    Console.WriteLine("METHOD");
+
+                    emitter.Emit(OpCodes.Callvirt, methodInfo);
+
+                    Console.WriteLine("METHODDDDDD");
+
+                    typeString = typeField.FieldType.Name;
+
+                    Console.WriteLine(typeString);
+                }
+
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
                 {
@@ -677,7 +705,45 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             {
                 var localBuilder = tuple.Item2 as LocalBuilder;
 
-                emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+
+                Console.WriteLine("Pasa por el local");
+
+                if ((context.designator() as DesignatorASTContext).ident().Length > 1)
+                {
+
+                    var fieldName = (context.designator() as DesignatorASTContext).ident(1).GetText();
+
+
+                    var typeField = GetTypeOf(typeString).GetField(fieldName);
+
+                    var methodInfo = ((Func<object, object>)typeField.GetValue).Method;
+
+
+
+                    typeString = typeField.FieldType.Name;
+                    typeString = typeString == "Int32" ? "int" : typeString;
+                    typeString = "object";
+                    
+                    Console.WriteLine("METHOD");
+
+
+                    emitter.Emit(OpCodes.Ldobj, typeField);
+
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+                    emitter.Emit(OpCodes.Callvirt, methodInfo);
+
+
+                    //emitter.Emit(OpCodes.Castclass, GetTypeOf(typeString));
+
+                    Console.WriteLine("METHODDDDDD");
+
+
+                    Console.WriteLine(typeString);
+                }
+                else
+                {
+                    emitter.Emit(OpCodes.Ldloc, localBuilder.LocalIndex);
+                }
 
                 if ((tuple.Item1 as string).Contains("[]") && (context.designator() as DesignatorASTContext).expr().Length != 0)
                 {
@@ -794,6 +860,19 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                 emitter.Emit(OpCodes.Stloc, index);
                 emitter.Emit(OpCodes.Ldloc, index);
             }
+            else
+            {
+                Console.WriteLine("HOLIS");
+                Type type = GetTypeOf(typeString);
+
+                //Console.WriteLine(type.GetFields());
+
+                Console.WriteLine(Activator.CreateInstance(type).GetType());
+
+                //emitter.Emit(OpCodes.Initobj, type);
+                emitter.Emit(OpCodes.Newobj, type.GetConstructors()[0]);
+            }
+            
             
             return typeString;
         }
@@ -1013,10 +1092,15 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             }
             else
             {
-                Console.WriteLine(varType);
                 context.ident().ToList().ForEach(ident => {
                     var identifier = Visit(ident) as string;
-                    var localBuilder = emitter.DeclareLocal(GetTypeOf(varType));
+                    var type = GetTypeOf(varType);
+
+                    
+                    Console.WriteLine("Nombre y nombre del tipo");
+                    Console.WriteLine(varType);
+                    Console.WriteLine(type.GetFields().ToString());
+                    var localBuilder = emitter.DeclareLocal(type);
 
                     localVariables.Add((identifier, localBuilder));
                 });
@@ -1051,6 +1135,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         public object VisitWriteStatementAST([NotNull] WriteStatementASTContext context) {
 
             var type = Visit(context.expr()) as string;
+
+            Console.WriteLine(type);
 
             MethodInfo write = typeof(Console).GetMethod(
                          "WriteLine",
