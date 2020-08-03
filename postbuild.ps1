@@ -1,6 +1,6 @@
 using namespace System.IO;
 
-param([string]$SolutionDir, [string]$ConfigurationName)
+param([string]$ConfigurationName, [string]$SolutionDir)
 
 $dir_bin_output = "{0}\bin\{1}\netcoreapp3.1" -f $SolutionDir, $ConfigurationName;
 $dir_nabla_binaries = "{0}\bin\{1}\net48" -f $SolutionDir, $ConfigurationName;

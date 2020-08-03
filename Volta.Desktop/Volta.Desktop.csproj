@@ -45,7 +45,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="powershell -ExecutionPolicy Unrestricted -File ..\postbuild.ps1 -SolutionDir $(SolutionDir) -ConfigurationName $(ConfigurationName)" />
+    <Exec Command="powershell -ExecutionPolicy Unrestricted -File ..\postbuild.ps1 -ConfigurationName $(ConfigurationName) -SolutionDir &quot;$(SolutionDir)" />
   </Target>
 
 </Project>
