@@ -1311,7 +1311,7 @@ namespace Volta.Compiler.CodeGeneration.Nabla
         }
 
         public object VisitTypeAST([NotNull] TypeASTContext context) {
-            return context.ident().GetText();
+            return context.GetText();
         }
 
         public object VisitVarDeclAST([NotNull] VarDeclASTContext context) {
