@@ -214,7 +214,7 @@ namespace Volta.UI
                         if ((bool)runAfterBuild) {
                             Dispatcher.Invoke(() => {
                                 EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
-                                WConsole.ExecuteProgram($"\"output\"");
+                                WConsole.ExecuteProgram($"\"{output}\"");
                             });
                         }
                     } else {
