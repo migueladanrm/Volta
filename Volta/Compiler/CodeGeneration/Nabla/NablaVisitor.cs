@@ -939,7 +939,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
 
                         var fieldInfo = GetTypeOf(typeString).GetField(fieldName);
-                        Console.WriteLine(typeString);
                         typeString = fieldInfo.FieldType.Name;
                         typeString = typeString == "Int32" ? "int" : typeString;
 
