@@ -530,7 +530,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             var type = tmpType.CreateType();
 
             childTypes.Add(type);
-            Console.WriteLine("Creando Point");
 
             tmpType = null;
 
@@ -539,7 +538,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
 
         public object VisitCondFactAST([NotNull] CondFactASTContext context) {
             var relop = context.relop().GetText();
-            Console.WriteLine(context.relop().GetText());
             if (relop.Equals(">=") || relop.Equals("<="))
             {
                 Visit(context.expr(1));
@@ -856,11 +854,8 @@ namespace Volta.Compiler.CodeGeneration.Nabla
             else if(tuple.Item2 is FieldInfo)
             {
                 var fieldInfo = tuple.Item2 as FieldInfo;
-                Console.WriteLine(fieldInfo.Name);
                 
                 emitter.Emit(OpCodes.Ldsfld, fieldInfo);
-
-                Console.WriteLine("Pasa por el field");
 
                 if ((context.designator() as DesignatorASTContext).ident().Length > 1)
                 {
@@ -1334,7 +1329,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     }
                     else
                     {
-                        Console.WriteLine(childTypes.Count);
                         field = rootType.DefineField(identifier, GetTypeOf(varType), FieldAttributes.Public | FieldAttributes.Static);
                         fields.Add(field);
                     }
