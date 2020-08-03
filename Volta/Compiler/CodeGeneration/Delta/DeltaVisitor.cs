@@ -182,9 +182,12 @@ namespace Volta.Compiler.CodeGeneration.Delta
             string ident = context.designator().GetText();
 
             AddLine($"LOAD_{scope} {ident}");
-            string numParams = Visit(context.actPars()) as string;
-            AddLine($"CALL_FUNCTION {numParams}");
- 
+            if (context.actPars() != null) {
+                string numParams = Visit(context.actPars()) as string;
+                AddLine($"CALL_FUNCTION {numParams}");
+            } else
+                AddLine($"CALL_FUNCTION 0");
+
             return null;
         }
 
@@ -248,6 +251,9 @@ namespace Volta.Compiler.CodeGeneration.Delta
             
             string declCode = $"PUSH_{scope}_{type} {varName}";
             AddLine(declCode);
+
+            if (scope.Equals("LOCAL"))
+                scope = "FAST";
 
             string constT;
             if(context.NUM() != null)
@@ -401,7 +407,7 @@ namespace Volta.Compiler.CodeGeneration.Delta
             }
             else
             {
-                SetLineOnRealIndexOf(jumpIfFalsePosition, $"JMP_IF_FALSE {LineCount}");
+                SetLineOnRealIndexOf(jumpIfFalsePosition, $"JUMP_IF_FALSE {LineCount}");
             }
 
             return null;
