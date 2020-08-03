@@ -270,8 +270,13 @@
                     </controls:MessageCard.Effect>
                 </controls:MessageCard>
                 <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
-                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" MinHeight="200"/>
-                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
+
+                <Grid x:Name="ContainerBottomWindows" Grid.Row="1" MinHeight="200" MaxHeight="250">
+                    <controls:ErrorList x:Name="WErrorList"/>
+                    <controls:OutputConsole x:Name="WOutput"/>
+                    <controls:ProgramConsole x:Name="WConsole"/>
+                </Grid>
+                <controls:EditorStatusBar x:Name="EditorSB" Grid.Row="2"/>
 
                 <Grid x:Name="WC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32,32,0,0">
                     <Grid.Resources>
@@ -390,6 +395,17 @@
                         </Button>
 
                         <Separator/>
+                        <ComboBox MinWidth="100"  x:Name="CompilerSelect">
+                            <ComboBoxItem Content="Delta" IsSelected="True"/>
+                            <ComboBoxItem Content="Nabla"/>
+                        </ComboBox>
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.build" ToolTip="Compilar">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource Vector.Hammer}" Fill="Green"/>
+                                <TextBlock Text="Compilar" Margin="3,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
                         <Button Click="ToolbarButton_Click" Tag="toolbar.buildrun" ToolTip="Compilar y ejecutar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Play}" Fill="Green"/>
@@ -434,7 +450,7 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
+        <Grid x:Name="LayoutSecondary" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
@@ -460,8 +476,10 @@
                         <Border Style="{StaticResource HorizontalDivider}" Margin="0,5,0,0"/>
 
                         <TextBlock Text="Desarrolladores" FontFamily=" Segoe UI Semibold" FontSize="14" Padding="0,5,0,3" Foreground="DimGray"/>
-                        <TextBlock Text="W. Benavides"/>
-                        <TextBlock Text="M. Rivas"/>
+                        <TextBlock Cursor="Hand" MouseLeftButtonDown="DeveloperName_MouseLeftButtonDown" Foreground="DodgerBlue"
+                                   Tag="wbenafi">Walter Benavides</TextBlock>
+                        <TextBlock Cursor="Hand" MouseLeftButtonDown="DeveloperName_MouseLeftButtonDown" Foreground="DodgerBlue"
+                                   Tag="migueladanrm">Miguel Rivas</TextBlock>
 
                         <Button Click="SLHide" Content="Aceptar" HorizontalAlignment="Right" Margin="0,5,0,0" Padding="10,3" Style="{StaticResource VoltaButton}"/>
                     </StackPanel>

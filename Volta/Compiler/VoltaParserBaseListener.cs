@@ -649,6 +649,18 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLessRelopAST([NotNull] VoltaParser.LessRelopASTContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="VoltaParser.boolean"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBoolean([NotNull] VoltaParser.BooleanContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="VoltaParser.boolean"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBoolean([NotNull] VoltaParser.BooleanContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>switchAST</c>
 	/// labeled alternative in <see cref="VoltaParser.switch"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -662,6 +674,20 @@ public partial class VoltaParserBaseListener : IVoltaParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitSwitchAST([NotNull] VoltaParser.SwitchASTContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>caseAST</c>
+	/// labeled alternative in <see cref="VoltaParser.case"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCaseAST([NotNull] VoltaParser.CaseASTContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>caseAST</c>
+	/// labeled alternative in <see cref="VoltaParser.case"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCaseAST([NotNull] VoltaParser.CaseASTContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by the <c>identAST</c>
 	/// labeled alternative in <see cref="VoltaParser.ident"/>.

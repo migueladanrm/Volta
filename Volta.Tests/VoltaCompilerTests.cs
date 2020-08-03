@@ -30,14 +30,14 @@ namespace Volta.Tests
         public void CheckCodeErrors() {
             Console.WriteLine("Checking samples...");
 
-            foreach (var kv in codeSamples) {
-                Console.WriteLine($"File: {kv.Key}");
-                var errors = Controller.Check(kv.Value);
-                foreach (var vpe in errors) {
-                    Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.Column}:\n\t{vpe.Message}");
-                }
-                Console.WriteLine();
-            }
+            //foreach (var kv in codeSamples) {
+            //    Console.WriteLine($"File: {kv.Key}");
+            //    var errors = Controller.Check(kv.Value);
+            //    foreach (var vpe in errors) {
+            //        Console.Error.WriteLine($"Error at Ln {vpe.Line} Col {vpe.Column}:\n\t{vpe.Message}");
+            //    }
+            //    Console.WriteLine();
+            //}
         }
     }
 }

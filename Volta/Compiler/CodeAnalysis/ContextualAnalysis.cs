@@ -288,6 +288,7 @@ namespace Volta.Compiler.CodeAnalysis
                     Visit(context.ident()[0]);
                     return identifier;
                 } else if (identifier is ArrayIdentifier || identifier is InstanceIdentifier) {
+                    Visit(context.ident()[0]);
                     bool arrayFound = false;
                     bool error = false;
                     Identifier currentIdentifier = identifier;
@@ -352,7 +353,7 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitExprAST([NotNull] ExprASTContext context) {
             if (context.term().Length == 1) {
-                string type = (string)Visit(context.term()[0]);
+                string type = (string)Visit(context.term(0));
                 if (type != "int") {
                     if (context.SUB() == null) {
                         return type;
@@ -364,6 +365,20 @@ namespace Volta.Compiler.CodeAnalysis
                     return type;
                 }
             }
+            else if (context.term().Length > 1)
+            {
+                bool allInts = context.term().ToList().All(term => {
+                    string type = (string)Visit(term);
+                    if (type != "int")
+                    {
+                        InsertError(term.Start,
+                            $"El término '{term.GetText()}' no es un número entero. Solo se permite el uso de '+' o '-' con números enteros");
+                    }
+                    return type == "int";
+                });
+                return allInts ? "int" : null;
+            }
+
             return null;
         }
 
@@ -375,30 +390,43 @@ namespace Volta.Compiler.CodeAnalysis
                 var type = Visit(typesList[i]) as string;
 
                 if (type != null) {
-                    if (!ExistIdent(idents[i].IDENT().Symbol.Text, true)) {
-                        if (types.IndexOf(type) > 10) {
-                            ClassIdentifier classIdentifier = identificationTable.FindClass(type);
-                            List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
-                            InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
-                            identificationTable.Insert(instanceIdentifier);
-                        } else {
-                            var ident = idents[i].IDENT();
-                            Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
-                            if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null) {
-                                if (types.IndexOf(type) <= 10) {
-                                    List<Identifier> identifiers = new List<Identifier>();
-                                    identifier.Id = "0";
-                                    identifiers.Add(identifier);
-                                    identifier.Type = type.Replace("[]", "");
-                                    ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
-                                    identificationTable.Insert(arrayIdentifier);
+                    if (idents[i].IDENT() != null)
+                    {
+                        if (!ExistIdent(idents[i].IDENT().Symbol.Text, true))
+                        {
+                            if (types.IndexOf(type) > 10)
+                            {
+                                ClassIdentifier classIdentifier = identificationTable.FindClass(type);
+                                List<Identifier> instanceIdentifiers = GetIdentifiersFromClass(classIdentifier);
+                                InstanceIdentifier instanceIdentifier = new InstanceIdentifier(idents[i].IDENT().Symbol.Text, idents[i].IDENT().Symbol, identificationTable.getLevel(), type, context, classIdentifier, instanceIdentifiers);
+                                identificationTable.Insert(instanceIdentifier);
+                            }
+                            else
+                            {
+                                var ident = idents[i].IDENT();
+                                Identifier identifier = new VarIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context);
+                                if (typesList[i].SQUAREBL() != null && typesList[i].SQUAREBR() != null)
+                                {
+                                    if (types.IndexOf(type) <= 10)
+                                    {
+                                        List<Identifier> identifiers = new List<Identifier>();
+                                        identifier.Id = "0";
+                                        identifiers.Add(identifier);
+                                        identifier.Type = type.Replace("[]", "");
+                                        ArrayIdentifier arrayIdentifier = new ArrayIdentifier(ident.Symbol.Text, ident.Symbol, identificationTable.getLevel(), type, context, 1, identifiers);
+                                        identificationTable.Insert(arrayIdentifier);
+                                    }
                                 }
-                            } else {
-                                identificationTable.Insert(identifier);
+                                else
+                                {
+                                    identificationTable.Insert(identifier);
+                                }
                             }
                         }
-                    } else {
-                        InsertError(idents[i].IDENT().Symbol, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
+                        else
+                        {
+                            InsertError(idents[i].IDENT().Symbol, "El identificador " + idents[i].IDENT().Symbol.Text + " ya fue declarado en los parámetros");
+                        }
                     }
                 }
             }
@@ -435,23 +463,30 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitForStatementAST([NotNull] ForStatementASTContext context) {
             var iterator = Visit(context.expr()) as string ?? "none";
-            Visit(context.condition());
-            Visit(context.statement()[0]);
+            if (context.condition() != null && context.statement(0) != null && context.statement(1) != null)
+            {
+                Visit(context.condition());
+                Visit(context.statement()[0]);
 
-            if (iterator == "int") {
-                if (context.statement().Length > 1)
-                    Visit(context.statement()[1]);
-            } else
-                InsertError(context.expr().Start, $"El iterador debe ser de tipo 'int' pero se obtuvo '{iterator}'.");
+                if (iterator == "int")
+                {
+                    if (context.statement().Length > 1)
+                        Visit(context.statement()[1]);
+                }
+                else
+                    InsertError(context.expr().Start, $"El iterador debe ser de tipo 'int' pero se obtuvo '{iterator}'.");
 
-            VisitChildren(context);
-            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => {
-                var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null)
-                    returnedTypes.AddRange(list);
-            });
-            return returnedTypes;
+                VisitChildren(context);
+                List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+                context.statement().ToList().ForEach(statement =>
+                {
+                    var list = Visit(statement) as List<Pair<string, IToken>>;
+                    if (list != null)
+                        returnedTypes.AddRange(list);
+                });
+                return returnedTypes;
+            }
+            return new List<Pair<string, IToken>>();
         }
 
         public object VisitIfStatementAST([NotNull] IfStatementASTContext context) {
@@ -459,7 +494,11 @@ namespace Volta.Compiler.CodeAnalysis
                 Visit(context.condition());
 
             var returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => returnedTypes.AddRange(Visit(statement) as List<Pair<string, IToken>>));
+            context.statement().ToList().ForEach(statement => {
+                var list = Visit(statement) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            });
 
             return returnedTypes;
         }
@@ -579,45 +618,44 @@ namespace Volta.Compiler.CodeAnalysis
         }
 
         public object VisitSwitchAST([NotNull] SwitchASTContext context) {
-            var nums = context.NUM();
-            var strings = context.STRING();
-            var chars = context.CHARCONST();
-
-            var trues = context.TRUE();
-            var falses = context.FALSE();
-
-            string type = Visit(context.expr()) as string;
-            if (type != null && types.IndexOf(type) < 4) {
-                if (type == "int" || type == "float") {
-                    if (nums.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "char") {
-                    if (chars.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "string") {
-                    if (strings.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "bool") {
-                    if (trues.Length + falses.Length != context.CASE().Length) {
-                        InsertError(context.Start, $"El tipo de todos los case deben coincidir con el tipo {type}");
-                    }
-                } else if (type == "none") {
-                    InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
-                }
-            } else {
-                InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
-            }
-
+            var cases = context.@case();
 
             List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
-            context.statement().ToList().ForEach(statement => {
-                var list = Visit(statement) as List<Pair<string, IToken>>;
-                if (list != null)
-                    returnedTypes.AddRange(list);
-            });
+
+            if (context.expr() != null)
+            {
+                string type = Visit(context.expr()) as string;
+                if (type != null && types.IndexOf(type) < 4)
+                {
+                    if (type == "none")
+                    {
+                        InsertError(context.expr().Start, $"La expresión no puede ser la constante 'null'");
+                    }
+                    else
+                    {
+                        cases.ToList().ForEach(@case =>
+                        {
+                            var list = Visit(@case) as List<Pair<string, IToken>>;
+                            if (list != null)
+                                returnedTypes.AddRange(list);
+
+                            var caseType = (@case as CaseASTContext).typeString;
+                            if (caseType != type && (caseType != "num" || (type != "int" && type != "float")))
+                            {
+                                InsertError(@case.Start, $"La expresión en el case debe ser de tipo '{type}'");
+                            }
+
+                        });
+
+                        context.typeString = type;
+                    }
+                }
+                else
+                {
+                    InsertError(context.expr().Start, $"El tipo de la expresión para el switch debe ser simple");
+                }
+            }
+
             return returnedTypes;
         }
 
@@ -827,6 +865,51 @@ namespace Volta.Compiler.CodeAnalysis
 
         public object VisitAddopAST([NotNull] AddopASTContext context) {
             VisitChildren(context); return null;
+        }
+
+        public object VisitBoolean([NotNull] BooleanContext context)
+        {
+            if(context.TRUE() != null)
+            {
+                context.value = true;
+            }
+            else
+            {
+                context.value = false;
+            }
+            return context.value;
+        }
+
+        public object VisitCaseAST([NotNull] CaseASTContext context)
+        {
+            
+            if(context.NUM() != null)
+            {
+                context.typeString = "num";
+            }
+            else if(context.CHARCONST() != null)
+            {
+                context.typeString = "char";
+            }
+            else if( context.STRING() != null)
+            {
+                context.typeString = "string";
+            }
+            else if(context.boolean() != null)
+            {
+                Visit(context.boolean());
+                context.typeString = "bool";
+            }
+
+            List<Pair<string, IToken>> returnedTypes = new List<Pair<string, IToken>>();
+            if(context.statement() != null)
+            {
+                var list = Visit(context.statement()) as List<Pair<string, IToken>>;
+                if (list != null)
+                    returnedTypes.AddRange(list);
+            }
+
+            return returnedTypes;
         }
     }
 }

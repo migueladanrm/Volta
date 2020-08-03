@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Volta.UI.Controls
 {
     /// <summary>
-    /// Interaction logic for OutputConsole.xaml
+    /// Interaction logic for ProgramConsole.xaml
     /// </summary>
-    public partial class OutputConsole : UserControl, IDEWindow
+    public partial class ProgramConsole : UserControl, IDEWindow
     {
-        public OutputConsole() {
+        public ProgramConsole() {
             InitializeComponent();
 
-            Clear();
+            ConsoleControl.StartProcess("cmd", string.Empty);
         }
 
         public event Action<object> RequestHide;
@@ -21,14 +22,9 @@ namespace Volta.UI.Controls
             RequestHide?.Invoke(this);
         }
 
-        public void AddLine(string line) {
-            Dispatcher.Invoke(() => {
-                TbxOutput.Text = $"{TbxOutput.Text}\n{line}";
-            });
-        }
 
-        public void Clear() {
-            TbxOutput.Clear();
+        public void ExecuteProgram(string path, string args = null) {
+            ConsoleControl.WriteInput($"{path} {args}", Color.FromRgb(0, 0, 0), true);
         }
     }
 }
