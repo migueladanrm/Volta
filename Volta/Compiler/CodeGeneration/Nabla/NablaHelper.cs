@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Volta.Compiler.CodeGeneration.Nabla
 {
@@ -33,7 +31,6 @@ namespace Volta.Compiler.CodeGeneration.Nabla
                     return typeof(string);
                 case "string[]":
                     return typeof(string[]);
-
             }
         }
     }

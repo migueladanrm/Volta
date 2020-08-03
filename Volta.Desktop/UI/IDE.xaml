@@ -450,7 +450,7 @@
             </Menu>
         </Grid>
 
-        <Grid x:Name="LayoutSecondary" d:IsHidden="True" >
+        <Grid x:Name="LayoutSecondary" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Grid.Background>
@@ -476,8 +476,10 @@
                         <Border Style="{StaticResource HorizontalDivider}" Margin="0,5,0,0"/>
 
                         <TextBlock Text="Desarrolladores" FontFamily=" Segoe UI Semibold" FontSize="14" Padding="0,5,0,3" Foreground="DimGray"/>
-                        <TextBlock Text="W. Benavides"/>
-                        <TextBlock Text="M. Rivas"/>
+                        <TextBlock Cursor="Hand" MouseLeftButtonDown="DeveloperName_MouseLeftButtonDown" Foreground="DodgerBlue"
+                                   Tag="wbenafi">Walter Benavides</TextBlock>
+                        <TextBlock Cursor="Hand" MouseLeftButtonDown="DeveloperName_MouseLeftButtonDown" Foreground="DodgerBlue"
+                                   Tag="migueladanrm">Miguel Rivas</TextBlock>
 
                         <Button Click="SLHide" Content="Aceptar" HorizontalAlignment="Right" Margin="0,5,0,0" Padding="10,3" Style="{StaticResource VoltaButton}"/>
                     </StackPanel>

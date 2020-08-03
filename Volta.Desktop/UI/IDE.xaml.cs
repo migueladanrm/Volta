@@ -35,7 +35,6 @@ namespace Volta.UI
 
             if (args.Contains("--test")) {
                 NewFileCommand.Execute(null);
-                //AlternateErrorListCommand.Execute(null);
             }
         }
 
@@ -147,47 +146,6 @@ namespace Volta.UI
                                 WConsole.ExecuteProgram(@".\compilers\Minics.exe", $"\"{outputFile}\"");
                             });
                         }
-
-                        //var textFile = delta.CreateTempFile();
-                        //var exeFile = @".\compilers\Minics.exe";
-
-                        //var info = new ProcessStartInfo {
-                        //    FileName = exeFile,
-                        //    Arguments = $"{textFile}",
-                        //    RedirectStandardError = true,
-                        //    RedirectStandardInput = true,
-                        //    RedirectStandardOutput = true,
-                        //    UseShellExecute = false,
-                        //    CreateNoWindow=true
-                        //};
-
-                        //try {
-                        //    using Process exeProcess = Process.Start(info);
-                        //    exeProcess.BeginErrorReadLine();
-                        //    exeProcess.BeginOutputReadLine();
-
-                        //    exeProcess.ErrorDataReceived += (sender, e) => {
-                        //        WOutput.AddLine(e.Data);
-                        //    };
-                        //    exeProcess.OutputDataReceived += (sender, e) => {
-                        //        WOutput.AddLine(e.Data);
-                        //    };
-
-                        //    using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
-                        //        String inputText;
-                        //        Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
-
-                        //        inputText = "3";
-                        //        myStreamWriter.WriteLine(inputText);
-
-                        //        myStreamWriter.Close();
-
-                        //        exeProcess.WaitForExit();
-                        //    }
-                        //} catch (Exception error) {
-                        //    Debug.WriteLine("ERORROROROROOR");
-                        //    Debug.WriteLine(error.Message);// Log error.
-                        //}
                     }
                 } else {
                     MCShow("Aún existen errores en el código, debe elminarlos primero");
@@ -526,6 +484,14 @@ namespace Volta.UI
                     SLDlgShow(nameof(DlgAbout));
                     break;
             }
+        }
+
+        private void DeveloperName_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            string username = (e.Source as FrameworkElement).Tag?.ToString() ?? null;
+            if (username != null)
+                try {
+                    Process.Start("explorer.exe", $"https://github.com/{username}");
+                } catch { }
         }
     }
 }
