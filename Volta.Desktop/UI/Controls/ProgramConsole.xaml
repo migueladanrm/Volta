@@ -1,9 +1,10 @@
-﻿<UserControl x:Class="Volta.UI.Controls.OutputConsole"
+﻿<UserControl x:Class="Volta.UI.Controls.ProgramConsole"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Volta.UI.Controls"
+             xmlns:cc="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -19,7 +20,7 @@
                     <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
                 </Border.Background>
                 <Grid>
-                    <TextBlock Text="Salida" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Segoe UI Semibold" Foreground="White"/>
+                    <TextBlock Text="Consola" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Segoe UI Semibold" Foreground="White"/>
                     <Border Background="Transparent" HorizontalAlignment="Right" MouseLeftButtonDown="BtnClose_MouseLeftButtonDown">
                         <Path Data="{StaticResource Vector.Close}" Fill="White" Stretch="Uniform" HorizontalAlignment="Right" Margin="5"/>
                     </Border>
@@ -27,13 +28,11 @@
             </Border>
 
             <Grid Grid.Row="1">
-                <TextBox x:Name="TbxOutput" FontFamily="Consolas" FontSize="14" AcceptsReturn="True" Padding="5" IsReadOnly="True" VerticalScrollBarVisibility="Auto"
-                         Text="Initializing build tasks...&#x0a;Build finished.&#x0a;Running: volta -i src.cs"
-                         />
-                <!--<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Template="{StaticResource Style.ScrollViewer.Default}">
-                    <StackPanel x:Name="ErrorListContainer" Orientation="Vertical"/>
-                </ScrollViewer>-->
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <cc:ConsoleControl x:Name="ConsoleControl" FontSize="14"/>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Border>
+
 </UserControl>

@@ -270,8 +270,13 @@
                     </controls:MessageCard.Effect>
                 </controls:MessageCard>
                 <!--<GridSplitter x:Name="BottomTabsGS" Grid.Row="1" HorizontalAlignment="Stretch"/>-->
-                <controls:ErrorList x:Name="ErrorList" Grid.Row="1" MinHeight="200"/>
-                <controls:EditorStatusBar x:Name="EditorStatusBar" Grid.Row="2"/>
+
+                <Grid x:Name="ContainerBottomWindows" Grid.Row="1" MinHeight="200" MaxHeight="250">
+                    <controls:ErrorList x:Name="WErrorList"/>
+                    <controls:OutputConsole x:Name="WOutput"/>
+                    <controls:ProgramConsole x:Name="WConsole"/>
+                </Grid>
+                <controls:EditorStatusBar x:Name="EditorSB" Grid.Row="2"/>
 
                 <Grid x:Name="WC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32,32,0,0">
                     <Grid.Resources>
@@ -394,6 +399,13 @@
                             <ComboBoxItem Content="Delta" IsSelected="True"/>
                             <ComboBoxItem Content="Nabla"/>
                         </ComboBox>
+                        <Button Click="ToolbarButton_Click" Tag="toolbar.build" ToolTip="Compilar">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource Vector.Hammer}" Fill="Green"/>
+                                <TextBlock Text="Compilar" Margin="3,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
                         <Button Click="ToolbarButton_Click" Tag="toolbar.buildrun" ToolTip="Compilar y ejecutar el documento actual">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource Vector.Play}" Fill="Green"/>

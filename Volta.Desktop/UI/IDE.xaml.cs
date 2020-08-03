@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,7 +25,6 @@ namespace Volta.UI
             InitializeComponent();
 
             DataContext = this;
-
             Defaults();
         }
 
@@ -35,7 +35,7 @@ namespace Volta.UI
 
             if (args.Contains("--test")) {
                 NewFileCommand.Execute(null);
-                AlternateErrorListCommand.Execute(null);
+                //AlternateErrorListCommand.Execute(null);
             }
         }
 
@@ -46,8 +46,10 @@ namespace Volta.UI
         public ICommand CloseTabCommand => new DelegateCommand((x) => {
             GetCurrentCodeTab()?.Close();
 
-            if (TC.Items.Count < 1)
+            if (TC.Items.Count < 1) {
                 ChangeViewMode(false);
+                ContainerBottomWindows.Visibility = Visibility.Collapsed;
+            }
         });
 
         public ICommand HideSecondaryLayoutCommand => new DelegateCommand((x) => {
@@ -105,6 +107,130 @@ namespace Volta.UI
         public ICommand CutCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Cut());
         public ICommand CopyCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Copy());
         public ICommand PasteCommand => new DelegateCommand((x) => GetCurrentCodeTab()?.Paste());
+
+        public ICommand BuildRunCommand => new DelegateCommand((runAfterBuild) => {
+            var cf = GetCurrentCodeTab().CodeFile;
+            if (cf.FilePath == null) {
+                GetCurrentCodeTab().Save();
+                return;
+            }
+
+            WOutput.Clear();
+            EditorSB_OnRequestTab(EditorStatusBar.TAB_OUTPUT);
+
+            if (CompilerSelect.SelectedIndex == 0) {
+                var currentCodeTab = GetCurrentCodeTab();
+
+                if (currentCodeTab.Errors.Count == 0) {
+                    var selected = CompilerSelect.SelectedIndex;
+
+                    MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
+
+                    if (selected == 0) {
+                        WOutput.AddLine("Compilando (Delta)...");
+                        var tree = currentCodeTab.tree;
+                        var delta = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
+
+                        var sb = new StringBuilder();
+                        delta.GetCode().ForEach(line => sb.Append($"{line}\n"));
+
+                        var outputFile = cf.FilePath.Substring(0, cf.FilePath.LastIndexOf('.'));
+                        outputFile += ".mcs";
+
+                        File.WriteAllText(outputFile, sb.ToString());
+
+                        WOutput.AddLine($"{cf.FilePath} -> {outputFile}\nCompilación finalizada.");
+
+                        if ((bool)runAfterBuild) {
+                            Dispatcher.Invoke(() => {
+                                EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
+                                WConsole.ExecuteProgram(@".\compilers\Minics.exe", $"\"{outputFile}\"");
+                            });
+                        }
+
+                        //var textFile = delta.CreateTempFile();
+                        //var exeFile = @".\compilers\Minics.exe";
+
+                        //var info = new ProcessStartInfo {
+                        //    FileName = exeFile,
+                        //    Arguments = $"{textFile}",
+                        //    RedirectStandardError = true,
+                        //    RedirectStandardInput = true,
+                        //    RedirectStandardOutput = true,
+                        //    UseShellExecute = false,
+                        //    CreateNoWindow=true
+                        //};
+
+                        //try {
+                        //    using Process exeProcess = Process.Start(info);
+                        //    exeProcess.BeginErrorReadLine();
+                        //    exeProcess.BeginOutputReadLine();
+
+                        //    exeProcess.ErrorDataReceived += (sender, e) => {
+                        //        WOutput.AddLine(e.Data);
+                        //    };
+                        //    exeProcess.OutputDataReceived += (sender, e) => {
+                        //        WOutput.AddLine(e.Data);
+                        //    };
+
+                        //    using (StreamWriter myStreamWriter = exeProcess.StandardInput) {
+                        //        String inputText;
+                        //        Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
+
+                        //        inputText = "3";
+                        //        myStreamWriter.WriteLine(inputText);
+
+                        //        myStreamWriter.Close();
+
+                        //        exeProcess.WaitForExit();
+                        //    }
+                        //} catch (Exception error) {
+                        //    Debug.WriteLine("ERORROROROROOR");
+                        //    Debug.WriteLine(error.Message);// Log error.
+                        //}
+                    }
+                } else {
+                    MCShow("Aún existen errores en el código, debe elminarlos primero");
+                }
+            } else {
+                var input = cf.FilePath;
+                var output = input.Substring(0, input.LastIndexOf('.')) + ".exe";
+                var psi = new ProcessStartInfo(@".\compilers\volta.exe", $"-i \"{input}\" -o \"{output}\"") {
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                var process = Process.Start(psi);
+                process.EnableRaisingEvents = true;
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+
+                process.Exited += (sender, e) => {
+                    var exitCode = process.ExitCode;
+                    if (exitCode == 0) {
+                        if ((bool)runAfterBuild) {
+                            Dispatcher.Invoke(() => {
+                                EditorSB_OnRequestTab(EditorStatusBar.TAB_CONSOLE);
+                                WConsole.ExecuteProgram($"\"output\"");
+                            });
+                        }
+                    } else {
+                        MessageBox.Show("Hay errores de compilación.", "Compilación fallida", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    }
+                    Debug.WriteLine($"Exit code: {process.ExitCode}");
+                };
+                process.ErrorDataReceived += (sender, e) => {
+                    WOutput.AddLine(e.Data);
+                };
+                process.OutputDataReceived += (sender, e) => {
+                    WOutput.AddLine(e.Data);
+                };
+
+            }
+        });
 
         #endregion
 
@@ -171,15 +297,49 @@ namespace Volta.UI
             LayoutSecondary.Visibility = Visibility.Collapsed;
             //LblEditorHint.Visibility = Visibility.Visible;
             TC.Visibility = Visibility.Collapsed;
-            ErrorList.Visibility = Visibility.Collapsed;
-            ErrorList.OnRequestHide += AlternateErrorList;
-            EditorStatusBar.Visibility = Visibility.Collapsed;
-            EditorStatusBar.RequestErrorList += AlternateErrorList;
+            ContainerBottomWindows.Visibility = Visibility.Collapsed;
+
+            WErrorList.Visibility = Visibility.Collapsed;
+            WErrorList.RequestHide += EditorWindow_OnRequestHide;
+
+            WConsole.Visibility = Visibility.Collapsed;
+            WConsole.RequestHide += EditorWindow_OnRequestHide;
+
+            WOutput.Visibility = Visibility.Visible;
+            WOutput.RequestHide += EditorWindow_OnRequestHide;
+
+            EditorSB.Visibility = Visibility.Collapsed;
+            EditorSB.RequestTab += EditorSB_OnRequestTab;
             Toolbar.Visibility = Visibility.Collapsed;
             MC.Visibility = Visibility.Collapsed;
 
             WC.Visibility = Visibility.Visible;
             WCRecentsLoad();
+        }
+
+        private void EditorSB_OnRequestTab(string tabId) {
+            ContainerBottomWindows.Visibility = Visibility.Visible;
+
+            foreach (UIElement w in ContainerBottomWindows.Children) {
+                w.Visibility = Visibility.Collapsed;
+            }
+
+            switch (tabId) {
+                case EditorStatusBar.TAB_CONSOLE:
+                    AlternateEditorWindowVisiblity(WConsole);
+                    break;
+                case EditorStatusBar.TAB_ERRORLIST:
+                    AlternateEditorWindowVisiblity(WErrorList);
+                    break;
+                case EditorStatusBar.TAB_OUTPUT:
+                    AlternateEditorWindowVisiblity(WOutput);
+                    break;
+            }
+        }
+
+        private void EditorWindow_OnRequestHide(object sender) {
+            AlternateEditorWindowVisiblity(sender as UIElement);
+            ContainerBottomWindows.Visibility = Visibility.Collapsed;
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
@@ -191,7 +351,7 @@ namespace Volta.UI
             WC.Visibility = showEnvironment ? Visibility.Collapsed : Visibility.Visible; ;
             TC.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
             Toolbar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
-            EditorStatusBar.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
+            EditorSB.Visibility = showEnvironment ? Visibility.Visible : Visibility.Collapsed;
 
             WCRecentsLoad();
         }
@@ -216,11 +376,11 @@ namespace Volta.UI
             }
 
             var ct = new CodeTab(cf);
-            ct.OnEditorCaretChanged += EditorStatusBar.UpdateEditorCaretPositions;
+            ct.OnEditorCaretChanged += EditorSB.UpdateEditorCaretPositions;
             ct.OnRequestSaveNewFile += SaveNewFile;
             ct.OnRequestTabClose += TabCloseRequest;
-            ct.OnErrorListUpdated += ErrorList.UpdateErrorList;
-            ct.OnErrorListUpdated += EditorStatusBar.UpdateErrorsCount;
+            ct.OnErrorListUpdated += WErrorList.UpdateErrorList;
+            ct.OnErrorListUpdated += EditorSB.UpdateErrorsCount;
 
             var ti = new TabItem {
                 Header = cf.FileName,
@@ -280,89 +440,12 @@ namespace Volta.UI
                     case "paste":
                         PasteCommand.Execute(null);
                         break;
+                    case "build":
+                        BuildRunCommand.Execute(false);
+                        break;
                     case "buildrun":
-                        {
-                            var currentCodeTab = GetCurrentCodeTab();
-                            if (currentCodeTab.errors.Count == 0)
-                            {
-                                var selected = CompilerSelect.SelectedIndex;
-
-                                MCShow($"Compilando y ejecutando el programa con {(selected == 0 ? "Delta" : "Nabla")}");
-
-                                if(selected == 0)
-                                {
-                                    var tree = currentCodeTab.tree;
-
-                                    var deltaCode = new Compiler.CodeGeneration.Delta.DeltaVisitor(tree);
-
-                                    var textFile = deltaCode.CreateTempFile();
-
-                                    var exeFile = @".\Minics.exe";
-
-                                    var info = new ProcessStartInfo();
-
-                                    info.FileName = exeFile;
-                                    info.Arguments = $"{textFile}";
-                                    info.RedirectStandardError = true;
-                                    info.RedirectStandardInput = true;
-                                    info.RedirectStandardOutput = true;
-
-                                    info.UseShellExecute = false;
-                                    
-
-                                    
-                                
-                                    try
-                                    {
-                                        using (Process exeProcess = Process.Start(info))
-                                        {
-
-                                            exeProcess.BeginErrorReadLine();
-                                            exeProcess.BeginOutputReadLine();
-
-                                            exeProcess.OutputDataReceived += (a, b) =>
-                                            {
-                                                Debug.WriteLine(b.Data);
-                                            };
-
-                                            exeProcess.ErrorDataReceived += (a, b) =>
-                                            {
-                                                Debug.WriteLine(b.Data);
-                                            };
-
-                                            
-
-
-                                            using (StreamWriter myStreamWriter = exeProcess.StandardInput)
-                                            {
-                                                String inputText;
-                                                Debug.WriteLine("Enter a line of text (or press the Enter key to stop):");
-
-                                                inputText = "3";
-                                                myStreamWriter.WriteLine(inputText);
-
-                                                myStreamWriter.Close();
-
-                                                exeProcess.WaitForExit();
-                                            }
-                                            
-                                        }
-                                    
-                                    }
-                                    catch (Exception error)
-                                    {
-                                        Debug.WriteLine("ERORROROROROOR");
-                                        Debug.WriteLine(error.Message);// Log error.
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                MCShow("Aún existen errores en el código, debe elminarlos primero");
-                            }
-
-                            break;
-                        }
+                        BuildRunCommand.Execute(true);
+                        break;
                     case "close":
                         CloseTabCommand.Execute(null);
                         break;
@@ -372,8 +455,13 @@ namespace Volta.UI
             }
         }
 
+        private void AlternateEditorWindowVisiblity(UIElement element) {
+            element.Visibility = WErrorList.Visibility == Visibility.Collapsed
+                ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         private void AlternateErrorList() {
-            ErrorList.Visibility = ErrorList.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            WErrorList.Visibility = WErrorList.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void MCShow(string message) {

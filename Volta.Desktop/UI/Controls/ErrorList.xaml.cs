@@ -9,9 +9,9 @@ namespace Volta.UI.Controls
     /// <summary>
     /// Interaction logic for ErrorList.xaml
     /// </summary>
-    public partial class ErrorList : UserControl
+    public partial class ErrorList : UserControl, IDEWindow
     {
-        public event Action OnRequestHide;
+        public event Action<object> RequestHide;
 
         public ErrorList() {
             InitializeComponent();
@@ -23,7 +23,7 @@ namespace Volta.UI.Controls
         }
 
         private void BtnClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            OnRequestHide?.Invoke();
+            RequestHide?.Invoke(this);
         }
 
     }
