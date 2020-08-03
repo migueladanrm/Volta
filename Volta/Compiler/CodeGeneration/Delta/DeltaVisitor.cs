@@ -422,7 +422,10 @@ namespace Volta.Compiler.CodeGeneration.Delta
             if(context.ident().GetText() != "Main")
             {
                 AddLine($"DEF {context.ident().GetText()}");
-                Visit(context.formPars());
+                if(context.formPars() != null)
+                {
+                    Visit(context.formPars());
+                }
                 Visit(context.block());
                 AddLine("RETURN");
                 WhiteLine();
